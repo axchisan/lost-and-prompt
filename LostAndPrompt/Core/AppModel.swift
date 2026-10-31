@@ -12,7 +12,7 @@ final class AppModel {
     var now: Date
 
     var sidebarSelection: SidebarItem? = .recents
-    var selectedSessionID: Session.ID?
+    var selectedSessionID: Session.ID? { didSet { if oldValue != selectedSessionID { findIndex = 0 } } }
     var listStyle: SessionListStyle = .rows { didSet { save(listStyle.rawValue, "listStyle") } }
     var searchText = "" { didSet { scheduleContentSearch() } }
     var isQuickOpenPresented = false
@@ -25,10 +25,20 @@ final class AppModel {
     var terminal: TerminalApp = .warp { didSet { save(terminal.rawValue, "terminal") } }
     var extraArguments = "" { didSet { save(extraArguments, "extraArguments") } }
     var customTerminal = "" { didSet { save(customTerminal, "customTerminal") } }
+    /// Editor para «Abrir en …» (nil si no hay ninguno conocido instalado).
+    var editor: EditorApp? { didSet { save(editor?.rawValue ?? "", "editor") } }
     var retentionDays: Int? = 180
     var hideEmptySessions = true { didSet { save(hideEmptySessions, "hideEmptySessions") } }
     var showToolCalls = false
     var showThinking = false
+
+    // Buscar dentro de la conversación abierta (⌘F)
+    var isFindPresented = false
+    var findText = "" { didSet { findIndex = 0 } }
+    /// Coincidencia actual, contando desde 0 en el orden de la conversación.
+    var findIndex = 0
+    /// Coincidencias en la conversación abierta (lo actualiza el detalle).
+    var findTotal = 0
 
     init(sessions: [Session], collections: [SessionCollection], messages: [Session.ID: [Message]], now: Date) {
         self.sessions = sessions
@@ -184,6 +194,8 @@ final class AppModel {
             ?? TerminalApp.available.first ?? .terminal
         model.extraArguments = defaults.string(forKey: "extraArguments") ?? ""
         model.customTerminal = defaults.string(forKey: "customTerminal") ?? ""
+        model.editor = defaults.string(forKey: "editor").flatMap(EditorApp.init).flatMap { $0.appURL != nil ? $0 : nil }
+            ?? EditorApp.available.first
         model.hideEmptySessions = defaults.object(forKey: "hideEmptySessions") as? Bool ?? true
         model.listStyle = defaults.string(forKey: "listStyle").flatMap(SessionListStyle.init) ?? .rows
         model.retentionDays = ClaudeSettings.retentionDays()
@@ -345,6 +357,36 @@ final class AppModel {
     func revealInFinder(_ session: Session) {
         guard usesRealData else { return }
         Launcher.revealInFinder(session)
+    }
+
+    /// Abre Claude Code en la carpeta, sin reanudar nada.
+    func startNewSession(in cwd: String) {
+        guard usesRealData else { return }
+        do {
+            let title = String(localized: "Nueva sesión en \((cwd as NSString).lastPathComponent)")
+            try Launcher.newSession(in: cwd, title: title, terminal: terminal, extraArguments: extraArguments, customTemplate: customTerminal)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func openInEditor(_ cwd: String) {
+        guard usesRealData, let editor else { return }
+        do {
+            try Launcher.open(cwd, in: editor)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func showFind() {
+        guard selectedSession != nil else { return }
+        isFindPresented = true
+    }
+
+    func moveFind(by step: Int) {
+        guard findTotal > 0 else { return }
+        findIndex = (findIndex + step + findTotal) % findTotal
     }
 
     func toggleFavorite(_ id: Session.ID) {

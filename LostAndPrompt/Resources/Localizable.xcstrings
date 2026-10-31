@@ -22,6 +22,22 @@
         }
       }
     },
+    "%lld de %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld de %2$lld"
+          }
+        }
+      }
+    },
     "%lld herramientas": {
       "localizations": {
         "en": {
@@ -172,6 +188,36 @@
         }
       }
     },
+    "Abrir carpetas en": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open folders in"
+          }
+        }
+      }
+    },
+    "Abrir en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in %@"
+          }
+        }
+      }
+    },
+    "Abrir la carpeta en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the folder in %@"
+          }
+        }
+      }
+    },
     "Aceptar": {
       "localizations": {
         "en": {
@@ -192,12 +238,42 @@
         }
       }
     },
+    "Actualizaciones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        }
+      }
+    },
     "Ahora mismo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Current setting"
+          }
+        }
+      }
+    },
+    "Anterior": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous"
+          }
+        }
+      }
+    },
+    "Anterior (⇧⌘G)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous (⇧⌘G)"
           }
         }
       }
@@ -342,6 +418,56 @@
         }
       }
     },
+    "Buscar actualizaciones automáticamente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically check for updates"
+          }
+        }
+      }
+    },
+    "Buscar actualizaciones…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        }
+      }
+    },
+    "Buscar ahora": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Now"
+          }
+        }
+      }
+    },
+    "Buscar en la conversación": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find in conversation"
+          }
+        }
+      }
+    },
+    "Buscar en la conversación…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find in Conversation…"
+          }
+        }
+      }
+    },
     "Buscar rápido…": {
       "localizations": {
         "en": {
@@ -462,6 +588,16 @@
         }
       }
     },
+    "Coincidencia anterior": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find Previous"
+          }
+        }
+      }
+    },
     "Colecciones": {
       "localizations": {
         "en": {
@@ -522,6 +658,26 @@
         }
       }
     },
+    "Copiado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
+    "Copiar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
     "Copiar ID de la sesión": {
       "localizations": {
         "en": {
@@ -538,6 +694,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copy Command"
+          }
+        }
+      }
+    },
+    "Copiar el código": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the code"
           }
         }
       }
@@ -592,6 +758,16 @@
         }
       }
     },
+    "Código": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        }
+      }
+    },
     "Día": {
       "localizations": {
         "en": {
@@ -628,6 +804,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edit Note…"
+          }
+        }
+      }
+    },
+    "Editor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor"
           }
         }
       }
@@ -748,6 +934,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enter your terminal command in Settings → General."
+          }
+        }
+      }
+    },
+    "Esta compilación no busca actualizaciones. Si la instalaste con Homebrew, usa brew upgrade --cask lost-and-prompt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This build doesn't check for updates. If you installed it with Homebrew, use brew upgrade --cask lost-and-prompt."
           }
         }
       }
@@ -988,6 +1184,16 @@
         }
       }
     },
+    "Listo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
     "Lo último de Claude": {
       "localizations": {
         "en": {
@@ -1098,6 +1304,16 @@
         }
       }
     },
+    "Ningún editor instalado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No editor installed"
+          }
+        }
+      }
+    },
     "No encontramos Claude Code": {
       "localizations": {
         "en": {
@@ -1174,6 +1390,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "New Collection…"
+          }
+        }
+      }
+    },
+    "Nueva sesión en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New session in %@"
+          }
+        }
+      }
+    },
+    "Nueva sesión en esta carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Session in This Folder"
           }
         }
       }
@@ -1468,6 +1704,46 @@
         }
       }
     },
+    "Siguiente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
+    "Siguiente (⌘G)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next (⌘G)"
+          }
+        }
+      }
+    },
+    "Siguiente coincidencia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find Next"
+          }
+        }
+      }
+    },
+    "Sin resultados": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results"
+          }
+        }
+      }
+    },
     "Sin selección": {
       "localizations": {
         "en": {
@@ -1598,12 +1874,42 @@
         }
       }
     },
+    "VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode o los IDE de JetBrains.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode or JetBrains IDEs."
+          }
+        }
+      }
+    },
     "Ver en la app": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "View in app"
+          }
+        }
+      }
+    },
+    "Versión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "Versión %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
           }
         }
       }

@@ -56,6 +56,20 @@ private struct GeneralSettings: View {
                 Text("Terminal")
             }
 
+            Section {
+                Picker("Abrir carpetas en", selection: $model.editor) {
+                    ForEach(EditorApp.available) { Text($0.displayName).tag(Optional($0)) }
+                    if EditorApp.available.isEmpty { Text("Ningún editor instalado").tag(EditorApp?.none) }
+                }
+                .disabled(EditorApp.available.isEmpty)
+            } header: {
+                Text("Editor")
+            } footer: {
+                Text("VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode o los IDE de JetBrains.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             UpdatesSection()
 
             Section("Lanzador") {

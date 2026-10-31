@@ -151,6 +151,12 @@ struct SessionContextMenu: View {
         }
         Button("Renombrar…", systemImage: "pencil") { model.renamingSession = session }
         Divider()
+        Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: session.cwd) }
+            .disabled(!session.folderExists)
+        if let editor = model.editor {
+            Button("Abrir en \(editor.shortName)", systemImage: "chevron.left.forwardslash.chevron.right") { model.openInEditor(session.cwd) }
+                .disabled(!session.folderExists)
+        }
         Button("Mostrar en Finder", systemImage: "folder") { model.revealInFinder(session) }
     }
 }

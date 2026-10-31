@@ -6,11 +6,12 @@ enum Launcher {
         case missingFolder(String)
         case terminalNotInstalled(String)
         case emptyTemplate
+        case editorNotInstalled(String)
 
         var errorDescription: String? {
             switch self {
             case .missingFolder(let path): String(localized: "La carpeta «\(path)» ya no existe.")
-            case .terminalNotInstalled(let name): String(localized: "\(name) no está instalada.")
+            case .terminalNotInstalled(let name), .editorNotInstalled(let name): String(localized: "\(name) no está instalada.")
             case .emptyTemplate: String(localized: "Escribe el comando de tu terminal en Ajustes → General.")
             }
         }
@@ -18,23 +19,43 @@ enum Launcher {
 
     static func resume(_ session: Session, in terminal: TerminalApp, extraArguments: String, customTemplate: String = "") throws {
         guard FileManager.default.fileExists(atPath: session.cwd) else { throw LaunchError.missingFolder(session.abbreviatedPath) }
-        let arguments = extraArguments.trimmingCharacters(in: .whitespaces)
-        let command = "claude --resume \(session.id.uuidString.lowercased())" + (arguments.isEmpty ? "" : " " + arguments)
+        let command = claude("--resume \(session.id.uuidString.lowercased())", extraArguments)
+        try run(command, cwd: session.cwd, title: session.title, in: terminal, customTemplate: customTemplate)
+    }
 
+    /// Abre Claude Code sin `--resume` en la carpeta: una sesión nueva.
+    static func newSession(in cwd: String, title: String, terminal: TerminalApp, extraArguments: String, customTemplate: String = "") throws {
+        guard FileManager.default.fileExists(atPath: cwd) else { throw LaunchError.missingFolder(Session.abbreviate(cwd)) }
+        try run(claude(nil, extraArguments), cwd: cwd, title: title, in: terminal, customTemplate: customTemplate)
+    }
+
+    private static func claude(_ resume: String?, _ extraArguments: String) -> String {
+        let arguments = extraArguments.trimmingCharacters(in: .whitespaces)
+        return (["claude", resume, arguments.isEmpty ? nil : arguments] as [String?]).compactMap { $0 }.joined(separator: " ")
+    }
+
+    private static func run(_ command: String, cwd: String, title: String, in terminal: TerminalApp, customTemplate: String) throws {
         switch terminal {
-        case .warp: try openInWarp(cwd: session.cwd, command: command, title: session.title)
-        case .terminal: try openScript(cwd: session.cwd, command: command, bundleID: "com.apple.Terminal", name: "Terminal")
-        case .iterm: try openScript(cwd: session.cwd, command: command, bundleID: "com.googlecode.iterm2", name: "iTerm2")
-        case .ghostty: try openInGhostty(cwd: session.cwd, command: command)
-        case .wezterm: try openApp("WezTerm", bundleID: "com.github.wez.wezterm", ["start", "--cwd", session.cwd, "--", "/bin/zsh", "-lc", command])
-        case .kitty: try openApp("Kitty", bundleID: "net.kovidgoyal.kitty", ["--directory", session.cwd, "/bin/zsh", "-lc", command + "; exec zsh"])
-        case .alacritty: try openApp("Alacritty", bundleID: "org.alacritty", ["--working-directory", session.cwd, "-e", "/bin/zsh", "-lc", command + "; exec zsh"])
-        case .custom: try runTemplate(customTemplate, cwd: session.cwd, command: command)
+        case .warp: try openInWarp(cwd: cwd, command: command, title: title)
+        case .terminal: try openScript(cwd: cwd, command: command, bundleID: "com.apple.Terminal", name: "Terminal")
+        case .iterm: try openScript(cwd: cwd, command: command, bundleID: "com.googlecode.iterm2", name: "iTerm2")
+        case .ghostty: try openInGhostty(cwd: cwd, command: command)
+        case .wezterm: try openApp("WezTerm", bundleID: "com.github.wez.wezterm", ["start", "--cwd", cwd, "--", "/bin/zsh", "-lc", command])
+        case .kitty: try openApp("Kitty", bundleID: "net.kovidgoyal.kitty", ["--directory", cwd, "/bin/zsh", "-lc", command + "; exec zsh"])
+        case .alacritty: try openApp("Alacritty", bundleID: "org.alacritty", ["--working-directory", cwd, "-e", "/bin/zsh", "-lc", command + "; exec zsh"])
+        case .custom: try runTemplate(customTemplate, cwd: cwd, command: command)
         }
     }
 
     static func revealInFinder(_ session: Session) {
         NSWorkspace.shared.activateFileViewerSelecting([URL(filePath: session.cwd)])
+    }
+
+    static func open(_ cwd: String, in editor: EditorApp) throws {
+        guard FileManager.default.fileExists(atPath: cwd) else { throw LaunchError.missingFolder(Session.abbreviate(cwd)) }
+        guard let app = editor.appURL else { throw LaunchError.editorNotInstalled(editor.displayName) }
+        NSWorkspace.shared.open([URL(filePath: cwd, directoryHint: .isDirectory)], withApplicationAt: app,
+                                configuration: NSWorkspace.OpenConfiguration())
     }
 
     // MARK: Warp

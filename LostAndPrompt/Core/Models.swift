@@ -35,8 +35,11 @@ struct Session: Identifiable, Hashable {
     }
 
     /// Ruta con `~` en lugar del directorio de inicio.
-    var abbreviatedPath: String {
-        cwd.hasPrefix(Self.homePath) ? "~" + cwd.dropFirst(Self.homePath.count) : cwd
+    var abbreviatedPath: String { Self.abbreviate(cwd) }
+
+    /// La ruta con `~` en lugar de la carpeta personal.
+    static func abbreviate(_ path: String) -> String {
+        path.hasPrefix(homePath) ? "~" + path.dropFirst(homePath.count) : path
     }
 
     var resumeCommand: String {
@@ -129,4 +132,48 @@ enum TerminalApp: String, CaseIterable, Identifiable {
 
     /// Las instaladas y la personalizada, en el orden de la lista.
     static var available: [TerminalApp] { allCases.filter(\.isInstalled) }
+}
+
+/// Editor de código donde abrir la carpeta de una sesión.
+enum EditorApp: String, CaseIterable, Identifiable {
+    case vscode, cursor, windsurf, zed, sublime, nova, xcode, intellij, webstorm, pycharm
+    var id: Self { self }
+
+    var displayName: String {
+        switch self {
+        case .vscode: "Visual Studio Code"
+        case .cursor: "Cursor"
+        case .windsurf: "Windsurf"
+        case .zed: "Zed"
+        case .sublime: "Sublime Text"
+        case .nova: "Nova"
+        case .xcode: "Xcode"
+        case .intellij: "IntelliJ IDEA"
+        case .webstorm: "WebStorm"
+        case .pycharm: "PyCharm"
+        }
+    }
+
+    /// Nombre corto para «Abrir en …».
+    var shortName: String { self == .vscode ? "VS Code" : displayName }
+
+    /// Identificadores posibles en macOS (ediciones estable, Community, etc.).
+    var bundleIDs: [String] {
+        switch self {
+        case .vscode: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"]
+        case .cursor: ["com.todesktop.230313mzl4w4u92"]
+        case .windsurf: ["com.exafunction.windsurf"]
+        case .zed: ["dev.zed.Zed", "dev.zed.Zed-Preview"]
+        case .sublime: ["com.sublimetext.4", "com.sublimetext.3"]
+        case .nova: ["com.panic.Nova"]
+        case .xcode: ["com.apple.dt.Xcode"]
+        case .intellij: ["com.jetbrains.intellij", "com.jetbrains.intellij.ce"]
+        case .webstorm: ["com.jetbrains.WebStorm"]
+        case .pycharm: ["com.jetbrains.pycharm", "com.jetbrains.pycharm.ce"]
+        }
+    }
+
+    var appURL: URL? { bundleIDs.lazy.compactMap { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) }.first }
+
+    static var available: [EditorApp] { allCases.filter { $0.appURL != nil } }
 }

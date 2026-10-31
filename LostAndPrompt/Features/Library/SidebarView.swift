@@ -54,6 +54,7 @@ struct SidebarView: View {
 
 /// Fila del árbol de carpetas; los dos primeros niveles empiezan abiertos.
 private struct ProjectRow: View {
+    @Environment(AppModel.self) private var model
     var node: ProjectNode
     var depth: Int
     @State private var isExpanded: Bool
@@ -81,6 +82,15 @@ private struct ProjectRow: View {
             .badge(node.sessionCount)
             .tag(SidebarItem.project(node.path))
             .help(node.path)
+            .contextMenu {
+                Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: node.path) }
+                if let editor = model.editor {
+                    Button("Abrir en \(editor.shortName)", systemImage: "chevron.left.forwardslash.chevron.right") { model.openInEditor(node.path) }
+                }
+                Button("Mostrar en Finder", systemImage: "folder") {
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(filePath: node.path)])
+                }
+            }
     }
 }
 

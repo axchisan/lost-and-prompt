@@ -58,9 +58,13 @@ struct LostAndPromptApp: App {
         return model
     }
 
-    /// Opciones para capturas: `-LPDark YES` fuerza el modo oscuro.
+    /// Opciones para capturas: `-LPDark YES` fuerza el modo oscuro y `-LPFind <texto>` abre ⌘F con ese texto.
     private func applyLaunchOptions() {
         let defaults = UserDefaults.standard
+        if let find = defaults.string(forKey: "LPFind") {
+            model.isFindPresented = true
+            model.findText = find
+        }
         if defaults.object(forKey: "LPDark") != nil {
             NSApp.appearance = NSAppearance(named: defaults.bool(forKey: "LPDark") ? .darkAqua : .aqua)
         } else {
@@ -89,11 +93,31 @@ struct AppCommands: Commands {
             Button("Renombrar…") { model.renamingSession = model.selectedSession }
                 .disabled(model.selectedSession == nil)
             Divider()
+            if let editor = model.editor {
+                Button("Abrir en \(editor.shortName)") { if let s = model.selectedSession { model.openInEditor(s.cwd) } }
+                    .keyboardShortcut("o", modifiers: [.command, .shift])
+                    .disabled(model.selectedSession?.folderExists != true)
+            }
             Button("Mostrar en Finder") { if let s = model.selectedSession { model.revealInFinder(s) } }
                 .keyboardShortcut("r", modifiers: [.command, .option])
                 .disabled(model.selectedSession == nil)
         }
+        CommandGroup(after: .textEditing) {
+            Divider()
+            Button("Buscar en la conversación…") { model.showFind() }
+                .keyboardShortcut("f")
+                .disabled(model.selectedSession == nil)
+            Button("Siguiente coincidencia") { model.moveFind(by: 1) }
+                .keyboardShortcut("g")
+                .disabled(!model.isFindPresented || model.findTotal == 0)
+            Button("Coincidencia anterior") { model.moveFind(by: -1) }
+                .keyboardShortcut("g", modifiers: [.command, .shift])
+                .disabled(!model.isFindPresented || model.findTotal == 0)
+        }
         CommandGroup(after: .newItem) {
+            Button("Nueva sesión en esta carpeta") { if let s = model.selectedSession { model.startNewSession(in: s.cwd) } }
+                .keyboardShortcut("n")
+                .disabled(model.selectedSession?.folderExists != true)
             Button("Nueva colección…") { model.isCreatingCollection = true }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             Button("Volver a leer las sesiones") { Task { await model.reload() } }
