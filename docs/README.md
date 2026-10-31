@@ -16,6 +16,7 @@ Claude Code de la máquina, sin importar en qué directorio se abrieron.
 | 5 | [Arquitectura](05-arquitectura.md) | Stack, módulos, reanudar en Warp, rendimiento |
 | 6 | [Diseño](06-diseno.md) | Principios visuales y las direcciones propuestas |
 | 7 | [Hoja de ruta](07-hoja-de-ruta.md) | Fases: documentación → diseño → mockups → construcción → publicación |
+| 8 | [Distribución](08-distribucion.md) | Versiones, publicación automática, actualizaciones y canales en las tres plataformas |
 | — | [Decisiones](decisiones.md) | Registro de decisiones tomadas (y pendientes) |
 
 Las capturas de la app, con datos de ejemplo ficticios, están en [`screenshots/`](screenshots/) (`es` y `en`); se regeneran con `scripts/screenshots.sh`.
