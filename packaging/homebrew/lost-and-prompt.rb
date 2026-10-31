@@ -9,7 +9,7 @@ cask "lost-and-prompt" do
   desc "Find, organize and resume all your Claude Code sessions"
   homepage "https://github.com/axchisan/lost-and-prompt"
 
-  depends_on macos: ">= :sequoia"
+  depends_on macos: :sequoia
 
   app "Lost & Prompt.app"
 
