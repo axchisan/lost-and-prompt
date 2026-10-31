@@ -7,6 +7,20 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-10-31
+
+### Fixed
+- macOS: a session you were viewing stayed on "Reading the conversation…" when Claude Code wrote to
+  it in the terminal, until you selected another session and came back. It now refreshes in place.
+- Windows and Linux: the conversation no longer flashes a loading state each time the session
+  changes; the previous content stays until the new one is read.
+
+### Corregido
+- macOS: la sesión que estabas viendo se quedaba en «Leyendo la conversación…» cuando Claude Code
+  escribía en ella desde la terminal, hasta elegir otra y volver. Ahora se actualiza en el sitio.
+- Windows y Linux: la conversación ya no parpadea con el aviso de carga cada vez que cambia la
+  sesión; se ve la anterior hasta que se lee la nueva.
+
 ## [0.2.2] - 2026-10-31
 
 ### Fixed
@@ -109,7 +123,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.1...v0.2.0

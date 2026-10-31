@@ -75,18 +75,9 @@ export default function App() {
     loadingRef.current = true;
     try {
       const next = await api.loadLibrary(prefsRef.current.includeWsl);
-      setLibrary((previous) => {
-        // La conversación en caché deja de valer si la sesión cambió.
-        if (previous) {
-          const before = new Map(previous.sessions.map((s) => [s.id, s.lastActivity]));
-          setMessages((cache) => {
-            const kept = { ...cache };
-            for (const s of next.sessions) if (before.get(s.id) !== s.lastActivity) delete kept[s.id];
-            return kept;
-          });
-        }
-        return next;
-      });
+      // La conversación en caché se conserva: si la sesión cambió, el detalle la vuelve a pedir
+      // (loadMessages usa la última actividad como clave) y mientras tanto se ve la anterior.
+      setLibrary(next);
     } catch (error) {
       showError(error);
     } finally {

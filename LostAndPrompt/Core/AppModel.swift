@@ -6,6 +6,8 @@ final class AppModel {
     var sessions: [Session]
     var collections: [SessionCollection]
     var messages: [Session.ID: [Message]]
+    /// Última actividad de la sesión cuando se leyó su conversación: si cambia, hay que releerla.
+    @ObservationIgnored private var messagesVersion: [Session.ID: Date] = [:]
     /// Referencia de «ahora» para agrupar por fecha (fija en los datos de ejemplo).
     var now: Date
 
@@ -251,9 +253,9 @@ final class AppModel {
         collections = organization.collections.map {
             SessionCollection(id: $0.id, name: $0.name, tint: .init(rawValue: $0.tint) ?? .blue, symbol: $0.symbol)
         }
-        let previous = Dictionary(sessions.map { ($0.id, $0.lastActivity) }, uniquingKeysWith: { a, _ in a })
+        // Las conversaciones ya leídas se conservan: si la sesión cambió, el detalle la relee al
+        // verla (loadMessages compara la versión) y mientras tanto sigue mostrando la anterior.
         sessions = summaries.compactMap(makeSession)
-        for session in sessions where previous[session.id] != session.lastActivity { messages[session.id] = nil }
         updateIndex(with: summaries)
         if selectedSessionID == nil || selectedSession == nil {
             selectedSessionID = visibleSessions.first?.id
@@ -294,9 +296,12 @@ final class AppModel {
     }
 
     func loadMessages(for session: Session) async {
-        guard messages[session.id] == nil, let path = session.filePath else { return }
+        guard messages[session.id] == nil || messagesVersion[session.id] != session.lastActivity,
+              let path = session.filePath else { return }
+        let version = session.lastActivity
         let loaded = await Task.detached(priority: .userInitiated) { ClaudeStore.messages(at: path) }.value
         messages[session.id] = loaded
+        messagesVersion[session.id] = version
     }
 
     // MARK: Acciones

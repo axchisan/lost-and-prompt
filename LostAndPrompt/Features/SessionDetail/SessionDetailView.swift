@@ -21,7 +21,9 @@ struct SessionDetailView: View {
         }
         .toolbar { toolbarItems }
         .navigationTitle("")
-        .task(id: session.id) { await model.loadMessages(for: session) }
+        // Se repite cuando la sesión cambia en disco (Claude Code sigue escribiendo en ella), no solo
+        // al elegir otra.
+        .task(id: "\(session.id)|\(session.lastActivity.timeIntervalSince1970)") { await model.loadMessages(for: session) }
     }
 
     private var header: some View {
