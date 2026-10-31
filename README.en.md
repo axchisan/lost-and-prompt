@@ -34,7 +34,7 @@ terminal with one click, and organize them your way. Free, open source, for **ma
 Linux**.
 
 <p align="center">
-  <img src="docs/screenshots/en/recents-light.png" alt="Lost & Prompt main window on macOS: sidebar with collections and folders, sessions grouped by day and the selected conversation" width="900">
+  <img src="docs/screenshots/en/demo.gif" alt="Lost & Prompt on macOS: the session list, search, quick search, find in conversation, cards view and dark mode" width="900">
 </p>
 
 ## Features

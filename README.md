@@ -34,7 +34,7 @@ ellas, las reanudas en tu terminal con un clic y las organizas a tu manera. Es g
 abierto y funciona en **macOS, Windows y Linux**.
 
 <p align="center">
-  <img src="docs/screenshots/es/recents-light.png" alt="Ventana principal de Lost & Prompt en macOS: barra lateral con colecciones y carpetas, lista de sesiones por día y la conversación de la sesión elegida" width="900">
+  <img src="docs/screenshots/es/demo.gif" alt="Lost & Prompt en macOS: la lista de sesiones, la búsqueda, el buscador rápido, buscar dentro de la conversación, la vista de tarjetas y el modo oscuro" width="900">
 </p>
 
 ## Qué hace

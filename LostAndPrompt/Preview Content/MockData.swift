@@ -80,8 +80,8 @@ enum MockData {
                               "Yes. The most reliable route is an **in-game mod**, not a bot that watches the screen.\n\n- It runs on Unity, so BepInEx can load the mod.\n- I haven't installed anything yet.")),
                 .init(role: .user, date: date("2026-10-29 14:10"), text: t("Dale, hazlo con el mod.", "Go ahead with the mod.")),
                 .init(role: .assistant, date: date("2026-10-29 20:45"),
-                      text: t("Listo: el mod completa el nivel 1 en 2:41. Quedan pendientes los saltos dobles del nivel 2.",
-                              "Done: the mod clears level 1 in 2:41. Double jumps in level 2 are still pending."),
+                      text: t("Listo: el mod completa el nivel 1 en 2:41. Quedan pendientes los saltos dobles del nivel 2.\n\n| Nivel | Tiempo | Estado |\n|---|---|---|\n| 1 | 2:41 | Completo |\n| 2 | — | Faltan los saltos dobles |\n\nPara probarlo:\n\n```bash\ncp -r build/SpeedrunMod BepInEx/plugins/\n```",
+                              "Done: the mod clears level 1 in 2:41. Double jumps in level 2 are still pending.\n\n| Level | Time | Status |\n|---|---|---|\n| 1 | 2:41 | Done |\n| 2 | — | Double jumps pending |\n\nTo try it:\n\n```bash\ncp -r build/SpeedrunMod BepInEx/plugins/\n```"),
                       toolCount: 37),
             ]
         ]
