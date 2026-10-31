@@ -228,3 +228,30 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "lost-and-prompt $v" && git push
           rm -f ~/tap_key
+      - name: Actualizar el manifiesto de Scoop
+        env:
+          SCOOP_KEY: ${{ secrets.SCOOP_BUCKET_DEPLOY_KEY }}
+        run: |
+          # El Excavator del bucket depende del programador de GitHub, que en repos con poca actividad
+          # se retrasa horas o no llega a ejecutarse; así la versión nueva llega al publicar.
+          if [ -z "$SCOOP_KEY" ]; then
+            echo "::warning::Falta el secreto SCOOP_BUCKET_DEPLOY_KEY (scripts/setup-scoop-key.sh): Scoop se actualizará cuando corra su Excavator."
+            exit 0
+          fi
+          v=${{ needs.verify.outputs.version }}
+          sha=$(sha256sum "dist/LostAndPrompt-$v-windows-x64-setup.exe" | cut -d' ' -f1)
+          install -m 600 /dev/null ~/scoop_key
+          printf '%s\n' "$SCOOP_KEY" > ~/scoop_key
+          export GIT_SSH_COMMAND="ssh -i ~/scoop_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          git clone git@github.com:axchisan/scoop-bucket.git bucket
+          cd bucket
+          jq --arg v "$v" --arg sha "$sha" \
+            '.version = $v
+             | .architecture."64bit".url = "https://github.com/axchisan/lost-and-prompt/releases/download/v\($v)/LostAndPrompt-\($v)-windows-x64-setup.exe#/dl.7z"
+             | .architecture."64bit".hash = $sha' \
+            bucket/lost-and-prompt.json > manifest.json
+          mv manifest.json bucket/lost-and-prompt.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "lost-and-prompt: Update to version $v" && git push
+          rm -f ~/scoop_key

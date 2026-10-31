@@ -1,6 +1,6 @@
 # 9. Pendientes
 
-Estado al 2026-10-31, con la **0.3.0** en preparación. Revisado contra el código, no solo contra los
+Estado al 2026-10-31, con la **0.3.0** publicada. Revisado contra el código, no solo contra los
 documentos: lo que aparece aquí no está hecho, o está a medias.
 
 ## Funciones que faltan
@@ -40,7 +40,8 @@ atajo global configurable desde Ajustes.
 
 | Canal | Estado | Qué hace falta |
 |---|---|---|
-| GitHub Releases, Homebrew, Scoop | Listos y automáticos | Nada |
+| GitHub Releases, Homebrew | Listos y automáticos | Nada |
+| Scoop | Listo | El Excavator del bucket depende del programador de GitHub, que no llegó a ejecutarse solo (la 0.3.0 hubo que lanzarla a mano). `release.yml` ya actualiza el manifiesto al publicar: falta ejecutar una vez `scripts/setup-scoop-key.sh` |
 | winget | PR [#467137](https://github.com/microsoft/winget-pkgs/pull/467137) en revisión | Esperar al moderador; después, cada versión nueva con `komac update axchisan.LostAndPrompt --version X.Y.Z --urls … --submit` |
 | AUR | Paquete listo en `packaging/aur/`, probado en CI | Registro de cuentas cerrado; cuando reabra, registrarse con `~/.ssh/aur.pub` y ejecutar `scripts/publish-aur.sh` |
 | Flathub | Sin empezar | Manifiesto con permiso de lectura a `~/.claude`; revisión humana |
@@ -51,6 +52,7 @@ atajo global configurable desde Ajustes.
 | Pendiente | Detalle |
 |---|---|
 | Sitio web | `site/`, en Vercel (proyecto `lost-and-prompt`, conectado al repo): <https://lostandprompt.axchisan.com/>. Se publica solo al hacer push si cambian `site/`, las capturas o el ícono (`vercel.json`) |
-| Imagen para redes | `site/og.png` (1280×640). **Subirla a mano** en GitHub → Settings → General → Social preview (GitHub no tiene API para esto) |
+| Imagen para redes | Hecho: `site/og.png` (1200×630, centrada para el recorte cuadrado de WhatsApp), también como vista previa del repo en GitHub |
 | Publicaciones | Borradores listos en [`promocion.md`](promocion.md) |
-| Vídeo o GIF corto | 15–20 s: buscar algo, reanudar en la terminal. Es lo que más convierte en Reddit y X |
+| Vídeo o GIF corto | 15–20 s: buscar algo, reanudar en la terminal. Es lo que más convierte en Reddit y X. Grabarlo con datos de ejemplo (`-LPMock YES`) |
+| awesome-claude-code | Solo con su formulario de issue y desde el **2026-11-14** (14 días desde el primer commit) |
