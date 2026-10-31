@@ -69,7 +69,7 @@ autor; **si se pierden, las apps instaladas ya no podrán actualizarse solas**.
 |---|---|---|---|
 | GitHub Releases | Todas | v0.2.0 | Base de todo lo demás |
 | Homebrew (tap propio) | macOS | ✅ ya existe | El flujo actualiza versión y sha256 solo |
-| **winget** | Windows | v0.2.0 | `winget install axchisan.LostAndPrompt`. Se envía un manifiesto a `microsoft/winget-pkgs`; acepta instaladores sin firmar |
+| **winget** | Windows | ⏳ enviado | `winget install axchisan.LostAndPrompt`. PR [microsoft/winget-pkgs#467137](https://github.com/microsoft/winget-pkgs/pull/467137) (2026-10-31), en revisión. Manifiestos en `packaging/winget/` |
 | Scoop | Windows | v0.3.0 | Bucket propio, sencillo |
 | **AUR** (`lost-and-prompt-bin`) | Arch y derivados | v0.3.0 | Paquete a partir del `.deb`/AppImage |
 | **Flathub** | Linux (todas) | v0.4.0 | Revisión humana; sandbox con acceso de lectura a `~/.claude` |
