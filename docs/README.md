@@ -33,4 +33,5 @@ Para regenerar el proyecto de Xcode: `xcodegen generate` en la raíz. La app ace
 - [x] Nombre e ícono: Lost & Prompt, la caja
 - [x] Mockups en SwiftUI y construcción de la app
 - [x] Lectura real, búsqueda, reanudar, organización y traducción al inglés
-- [ ] **Instalador y publicación** ← siguiente paso
+- [x] Publicada la 0.1.0: [release](https://github.com/axchisan/lost-and-prompt/releases/tag/v0.1.0) y `brew install --cask axchisan/tap/lost-and-prompt`
+- [ ] **Versiones para Linux y Windows** ← siguiente gran paso
