@@ -186,6 +186,82 @@ fn open_native(terminal: &str, cwd: &str, command: &str) -> std::io::Result<()> 
     spawn(cmd.current_dir(cwd))
 }
 
+// MARK: Editores
+
+#[derive(Serialize)]
+pub struct EditorInfo {
+    pub id: &'static str,
+    pub name: &'static str,
+}
+
+struct Editor {
+    id: &'static str,
+    name: &'static str,
+    /// Comandos de línea de órdenes que instala el editor.
+    cli: &'static [&'static str],
+    /// Rutas de instalación en Windows, relativas a `%LOCALAPPDATA%` o `%ProgramFiles%`.
+    windows: &'static [&'static str],
+    /// Abre carpetas de WSL con `--remote wsl+<distro>` (los derivados de VS Code).
+    remote_wsl: bool,
+}
+
+const EDITORS: &[Editor] = &[
+    Editor { id: "vscode", name: "Visual Studio Code", cli: &["code"], windows: &[r"Programs\Microsoft VS Code\Code.exe", r"Microsoft VS Code\Code.exe"], remote_wsl: true },
+    Editor { id: "cursor", name: "Cursor", cli: &["cursor"], windows: &[r"Programs\cursor\Cursor.exe"], remote_wsl: true },
+    Editor { id: "windsurf", name: "Windsurf", cli: &["windsurf"], windows: &[r"Programs\Windsurf\Windsurf.exe"], remote_wsl: true },
+    Editor { id: "zed", name: "Zed", cli: &["zed", "zeditor", "zedit"], windows: &[r"Programs\Zed\zed.exe"], remote_wsl: false },
+    Editor { id: "sublime", name: "Sublime Text", cli: &["subl"], windows: &[r"Sublime Text\subl.exe", r"Sublime Text 3\subl.exe"], remote_wsl: false },
+    Editor { id: "intellij", name: "IntelliJ IDEA", cli: &["idea", "intellij-idea-ultimate", "intellij-idea-community"], windows: &[], remote_wsl: false },
+    Editor { id: "webstorm", name: "WebStorm", cli: &["webstorm"], windows: &[], remote_wsl: false },
+    Editor { id: "pycharm", name: "PyCharm", cli: &["pycharm", "pycharm-professional", "pycharm-community"], windows: &[], remote_wsl: false },
+];
+
+enum EditorLaunch {
+    Exe(PathBuf),
+    /// Comando del `PATH`; en Windows suele ser un `.cmd`, que hay que abrir con `cmd /c`.
+    Cli(&'static str),
+}
+
+fn locate(editor: &Editor) -> Option<EditorLaunch> {
+    if cfg!(target_os = "windows") {
+        let bases = ["LOCALAPPDATA", "ProgramFiles", "ProgramW6432"].iter().filter_map(|v| std::env::var_os(v)).map(PathBuf::from);
+        for base in bases {
+            if let Some(exe) = editor.windows.iter().map(|rel| base.join(rel)).find(|p| p.exists()) {
+                return Some(EditorLaunch::Exe(exe));
+            }
+        }
+        return editor
+            .cli
+            .iter()
+            .find(|name| in_path(&format!("{name}.cmd")) || in_path(&format!("{name}.exe")))
+            .map(|name| EditorLaunch::Cli(name));
+    }
+    editor.cli.iter().find(|name| in_path(name)).map(|name| EditorLaunch::Cli(name))
+}
+
+/// Editores conocidos instalados en este equipo.
+pub fn editors() -> Vec<EditorInfo> {
+    EDITORS.iter().filter(|e| locate(e).is_some()).map(|e| EditorInfo { id: e.id, name: e.name }).collect()
+}
+
+/// Abre la carpeta en el editor. Las de WSL se abren por `\\wsl.localhost` salvo en los editores
+/// con modo remoto, que trabajan dentro de la distribución.
+pub fn open_in_editor(id: &str, cwd: &str, distro: Option<&str>) -> Result<(), String> {
+    let editor = EDITORS.iter().find(|e| e.id == id).ok_or("Editor desconocido")?;
+    let launch = locate(editor).ok_or_else(|| format!("{} no está instalado.", editor.name))?;
+    let args: Vec<String> = match distro {
+        Some(distro) if editor.remote_wsl => vec!["--remote".into(), format!("wsl+{distro}"), cwd.into()],
+        Some(distro) => vec![crate::roots::wsl_path(distro, cwd).to_string_lossy().into_owned()],
+        None => vec![cwd.into()],
+    };
+    let result = match launch {
+        EditorLaunch::Exe(exe) => spawn(hidden(Command::new(exe).args(&args))),
+        EditorLaunch::Cli(name) if cfg!(target_os = "windows") => spawn(hidden(Command::new("cmd").arg("/c").arg(name).args(&args))),
+        EditorLaunch::Cli(name) => spawn(Command::new(name).args(&args)),
+    };
+    result.map_err(|e| format!("No se pudo abrir {}: {e}", editor.name))
+}
+
 // MARK: Warp
 
 /// Warp ejecuta comandos al abrir una Tab Config (`tab_configs/*.toml`).

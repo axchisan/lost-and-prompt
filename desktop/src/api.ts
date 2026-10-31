@@ -61,6 +61,11 @@ export interface TerminalInfo {
   installed: boolean;
 }
 
+export interface EditorInfo {
+  id: string;
+  name: string;
+}
+
 export const api = {
   loadLibrary: (includeWsl: boolean) => invoke<Library>("load_library", { includeWsl }),
   messages: (id: string) => invoke<Message[]>("get_messages", { id }),
@@ -76,6 +81,10 @@ export const api = {
   resume: (id: string, terminal: string, extraArguments: string, customTemplate: string) =>
     invoke<void>("resume", { id, terminal, extraArguments, customTemplate }),
   reveal: (id: string) => invoke<void>("reveal", { id }),
+  newSession: (cwd: string, distro: string | null, terminal: string, extraArguments: string, customTemplate: string) =>
+    invoke<void>("new_session", { cwd, distro, terminal, extraArguments, customTemplate }),
+  editors: () => invoke<EditorInfo[]>("editors"),
+  openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
   relocate: (id: string, newCwd: string) => invoke<void>("relocate", { id, newCwd }),
   updateTray: (content: TrayContent) => invoke<void>("update_tray", { content }),
   autostartEnabled: () => invoke<boolean>("autostart_enabled"),

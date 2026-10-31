@@ -297,6 +297,42 @@ fn resume(
 
 /// Reanudar una sesión cuya carpeta ya no existe: Claude Code busca la sesión en la carpeta de
 /// proyecto que corresponde al directorio, así que se copia allí el archivo.
+/// Abre Claude Code sin `--resume` en la carpeta (o en la de WSL): una sesión nueva.
+#[tauri::command]
+fn new_session(
+    cwd: String,
+    distro: Option<String>,
+    terminal: String,
+    extra_arguments: String,
+    custom_template: Option<String>,
+) -> Result<(), String> {
+    let native = match &distro {
+        Some(distro) => roots::wsl_path(distro, &cwd),
+        None => PathBuf::from(&cwd),
+    };
+    if !native.is_dir() {
+        return Err(format!("La carpeta «{cwd}» ya no existe."));
+    }
+    let extra = extra_arguments.trim();
+    let command = if extra.is_empty() { "claude".to_owned() } else { format!("claude {extra}") };
+    let name = cwd.rsplit(['/', '\\']).find(|part| !part.is_empty()).unwrap_or(&cwd);
+    log::info!("nueva sesión en {cwd} con {terminal}");
+    match &distro {
+        Some(distro) => launcher::resume_wsl(distro, &cwd, &command),
+        None => launcher::resume(&terminal, &cwd, &command, &format!("Claude Code · {name}"), custom_template.as_deref()),
+    }
+}
+
+#[tauri::command]
+fn editors() -> Vec<launcher::EditorInfo> {
+    launcher::editors()
+}
+
+#[tauri::command]
+fn open_in_editor(editor: String, cwd: String, distro: Option<String>) -> Result<(), String> {
+    launcher::open_in_editor(&editor, &cwd, distro.as_deref())
+}
+
 #[tauri::command]
 fn relocate(id: Uuid, new_cwd: String, state: State<'_, AppState>) -> Result<(), String> {
     let summaries = state.summaries.lock().unwrap();
@@ -471,6 +507,9 @@ pub fn run() {
             set_retention,
             terminals,
             resume,
+            new_session,
+            editors,
+            open_in_editor,
             relocate,
             reveal,
             update_tray,

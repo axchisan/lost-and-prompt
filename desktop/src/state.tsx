@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Collection, Library, Message, Session, TerminalInfo, Tint } from "./api";
+import type { Collection, EditorInfo, Library, Message, Session, TerminalInfo, Tint } from "./api";
 import type { Language, T } from "./i18n";
 
 export type SidebarItem =
@@ -12,6 +12,8 @@ export type SidebarItem =
 export interface Prefs {
   terminal: string;
   customTerminal: string;
+  /** Editor para «Abrir en …»; vacío = el primero instalado. */
+  editor: string;
   extraArguments: string;
   listStyle: "rows" | "cards";
   theme: "system" | "light" | "dark";
@@ -26,6 +28,7 @@ export interface Prefs {
 export const defaultPrefs: Prefs = {
   terminal: "",
   customTerminal: "",
+  editor: "",
   extraArguments: "",
   listStyle: "rows",
   theme: "system",
@@ -37,10 +40,23 @@ export const defaultPrefs: Prefs = {
   autoUpdate: true,
 };
 
-export interface MenuState {
-  x: number;
-  y: number;
-  session: Session;
+/** Una carpeta donde abrir algo: la de una sesión o una de la barra lateral. */
+export interface Place {
+  cwd: string;
+  /** Distribución de WSL, si la carpeta está ahí. */
+  environment: string | null;
+}
+
+/** Menú contextual de una sesión o de una carpeta de la barra lateral. */
+export type MenuState = { x: number; y: number } & ({ session: Session; folder?: undefined } | { folder: Place; session?: undefined });
+
+/** Buscar dentro de la conversación abierta (Ctrl+F). */
+export interface FindState {
+  open: boolean;
+  query: string;
+  /** Coincidencia actual, desde 0. */
+  index: number;
+  total: number;
 }
 
 export interface AppContext {
@@ -51,6 +67,12 @@ export interface AppContext {
   setPrefs: (change: Partial<Prefs>) => void;
   terminals: TerminalInfo[];
   terminalName: string;
+  editors: EditorInfo[];
+  /** Editor elegido, o null si no hay ninguno conocido instalado. */
+  editor: EditorInfo | null;
+  find: FindState;
+  setFind: (change: Partial<FindState>) => void;
+  moveFind: (step: number) => void;
   modKey: string;
   sidebar: SidebarItem;
   setSidebar: (item: SidebarItem) => void;
@@ -69,6 +91,8 @@ export interface AppContext {
     copyCommand: (session: Session) => void;
     copyId: (session: Session) => void;
     reveal: (session: Session) => void;
+    newSession: (place: Place) => void;
+    openInEditor: (place: Place) => void;
     toggleFavorite: (session: Session) => void;
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;

@@ -3,9 +3,9 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { api, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
+import { api, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
-import { Ctx, defaultPrefs, resumeCommand, type AppContext, type MenuState, type Prefs, type SidebarItem } from "./state";
+import { Ctx, defaultPrefs, resumeCommand, type AppContext, type FindState, type MenuState, type Prefs, type SidebarItem } from "./state";
 import { Sidebar } from "./components/Sidebar";
 import { SessionList, SessionCards } from "./components/SessionList";
 import { Detail, NoSelection } from "./components/Detail";
@@ -39,6 +39,8 @@ export default function App() {
   const [library, setLibrary] = useState<Library | null>(null);
   const [prefs, setPrefsState] = useState<Prefs>(loadPrefs);
   const [terminals, setTerminals] = useState<TerminalInfo[]>([]);
+  const [editors, setEditors] = useState<EditorInfo[]>([]);
+  const [find, setFindState] = useState<FindState>({ open: false, query: "", index: 0, total: 0 });
   const [sidebar, setSidebar] = useState<SidebarItem>({ kind: "recents" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -89,6 +91,7 @@ export default function App() {
   useEffect(() => {
     reload();
     api.terminals().then(setTerminals).catch(() => setTerminals([]));
+    api.editors().then(setEditors).catch(() => setEditors([]));
     const unlisten = [
       listen("sessions-changed", () => reload()),
       listen<{ done: number; total: number }>("index-progress", (e) =>
@@ -165,12 +168,19 @@ export default function App() {
   }, [sessions, sidebar, prefs.hideEmpty, search, contentHits]);
 
   const selected = sessions.find((s) => s.id === selectedId) ?? null;
+  const setFind = useCallback((change: Partial<FindState>) => setFindState((f) => ({ ...f, ...change })), []);
+  const moveFind = useCallback(
+    (step: number) => setFindState((f) => (f.total > 0 ? { ...f, index: (f.index + step + f.total) % f.total } : f)),
+    [],
+  );
+  useEffect(() => setFind({ index: 0 }), [selectedId, setFind]);
   useEffect(() => {
     if (!selectedId && visible.length > 0 && sidebar.kind !== "activity") setSelectedId(visible[0].id);
   }, [visible, selectedId, sidebar.kind]);
 
   const resumeRef = useRef<(id: string) => void>(() => {});
   const terminal = terminals.find((x) => x.id === prefs.terminal) ?? terminals.find((x) => x.installed) ?? terminals[0];
+  const editor = editors.find((x) => x.id === prefs.editor) ?? editors[0] ?? null;
 
   const updateSession = (id: string, change: Partial<Session>) =>
     setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.map((s) => (s.id === id ? { ...s, ...change } : s)) });
@@ -185,6 +195,13 @@ export default function App() {
     },
     copyId: (session) => navigator.clipboard.writeText(session.id).catch(showError),
     reveal: (session) => api.reveal(session.id).catch(showError),
+    newSession: (place) => {
+      if (!terminal) return showError(t("noTerminal"));
+      api.newSession(place.cwd, place.environment, terminal.id, prefs.extraArguments, prefs.customTerminal).catch(showError);
+    },
+    openInEditor: (place) => {
+      if (editor) api.openInEditor(editor.id, place.cwd, place.environment).catch(showError);
+    },
     toggleFavorite: (session) =>
       api.toggleFavorite(session.id).then((isFavorite) => updateSession(session.id, { isFavorite }), showError),
     toggleMembership: (session, collection) =>
@@ -292,6 +309,13 @@ export default function App() {
       if (event.key === "Escape") {
         setMenu(null);
         if (dialog) setDialog(null);
+        else if (find.open) setFind({ open: false });
+        return;
+      }
+      const findNext = event.key === "F3" || (mod && event.key.toLowerCase() === "g");
+      if (!dialog && find.open && findNext) {
+        event.preventDefault();
+        moveFind(event.shiftKey ? -1 : 1);
         return;
       }
       if (mod && event.key.toLowerCase() === "k") {
@@ -307,9 +331,18 @@ export default function App() {
         setPrefs({ listStyle: "rows" });
       } else if (mod && event.key === "2") {
         setPrefs({ listStyle: "cards" });
-      } else if (mod && event.key.toLowerCase() === "f") {
+      } else if (mod && event.key.toLowerCase() === "f" && (event.shiftKey || !selected || dialog)) {
         event.preventDefault();
         document.querySelector<HTMLInputElement>(".sidebar .search input")?.focus();
+      } else if (mod && event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        setFind({ open: true });
+        const input = document.querySelector<HTMLInputElement>(".find-bar input");
+        input?.focus();
+        input?.select();
+      } else if (!dialog && selected && mod && event.key.toLowerCase() === "n" && selected.folderExists) {
+        event.preventDefault();
+        actions.newSession(selected);
       } else if (!dialog && selected && mod && event.key.toLowerCase() === "d") {
         event.preventDefault();
         actions.toggleFavorite(selected);
@@ -342,6 +375,11 @@ export default function App() {
     setPrefs,
     terminals,
     terminalName: terminal?.id === "custom" ? t("yourTerminal") : (terminal?.name ?? "—"),
+    editors,
+    editor,
+    find,
+    setFind,
+    moveFind,
     modKey,
     sidebar,
     setSidebar: (item) => {

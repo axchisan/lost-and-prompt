@@ -19,7 +19,7 @@ impl Root {
     /// Ruta de una carpeta de sesión vista desde este sistema (en WSL, `\\wsl.localhost\…`).
     pub fn native_path(&self, cwd: &str) -> PathBuf {
         match &self.distro {
-            Some(distro) => PathBuf::from(format!(r"\\wsl.localhost\{distro}{}", cwd.replace('/', "\\"))),
+            Some(distro) => wsl_path(distro, cwd),
             None => PathBuf::from(cwd),
         }
     }
@@ -86,4 +86,9 @@ fn decode(bytes: &[u8]) -> String {
     } else {
         String::from_utf8_lossy(bytes).into_owned()
     }
+}
+
+/// Ruta de Windows (`\\wsl.localhost\<distro>\…`) de una carpeta de Linux dentro de WSL.
+pub fn wsl_path(distro: &str, cwd: &str) -> PathBuf {
+    PathBuf::from(format!(r"\\wsl.localhost\{distro}{}", cwd.replace('/', "\\")))
 }

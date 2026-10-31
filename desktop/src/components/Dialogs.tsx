@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Check, Copy, Folder, Layers, Lock, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { Check, CodeXml, Copy, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
 import { links, tints, type Session, type Tint } from "../api";
 import { useApp, type MenuState } from "../state";
+import { shortEditorName } from "./Detail";
 import icon from "../../src-tauri/icons/128x128@2x.png";
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -160,14 +161,31 @@ export function Welcome({ onClose }: { onClose: () => void }) {
 
 /** Menú contextual de una sesión (clic derecho en la lista o en una tarjeta). */
 export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () => void }) {
-  const { t, terminalName, actions, open, library } = useApp();
-  const session = library.sessions.find((s) => s.id === state.session.id) ?? state.session;
+  const { t, terminalName, actions, open, library, editor } = useApp();
   const run = (action: () => void) => () => {
     action();
     onClose();
   };
   const x = Math.min(state.x, window.innerWidth - 240);
-  const y = Math.min(state.y, window.innerHeight - 320);
+  const y = Math.min(state.y, window.innerHeight - 360);
+  if (state.folder) {
+    const folder = state.folder;
+    return (
+      <div className="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
+        <button onClick={run(() => actions.newSession(folder))}>
+          <MessageSquarePlus size={14} />
+          {t("newSessionHere")}
+        </button>
+        {editor && (
+          <button onClick={run(() => actions.openInEditor(folder))}>
+            <CodeXml size={14} />
+            {t("openIn", { editor: shortEditorName(editor.name) })}
+          </button>
+        )}
+      </div>
+    );
+  }
+  const session = library.sessions.find((s) => s.id === state.session.id) ?? state.session;
   return (
     <div className="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
       <button onClick={run(() => actions.resume(session))}>
@@ -198,6 +216,16 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
         {session.note ? t("editNote") : t("addNote")}
       </button>
       <hr />
+      <button disabled={!session.folderExists} onClick={run(() => actions.newSession(session))}>
+        <MessageSquarePlus size={14} />
+        {t("newSessionHere")}
+      </button>
+      {editor && (
+        <button disabled={!session.folderExists} onClick={run(() => actions.openInEditor(session))}>
+          <CodeXml size={14} />
+          {t("openIn", { editor: shortEditorName(editor.name) })}
+        </button>
+      )}
       <button onClick={run(() => actions.reveal(session))}>
         <Folder size={14} />
         {t("showInFolder")}

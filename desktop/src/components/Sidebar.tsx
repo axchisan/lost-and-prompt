@@ -120,7 +120,7 @@ function Item(props: {
 }
 
 function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; isHome: boolean }) {
-  const { sidebar, setSidebar } = useApp();
+  const { sidebar, setSidebar, library, open: show } = useApp();
   const [open, setOpen] = useState(depth < 2);
   const on = sidebar.kind === "folder" && sidebar.path === node.path;
   return (
@@ -129,6 +129,12 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
         className={`side-item${on ? " on" : ""}`}
         style={{ paddingLeft: 10 + depth * 16 }}
         onClick={() => setSidebar({ kind: "folder", path: node.path })}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const environment = library.sessions.find((s) => s.cwd === node.path)?.environment ?? null;
+          show.menu({ x: e.clientX, y: e.clientY, folder: { cwd: node.path, environment } });
+        }}
         title={node.path}
       >
         {node.children.length > 0 ? (

@@ -44,7 +44,7 @@ const examples: Record<string, string> = {
 };
 
 function General() {
-  const { t, prefs, setPrefs, terminals, library } = useApp();
+  const { t, prefs, setPrefs, terminals, library, editors, editor } = useApp();
   const current = terminals.find((x) => x.id === prefs.terminal)?.id ?? terminals.find((x) => x.installed)?.id ?? "";
   const example = examples[library.platform] ?? examples.linux;
   return (
@@ -90,6 +90,23 @@ function General() {
         <div className="form-row">
           <label>{t("command")}</label>
           <code className="selectable">claude --resume &lt;id&gt; {prefs.extraArguments}</code>
+        </div>
+      </div>
+      <h5>{t("editor")}</h5>
+      <div className="form-box">
+        <div className="form-row">
+          <label htmlFor="editor">{t("openFoldersIn")}</label>
+          <select id="editor" value={editor?.id ?? ""} disabled={editors.length === 0} onChange={(e) => setPrefs({ editor: e.target.value })}>
+            {editors.length === 0 && <option value="">{t("noEditor")}</option>}
+            {editors.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-row">
+          <span className="hint">{t("editorHint")}</span>
         </div>
       </div>
       <Launcher />
