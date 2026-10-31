@@ -49,7 +49,9 @@ jobs:
           ref: ${{ env.TAG }}
       - run: brew install xcodegen
       - run: scripts/release.sh
-      - run: mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.dmg" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.dmg"
+      - run: |
+          mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.dmg" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.dmg"
+          mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.zip" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.zip"
       - uses: actions/download-artifact@v4
         with:
           name: notes
@@ -62,12 +64,12 @@ jobs:
             exit 0
           fi
           v=${{ needs.verify.outputs.version }}
-          dmg="LostAndPrompt-$v-macos-universal.dmg"
+          archive="LostAndPrompt-$v-macos-universal.zip"
           build=$(sed -n 's/.*CURRENT_PROJECT_VERSION: "\([0-9]*\)"/\1/p' project.yml | head -1)
           curl -sL -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz
           mkdir sparkle && tar xf sparkle.tar.xz -C sparkle
-          sig=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | sparkle/bin/sign_update --ed-key-file - "$dmg")
-          notes=$(sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' notes.md)
+          sig=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | sparkle/bin/sign_update --ed-key-file - "$archive")
+          notes=$(python3 .github/scripts/notes_to_html.py notes.md)
           cat > appcast.xml <<XML
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -79,8 +81,8 @@ jobs:
                 <sparkle:version>$build</sparkle:version>
                 <sparkle:shortVersionString>$v</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-                <description><![CDATA[<pre style="white-space: pre-wrap; font: 13px -apple-system">$notes</pre>]]></description>
-                <enclosure url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$dmg" $sig type="application/octet-stream"/>
+                <description><![CDATA[$notes]]></description>
+                <enclosure url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$archive" $sig type="application/octet-stream"/>
               </item>
             </channel>
           </rss>
@@ -92,6 +94,7 @@ jobs:
           name: macos
           path: |
             LostAndPrompt-*.dmg
+            LostAndPrompt-*.zip
             appcast.xml
           if-no-files-found: error
 

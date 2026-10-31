@@ -7,6 +7,20 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-31
+
+### Fixed
+- macOS: updating from 0.2.0 failed with "An error occurred while extracting the archive" because
+  the 0.2.1 disk image couldn't be opened. Updates now download a zip, the release checks that every
+  disk image mounts before publishing, and the update notes are formatted properly.
+
+---
+
+- macOS: actualizar desde la 0.2.0 fallaba con «Ocurrió un error al extraer el archivo» porque la
+  imagen de disco de la 0.2.1 no se podía abrir. Las actualizaciones ahora descargan un zip, la
+  publicación comprueba que cada imagen de disco se monte antes de subirla y las notas del aviso se
+  ven con formato.
+
 ## [0.2.1] - 2026-10-31
 
 ### Fixed
@@ -95,7 +109,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.0...v0.1.1
