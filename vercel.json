@@ -4,7 +4,7 @@
   "installCommand": "",
   "buildCommand": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R docs/screenshots _site/screenshots && cp docs/diseno/icono/icono-caja-1024.png _site/icon.png",
   "outputDirectory": "_site",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site docs/screenshots docs/diseno/icono vercel.json",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site docs/screenshots docs/diseno/icono vercel.json 2>/dev/null; [ $? -eq 0 ]",
   "cleanUrls": true,
   "headers": [
     { "source": "/screenshots/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
