@@ -41,6 +41,12 @@ something gets hard. Lost & Prompt puts every session in one window.
 |---|---|---|
 | ![Cards view](docs/screenshots/en/cards-light.png) | ![Quick search](docs/screenshots/en/quickopen-light.png) | ![Dark mode](docs/screenshots/en/recents-dark.png) |
 
+**On Windows** — same design, with Windows fonts and accent color:
+
+| Main window | Settings | Dark mode |
+|---|---|---|
+| ![Windows main window](docs/screenshots/windows/en/recents-light.png) | ![Windows settings](docs/screenshots/windows/en/settings-general.png) | ![Windows dark mode](docs/screenshots/windows/en/recents-dark.png) |
+
 ## Install
 
 Download from [Releases](https://github.com/axchisan/lost-and-prompt/releases/latest). Once

@@ -42,6 +42,12 @@ difícil. Lost & Prompt las reúne todas en una sola ventana.
 |---|---|---|
 | ![Vista de tarjetas](docs/screenshots/es/cards-light.png) | ![Búsqueda rápida](docs/screenshots/es/quickopen-light.png) | ![Modo oscuro](docs/screenshots/es/recents-dark.png) |
 
+**En Windows**, el mismo diseño con la tipografía y el color de acento de Windows:
+
+| Ventana principal | Ajustes | Modo oscuro |
+|---|---|---|
+| ![Ventana principal en Windows](docs/screenshots/windows/es/recents-light.png) | ![Ajustes en Windows](docs/screenshots/windows/es/settings-general.png) | ![Modo oscuro en Windows](docs/screenshots/windows/es/recents-dark.png) |
+
 ## Instalación
 
 Descárgala desde [Releases](https://github.com/axchisan/lost-and-prompt/releases/latest). Una vez
