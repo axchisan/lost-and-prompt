@@ -35,7 +35,7 @@ jobs:
           awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {found=1; next} found && /^## \[/ {exit} found {print}' CHANGELOG.md > notes.md
           [ -s notes.md ] || { echo "::error::Falta la sección ## [$version] en CHANGELOG.md"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: notes
           path: notes.md
@@ -89,7 +89,7 @@ jobs:
           XML
           sed -i '' 's/^          //' appcast.xml
           cat appcast.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos
           path: |
@@ -159,7 +159,7 @@ jobs:
             if ls "$b"/appimage/*.AppImage.sig >/dev/null 2>&1; then cp "$b"/appimage/*.AppImage.sig "out/LostAndPrompt-$v-linux-x86_64.AppImage.sig"; fi
           fi
           ls -la out
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.name }}
           path: out/*
