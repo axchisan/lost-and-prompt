@@ -61,6 +61,17 @@ fn codifica_carpetas_como_claude_code() {
 }
 
 #[test]
+fn escanea_varias_carpetas_sin_duplicar() {
+    let dir = tempfile::tempdir().unwrap();
+    let copy = dir.path().join("-Users-ana-Developer-acme");
+    std::fs::create_dir_all(&copy).unwrap();
+    std::fs::copy(fixture_file(), copy.join(format!("{ID}.jsonl"))).unwrap();
+    let sessions = lap_core::scan_many(&[fixtures(), dir.path().to_path_buf()], None);
+    assert_eq!(sessions.len(), 2, "una por carpeta; la app decide cuál mostrar");
+    assert!(sessions.iter().all(|s| s.id.to_string() == ID));
+}
+
+#[test]
 fn reutiliza_la_cache() {
     let dir = tempfile::tempdir().unwrap();
     let cache = dir.path().join("index-cache.json");

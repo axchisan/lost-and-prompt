@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../api";
 import { History, Paintbrush, Settings2, X } from "lucide-react";
 import { useApp } from "../state";
 
@@ -91,7 +92,73 @@ function General() {
           <code className="selectable">claude --resume &lt;id&gt; {prefs.extraArguments}</code>
         </div>
       </div>
+      <Launcher />
+      <Updates />
     </div>
+  );
+}
+
+function Launcher() {
+  const { t, prefs, setPrefs, library, modKey } = useApp();
+  const [autostart, setAutostart] = useState(false);
+  useEffect(() => {
+    api.autostartEnabled().then(setAutostart).catch(() => {});
+  }, []);
+  return (
+    <>
+      <h5 style={{ margin: "10px 0 2px" }}>{t("launcher")}</h5>
+      <div className="form-box">
+        <div className="form-row">
+          <label htmlFor="tray">{t("showInTray")}</label>
+          <input id="tray" className="switch" type="checkbox" checked={prefs.showInTray} onChange={(e) => setPrefs({ showInTray: e.target.checked })} />
+        </div>
+        <div className="form-row">
+          <label>{t("globalShortcut")}</label>
+          <span>{modKey === "⌘" ? "⌥⌘K" : "Ctrl+Alt+K"}</span>
+        </div>
+        <div className="form-row">
+          <label htmlFor="autostart">{t("openAtLogin")}</label>
+          <input
+            id="autostart"
+            className="switch"
+            type="checkbox"
+            checked={autostart}
+            onChange={(e) => {
+              const value = e.target.checked;
+              api.setAutostart(value).then(() => setAutostart(value)).catch(() => setAutostart(!value));
+            }}
+          />
+        </div>
+        {library.platform === "windows" && (
+          <div className="form-row">
+            <label htmlFor="wsl">
+              {t("includeWsl")}
+              <span className="hint" style={{ display: "block" }}>{t("includeWslHint")}</span>
+            </label>
+            <input id="wsl" className="switch" type="checkbox" checked={prefs.includeWsl} onChange={(e) => setPrefs({ includeWsl: e.target.checked })} />
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function Updates() {
+  const { t, prefs, setPrefs, actions } = useApp();
+  return (
+    <>
+      <h5 style={{ margin: "10px 0 2px" }}>{t("updates")}</h5>
+      <div className="form-box">
+        <div className="form-row">
+          <label htmlFor="auto-update">{t("autoUpdate")}</label>
+          <input id="auto-update" className="switch" type="checkbox" checked={prefs.autoUpdate} onChange={(e) => setPrefs({ autoUpdate: e.target.checked })} />
+        </div>
+        <div className="form-row">
+          <label>{t("checkUpdates")}</label>
+          <button className="btn small" onClick={() => actions.checkForUpdates(true)}>{t("checkNow")}</button>
+        </div>
+      </div>
+    </>
   );
 }
 

@@ -11,6 +11,8 @@ export interface Session {
   folderName: string;
   abbreviatedPath: string;
   isHome: boolean;
+  /** Distribución de WSL, si la sesión viene de ahí. */
+  environment: string | null;
   gitBranch: string | null;
   startedAt: string;
   lastActivity: string;
@@ -60,7 +62,7 @@ export interface TerminalInfo {
 }
 
 export const api = {
-  loadLibrary: () => invoke<Library>("load_library"),
+  loadLibrary: (includeWsl: boolean) => invoke<Library>("load_library", { includeWsl }),
   messages: (id: string) => invoke<Message[]>("get_messages", { id }),
   search: (query: string, limit?: number) => invoke<Hit[]>("search", { query, limit }),
   toggleFavorite: (id: string) => invoke<boolean>("toggle_favorite", { id }),
@@ -74,7 +76,22 @@ export const api = {
   resume: (id: string, terminal: string, extraArguments: string, customTemplate: string) =>
     invoke<void>("resume", { id, terminal, extraArguments, customTemplate }),
   reveal: (id: string) => invoke<void>("reveal", { id }),
+  relocate: (id: string, newCwd: string) => invoke<void>("relocate", { id, newCwd }),
+  updateTray: (content: TrayContent) => invoke<void>("update_tray", { content }),
+  autostartEnabled: () => invoke<boolean>("autostart_enabled"),
+  setAutostart: (enabled: boolean) => invoke<void>("set_autostart", { enabled }),
+  installKind: () => invoke<"nsis" | "appimage" | "package" | "dev">("install_kind"),
+  openLogs: () => invoke<void>("open_logs"),
 };
+
+export interface TrayContent {
+  enabled: boolean;
+  recentTitle: string;
+  search: string;
+  open: string;
+  quit: string;
+  recent: { id: string; title: string }[];
+}
 
 export const links = {
   repository: "https://github.com/axchisan/lost-and-prompt",

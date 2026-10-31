@@ -41,6 +41,7 @@ export function Detail({ session }: { session: Session }) {
           <div className="path selectable">
             {session.isHome ? <House size={14} /> : <Folder size={14} />}
             {session.abbreviatedPath}
+            {session.environment && <span className="env">WSL · {session.environment}</span>}
           </div>
           <h1 className="selectable">{session.title}</h1>
           <div className="facts">
@@ -75,6 +76,11 @@ export function Detail({ session }: { session: Session }) {
                 <b>{t("folderMissing")}</b>
                 <span>{t("folderMissingHint")}</span>
               </div>
+              {!session.environment && (
+                <button className="btn small" onClick={() => actions.chooseFolder(session)}>
+                  {t("chooseFolder")}
+                </button>
+              )}
             </div>
           )}
           <div className="actions">

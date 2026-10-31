@@ -18,6 +18,9 @@ export interface Prefs {
   language: "system" | Language;
   hideEmpty: boolean;
   didShowWelcome: boolean;
+  showInTray: boolean;
+  includeWsl: boolean;
+  autoUpdate: boolean;
 }
 
 export const defaultPrefs: Prefs = {
@@ -29,6 +32,9 @@ export const defaultPrefs: Prefs = {
   language: "system",
   hideEmpty: true,
   didShowWelcome: false,
+  showInTray: true,
+  includeWsl: true,
+  autoUpdate: true,
 };
 
 export interface MenuState {
@@ -71,6 +77,8 @@ export interface AppContext {
     deleteCollection: (id: string) => void;
     applyRetention: (days: number) => void;
     reload: () => void;
+    chooseFolder: (session: Session) => void;
+    checkForUpdates: (manual: boolean) => void;
   };
   open: {
     rename: (session: Session) => void;

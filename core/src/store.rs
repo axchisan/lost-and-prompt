@@ -33,12 +33,19 @@ pub fn encode_project_dir(path: &str) -> String {
 /// Escanea todas las sesiones en paralelo. Si se da `cache`, reutiliza los resúmenes de los
 /// archivos que no cambiaron (mismo tamaño y fecha) y guarda la caché actualizada.
 pub fn scan(projects_dir: &Path, cache: Option<&Path>) -> Vec<SessionSummary> {
+    scan_many(&[projects_dir.to_path_buf()], cache)
+}
+
+/// Como [`scan`], pero sobre varias carpetas de proyectos a la vez (por ejemplo, la de Windows y
+/// las de cada distribución de WSL), con una sola caché.
+pub fn scan_many(projects_dirs: &[PathBuf], cache: Option<&Path>) -> Vec<SessionSummary> {
     let previous: HashMap<String, SessionSummary> = cache
         .and_then(|path| std::fs::read(path).ok())
         .and_then(|data| serde_json::from_slice(&data).ok())
         .unwrap_or_default();
 
-    let results: Vec<SessionSummary> = session_files(projects_dir)
+    let files: Vec<_> = projects_dirs.iter().flat_map(|dir| session_files(dir)).collect();
+    let results: Vec<SessionSummary> = files
         .into_par_iter()
         .filter_map(|(path, size, modified)| {
             let key = path.to_string_lossy().into_owned();

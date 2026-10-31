@@ -39,6 +39,9 @@ pub struct Organization {
     pub collections: Vec<Collection>,
     /// Colección → sesiones que contiene.
     pub memberships: BTreeMap<String, Vec<Uuid>>,
+    /// Sesiones reanudadas en otra carpeta porque la original ya no existía: sesión → carpeta nueva.
+    /// Vale hasta que Claude Code escriba en la sesión con la carpeta nueva.
+    pub relocations: BTreeMap<Uuid, String>,
 }
 
 impl Organization {

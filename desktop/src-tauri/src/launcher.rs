@@ -78,6 +78,22 @@ pub fn resume(terminal: &str, cwd: &str, command: &str, title: &str, custom_temp
     result.map_err(|e| format!("No se pudo abrir la terminal: {e}"))
 }
 
+/// Sesión de Claude Code dentro de WSL: se abre la distribución en la carpeta de Linux.
+pub fn resume_wsl(distro: &str, cwd: &str, command: &str) -> Result<(), String> {
+    let shell = format!("{command}; exec \"${{SHELL:-bash}}\"");
+    let args = ["-d", distro, "--cd", cwd, "--", "bash", "-lc", shell.as_str()];
+    let result = if cfg!(target_os = "windows") && in_path("wt.exe") {
+        spawn(Command::new("wt.exe").arg("wsl.exe").args(args))
+    } else if cfg!(target_os = "windows") {
+        let mut all = vec!["/c", "start", "", "wsl.exe"];
+        all.extend_from_slice(&args);
+        spawn(hidden(&mut Command::new("cmd").args(all)))
+    } else {
+        Err(std::io::Error::other("WSL solo existe en Windows"))
+    };
+    result.map_err(|e| format!("No se pudo abrir WSL: {e}"))
+}
+
 fn run_template(template: &str, cwd: &str, command: &str) -> std::io::Result<()> {
     if template.trim().is_empty() {
         return Err(std::io::Error::other("la plantilla de terminal personalizada está vacía"));

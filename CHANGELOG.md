@@ -13,6 +13,13 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - macOS: WezTerm, Kitty, Alacritty and custom terminals; only installed terminals are listed.
 - Windows and Linux: settings button with About, Check for Updates and Report a Problem.
 - Windows and Linux: the app opens a single window and remembers its size and position.
+- Windows and Linux: automatic updates — the app tells you when there's a new version and installs
+  it with one click (installer on Windows, AppImage on Linux).
+- Windows and Linux: system tray icon with recent sessions, global shortcut (Ctrl+Alt+K) and open
+  at login.
+- Windows: sessions from Claude Code inside WSL (running distributions), resumed in WSL.
+- Windows and Linux: "Choose Folder…" to resume a session whose folder no longer exists.
+- Windows and Linux: error log, available from the settings button.
 
 ### Fixed
 - macOS: the menu bar showed "LostAndPrompt" instead of "Lost & Prompt".
@@ -26,6 +33,13 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - macOS: WezTerm, Kitty, Alacritty y terminal personalizada; solo se listan las instaladas.
 - Windows y Linux: botón de Ajustes con Acerca de, Buscar actualizaciones e Informar de un problema.
 - Windows y Linux: una sola ventana de la app, que recuerda su tamaño y posición.
+- Windows y Linux: actualizaciones automáticas; la app avisa de la versión nueva y la instala con un
+  clic (instalador en Windows, AppImage en Linux).
+- Windows y Linux: ícono en la bandeja con las sesiones recientes, atajo global (Ctrl+Alt+K) y
+  abrir al iniciar sesión.
+- Windows: sesiones de Claude Code dentro de WSL (distribuciones en marcha), reanudadas en WSL.
+- Windows y Linux: «Elegir carpeta…» para reanudar una sesión cuya carpeta ya no existe.
+- Windows y Linux: registro de errores, accesible desde el botón de Ajustes.
 - macOS: la barra de menús mostraba «LostAndPrompt» en lugar de «Lost & Prompt».
 - Windows y Linux: barras de desplazamiento finas, espacio entre grupos de tarjetas, botones
   compactos en paneles estrechos y sin «0,00 US$» cuando una sesión aún no tiene costo.

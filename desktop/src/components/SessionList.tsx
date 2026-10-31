@@ -114,6 +114,7 @@ function Meta({ session }: { session: Session }) {
       })}
       {session.isHome ? <House /> : <Folder />}
       <span>{session.isHome ? app.t("home") : session.folderName}</span>
+      {session.environment && <span className="env">WSL</span>}
     </div>
   );
 }

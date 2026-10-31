@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X } from "lucide-react";
+import { ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { links } from "../api";
+import { api, links } from "../api";
 import { tints, type Session } from "../api";
 import { useApp, type SidebarItem } from "../state";
 import { isInside } from "../App";
@@ -153,7 +153,7 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
 
 /** Engranaje fijo abajo: en Windows y Linux no hay barra de menús como en Mac. */
 function SidebarFooter() {
-  const { t, open, modKey } = useApp();
+  const { t, open, modKey, actions } = useApp();
   const [menu, setMenu] = useState(false);
   useEffect(() => {
     if (!menu) return;
@@ -190,8 +190,9 @@ function SidebarFooter() {
         <div className="menu up" role="menu" onClick={(e) => e.stopPropagation()}>
           {item(<Settings size={14} />, t("settingsEllipsis"), () => open.settings(), `${modKey},`)}
           <hr />
-          {item(<RefreshCw size={14} />, t("checkUpdates"), () => openUrl(links.releases))}
+          {item(<RefreshCw size={14} />, t("checkUpdates"), () => actions.checkForUpdates(true))}
           {item(<MessageSquareWarning size={14} />, t("reportProblem"), () => openUrl(links.issues))}
+          {item(<FileText size={14} />, t("openLogs"), () => api.openLogs())}
           {item(<CircleHelp size={14} />, t("help"), () => openUrl(links.repository))}
           <hr />
           {item(<Info size={14} />, t("aboutApp"), open.about)}

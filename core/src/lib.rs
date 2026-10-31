@@ -14,7 +14,7 @@ pub mod store;
 pub use model::{Message, Role, SessionSummary};
 pub use organization::{Collection, Organization, Tint};
 pub use search::{SearchHit, SearchIndex};
-pub use store::{encode_project_dir, messages, scan, summarize};
+pub use store::{encode_project_dir, messages, scan, scan_many, summarize};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

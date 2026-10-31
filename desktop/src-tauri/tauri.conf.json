@@ -33,7 +33,28 @@
     "shortDescription": "Find, organize and resume your Claude Code sessions",
     "longDescription": "Lost & Prompt puts every Claude Code session from every folder in one window: search the conversations, resume them in your terminal and organize them with favorites, collections and notes.",
     "copyright": "© 2026 axchisan · MIT",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-    "linux": { "deb": { "section": "devel" } }
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "linux": {
+      "deb": {
+        "section": "devel"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "",
+      "endpoints": [
+        "https://github.com/axchisan/lost-and-prompt/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

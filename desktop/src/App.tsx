@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
 import { Ctx, defaultPrefs, resumeCommand, type AppContext, type MenuState, type Prefs, type SidebarItem } from "./state";
@@ -9,6 +11,7 @@ import { Detail, NoSelection } from "./components/Detail";
 import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
+import { UpdateSheet } from "./components/Update";
 import { About, ConfirmSheet, ContextMenu, NewCollectionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
@@ -20,6 +23,7 @@ type Dialog =
   | { kind: "error"; message: string }
   | { kind: "confirm"; message: string; confirmLabel: string; action: () => void }
   | { kind: "about" }
+  | { kind: "update"; update: Update }
   | null;
 
 function loadPrefs(): Prefs {
@@ -45,6 +49,8 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [systemDark, setSystemDark] = useState(() => matchMedia("(prefers-color-scheme: dark)").matches);
   const loadingRef = useRef(false);
+  const prefsRef = useRef(prefs);
+  prefsRef.current = prefs;
 
   const language: Language = prefs.language === "system" ? systemLanguage() : prefs.language;
   const t = useMemo(() => makeT(language), [language]);
@@ -67,7 +73,7 @@ export default function App() {
     if (loadingRef.current) return;
     loadingRef.current = true;
     try {
-      const next = await api.loadLibrary();
+      const next = await api.loadLibrary(prefsRef.current.includeWsl);
       setLibrary((previous) => {
         // La conversación en caché deja de valer si la sesión cambió.
         if (previous) {
@@ -97,6 +103,8 @@ export default function App() {
         setIndexProgress(e.payload.done < e.payload.total ? e.payload : null),
       ),
       listen("index-finished", () => setIndexProgress(null)),
+      listen("quick-open", () => setDialog({ kind: "quick" })),
+      listen<string>("tray-resume", (e) => resumeRef.current(e.payload)),
     ];
     const media = matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => setSystemDark(media.matches);
@@ -106,6 +114,15 @@ export default function App() {
       media.removeEventListener("change", onChange);
     };
   }, [reload]);
+
+  const firstWsl = useRef(true);
+  useEffect(() => {
+    if (firstWsl.current) {
+      firstWsl.current = false;
+      return;
+    }
+    reload();
+  }, [prefs.includeWsl, reload]);
 
   // Tema y plataforma en la raíz del documento.
   const dark = prefs.theme === "dark" || (prefs.theme === "system" && systemDark);
@@ -153,6 +170,7 @@ export default function App() {
     if (!selectedId && visible.length > 0 && sidebar.kind !== "activity") setSelectedId(visible[0].id);
   }, [visible, selectedId, sidebar.kind]);
 
+  const resumeRef = useRef<(id: string) => void>(() => {});
   const terminal = terminals.find((x) => x.id === prefs.terminal) ?? terminals.find((x) => x.installed) ?? terminals[0];
 
   const updateSession = (id: string, change: Partial<Session>) =>
@@ -202,7 +220,57 @@ export default function App() {
     applyRetention: (days) =>
       api.setRetention(days).then((value) => setLibrary((lib) => lib && { ...lib, retentionDays: value }), showError),
     reload,
+    chooseFolder: async (session) => {
+      const folder = await openDialog({ directory: true, title: t("chooseFolderTitle", { title: session.title }) });
+      if (typeof folder !== "string") return;
+      try {
+        await api.relocate(session.id, folder);
+        await reload();
+        if (terminal) await api.resume(session.id, terminal.id, prefs.extraArguments, prefs.customTerminal);
+      } catch (error) {
+        showError(error);
+      }
+    },
+    checkForUpdates: async (manual) => {
+      try {
+        const update = await check();
+        if (update) setDialog({ kind: "update", update });
+        else if (manual) setToast(t("upToDate"));
+      } catch (error) {
+        if (manual) showError(`${t("updateCheckFailed")}\n${error}`);
+      }
+    },
   };
+  resumeRef.current = (id) => {
+    const session = sessions.find((s) => s.id === id);
+    if (session) actions.resume(session);
+  };
+
+  // Bandeja del sistema: sesiones recientes y textos en el idioma de la app.
+  useEffect(() => {
+    if (!library) return;
+    const recent = [...library.sessions]
+      .filter((s) => s.userMessages > 0)
+      .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity))
+      .slice(0, 8)
+      .map((s) => ({ id: s.id, title: s.title }));
+    api
+      .updateTray({ enabled: prefs.showInTray, recentTitle: t("recents"), search: t("searchEllipsis"), open: t("openApp"), quit: t("quit"), recent })
+      .catch(() => {});
+  }, [library, prefs.showInTray, t]);
+
+  // Actualizaciones: al abrir (con unos segundos de margen) y cada 24 horas.
+  const checkRef = useRef(actions.checkForUpdates);
+  checkRef.current = actions.checkForUpdates;
+  useEffect(() => {
+    if (!prefs.autoUpdate) return;
+    const first = setTimeout(() => checkRef.current(false), 5000);
+    const daily = setInterval(() => checkRef.current(false), 24 * 60 * 60 * 1000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(daily);
+    };
+  }, [prefs.autoUpdate]);
 
   const requested = useRef(new Set<string>());
   const loadMessages = useCallback((session: Session) => {
@@ -333,6 +401,7 @@ export default function App() {
       {dialog?.kind === "quick" && <QuickOpen onClose={() => setDialog(null)} />}
       {dialog?.kind === "error" && <ErrorSheet message={dialog.message} onClose={() => setDialog(null)} />}
       {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
+      {dialog?.kind === "update" && <UpdateSheet update={dialog.update} onClose={() => setDialog(null)} />}
       {dialog?.kind === "confirm" && (
         <ConfirmSheet message={dialog.message} confirmLabel={dialog.confirmLabel} onConfirm={dialog.action} onClose={() => setDialog(null)} />
       )}
