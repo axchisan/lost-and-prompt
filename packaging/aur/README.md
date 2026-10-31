@@ -4,7 +4,7 @@ Paquete binario para Arch Linux y derivadas, construido a partir del `.deb` de c
 El flujo `.github/workflows/aur.yml` lo construye, lo instala y comprueba `.SRCINFO` en un
 contenedor de Arch.
 
-Publicar o actualizar (requiere cuenta en aur.archlinux.org con tu clave SSH):
+Publicar o actualizar (requiere cuenta en aur.archlinux.org con la clave `~/.ssh/aur`): `scripts/publish-aur.sh`, o a mano:
 
 ```bash
 git clone ssh://aur@aur.archlinux.org/lost-and-prompt-bin.git /tmp/aur-lap
