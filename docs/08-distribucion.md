@@ -70,8 +70,8 @@ autor; **si se pierden, las apps instaladas ya no podrán actualizarse solas**.
 | GitHub Releases | Todas | v0.2.0 | Base de todo lo demás |
 | Homebrew (tap propio) | macOS | ✅ ya existe | El flujo actualiza versión y sha256 solo |
 | **winget** | Windows | ⏳ enviado | `winget install axchisan.LostAndPrompt`. PR [microsoft/winget-pkgs#467137](https://github.com/microsoft/winget-pkgs/pull/467137) (2026-10-31), en revisión. Manifiestos en `packaging/winget/` |
-| Scoop | Windows | v0.3.0 | Bucket propio, sencillo |
-| **AUR** (`lost-and-prompt-bin`) | Arch y derivados | v0.3.0 | Paquete a partir del `.deb`/AppImage |
+| Scoop | Windows | ✅ | `scoop bucket add axchisan https://github.com/axchisan/scoop-bucket` + `scoop install axchisan/lost-and-prompt`; el bucket se actualiza solo (Excavator) |
+| **AUR** (`lost-and-prompt-bin`) | Arch y derivados | ⏳ listo para publicar | `packaging/aur/`; CI lo construye e instala en Arch. Falta la cuenta de AUR del autor |
 | **Flathub** | Linux (todas) | v0.4.0 | Revisión humana; sandbox con acceso de lectura a `~/.claude` |
 | Microsoft Store | Windows | Más adelante | Gratis para desarrolladores individuales; firma la app la propia tienda |
 
