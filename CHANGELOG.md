@@ -7,6 +7,35 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-31
+
+### Added
+- Find in conversation: ⌘F on the Mac, Ctrl+F on Windows and Linux. A match counter, next and
+  previous (⌘G / ⇧⌘G, F3 / Shift+F3) and the current match highlighted and scrolled into view.
+- Full Markdown in conversations: code blocks with a copy button, headings, nested lists, quotes,
+  tables, links and rules.
+- "New session in this folder" (⌘N / Ctrl+N) starts Claude Code in a session's folder, also from the
+  context menu of sessions and of sidebar folders. Works with WSL folders.
+- "Open in VS Code" (or Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode, JetBrains IDEs), with the
+  editor chosen in Settings. WSL folders open with the remote mode of VS Code, Cursor and Windsurf.
+
+### Fixed
+- macOS: some update settings were shown in Spanish when the app was in English.
+
+### Añadido
+- Buscar en la conversación: ⌘F en Mac, Ctrl+F en Windows y Linux. Con contador, siguiente y
+  anterior (⌘G / ⇧⌘G, F3 / Mayús+F3) y la coincidencia actual resaltada y a la vista.
+- Markdown completo en las conversaciones: bloques de código con botón de copiar, títulos, listas
+  anidadas, citas, tablas, enlaces y separadores.
+- «Nueva sesión en esta carpeta» (⌘N / Ctrl+N) abre Claude Code en la carpeta de una sesión, también
+  desde el menú contextual de las sesiones y de las carpetas de la barra lateral. Funciona con WSL.
+- «Abrir en VS Code» (o Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode o los IDE de JetBrains),
+  con el editor elegible en Ajustes. Las carpetas de WSL se abren con el modo remoto de VS Code,
+  Cursor y Windsurf.
+
+### Corregido
+- macOS: algunos ajustes de actualizaciones salían en español con la app en inglés.
+
 ## [0.2.3] - 2026-10-31
 
 ### Fixed
@@ -123,7 +152,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...v0.2.1

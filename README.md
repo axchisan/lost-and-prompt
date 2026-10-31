@@ -42,8 +42,10 @@ abierto y funciona en **macOS, Windows y Linux**.
 | | |
 |---|---|
 | **Encuentra cualquier sesión** | Todas las sesiones de todas las carpetas, agrupadas por día. Busca en los títulos, las carpetas y **dentro de las conversaciones**, con el fragmento resaltado. |
+| **Busca dentro de la conversación** | ⌘F / Ctrl+F con contador y la coincidencia resaltada. Las respuestas se ven con formato: código, tablas, listas y títulos. |
 | **Reanuda con un clic** | Abre la sesión en su carpeta original con tu terminal: Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, GNOME Terminal, Konsole, Kitty, WezTerm… o cualquier otra con un comando personalizado. |
 | **Desde cualquier app** | Un atajo global (⌥⌘K en Mac, Ctrl+Alt+K en Windows y Linux) abre el buscador, y el ícono de la barra de menús o de la bandeja muestra tus sesiones recientes. |
+| **Nueva sesión o tu editor** | Abre Claude Code en la carpeta de cualquier sesión (⌘N / Ctrl+N) o ábrela en VS Code, Cursor, Zed y otros. |
 | **Organiza a tu manera** | Favoritos, nombres propios, colecciones y notas. Nada de esto toca los archivos de Claude Code. |
 | **Lee antes de reanudar** | La conversación sin ruido técnico: tus mensajes y las respuestas de Claude. |
 | **Actividad** | Costo estimado, sesiones y las carpetas en las que más trabajas. |

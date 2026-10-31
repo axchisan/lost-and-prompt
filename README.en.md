@@ -42,8 +42,10 @@ Linux**.
 | | |
 |---|---|
 | **Find any session** | Every session from every folder, grouped by day. Search titles, folders and **the conversations themselves**, with the matching snippet highlighted. |
+| **Find in a conversation** | ⌘F / Ctrl+F with a match counter and highlighting. Replies are formatted: code, tables, lists and headings. |
 | **Resume in one click** | Opens the session in its original folder in your terminal: Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, GNOME Terminal, Konsole, Kitty, WezTerm… or anything else with a custom command. |
 | **From any app** | A global shortcut (⌥⌘K on the Mac, Ctrl+Alt+K on Windows and Linux) opens quick search, and the menu bar / system tray icon lists your recent sessions. |
+| **New session or your editor** | Start Claude Code in any session's folder (⌘N / Ctrl+N) or open it in VS Code, Cursor, Zed and more. |
 | **Organize your way** | Favorites, custom names, collections and notes. None of it touches Claude Code's files. |
 | **Read before you resume** | The conversation without the technical noise: your messages and Claude's replies. |
 | **Activity** | Estimated cost, sessions and the folders you work in most. |

@@ -1,6 +1,6 @@
 # 9. Pendientes
 
-Estado al 2026-10-31, con la **0.2.2** publicada. Revisado contra el código, no solo contra los
+Estado al 2026-10-31, con la **0.3.0** en preparación. Revisado contra el código, no solo contra los
 documentos: lo que aparece aquí no está hecho, o está a medias.
 
 ## Funciones que faltan
@@ -10,10 +10,6 @@ lo que más se nota al usarla.
 
 | ID | Qué falta | Mac | Win/Linux | Notas |
 |---|---|---|---|---|
-| L4 | Buscar dentro de la conversación (⌘F / Ctrl+F) con siguiente/anterior | No | No | La búsqueda global ya resalta el fragmento; falta dentro del detalle |
-| L3 | Markdown completo: bloques de código con fuente monoespaciada, listas y títulos | A medias | A medias | Hoy solo negrita y `código` en línea |
-| R7 | Nueva sesión en la carpeta de una sesión o proyecto (`claude` sin `--resume`) | No | No | Reutiliza la lógica de terminales |
-| R6 | Abrir la carpeta en el editor (VS Code, Cursor, Zed…) | Solo Finder | Solo explorador | Editor configurable en Ajustes |
 | E6 | Filtros: rango de fechas, rama git, solo favoritos | No | No | La rama ya se lee del JSONL |
 | O6 | Archivar u ocultar sesiones sin borrarlas | No | No | Campo nuevo en la organización, compatible con el formato actual |
 | O4 | Etiquetas de color por sesión, al estilo de Finder | No | No | Las colecciones ya tienen color |
@@ -21,8 +17,8 @@ lo que más se nota al usarla.
 | L2 | Mostrar u ocultar razonamiento y mensajes del sistema | Herramientas sí | Herramientas sí | Falta el razonamiento (`thinking`) |
 | Q6 | Accesibilidad: etiquetas de VoiceOver/lectores de pantalla en todos los botones, contraste aumentado | A medias | A medias | Revisar con VoiceOver y con Narrador |
 
-Propuesta: **0.3.0** = L4, L3, R7 y R6 (lo que más se usa a diario). **0.4.0** = E6, O6, O4, S1, L2 y
-Q6.
+Hechos en la **0.3.0**: L4 (buscar en la conversación), L3 (Markdown completo), R7 (nueva sesión en
+la carpeta) y R6 (abrir en el editor). Propuesta para la **0.4.0**: E6, O6, O4, S1, L2 y Q6.
 
 ## Ideas para después
 
