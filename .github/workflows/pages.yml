@@ -29,7 +29,7 @@ jobs:
           cp -R site/. _site/
           cp -R docs/screenshots _site/screenshots
           cp docs/diseno/icono/icono-caja-1024.png _site/icon.png
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
