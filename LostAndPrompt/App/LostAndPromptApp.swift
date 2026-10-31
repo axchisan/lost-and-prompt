@@ -49,6 +49,13 @@ struct LostAndPromptApp: App {
             model.sidebarSelection = .favorites
             for index in model.sessions.indices { model.sessions[index].isFavorite = false }
         case "search": model.searchText = "acme"
+        case "archived":
+            for index in model.sessions.indices.suffix(3) { model.sessions[index].isArchived = true }
+            model.sidebarSelection = .archived
+            model.selectedSessionID = model.visibleSessions.first?.id
+        case "filtered":
+            model.filterFavoritesOnly = true
+            model.showThinking = true
         case "missing":
             if let index = model.sessions.firstIndex(where: { $0.id == MockData.featuredID }) {
                 model.sessions[index].folderExists = false
@@ -92,6 +99,11 @@ struct AppCommands: Commands {
                 .disabled(model.selectedSession == nil)
             Button("Renombrar…") { model.renamingSession = model.selectedSession }
                 .disabled(model.selectedSession == nil)
+            Button(model.selectedSession?.isArchived == true ? "Sacar del archivo" : "Archivar") {
+                if let id = model.selectedSessionID { model.toggleArchive(id) }
+            }
+            .keyboardShortcut("a", modifiers: [.command, .control])
+            .disabled(model.selectedSession == nil)
             Divider()
             if let editor = model.editor {
                 Button("Abrir en \(editor.shortName)") { if let s = model.selectedSession { model.openInEditor(s.cwd) } }

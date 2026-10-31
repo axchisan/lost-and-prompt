@@ -15,6 +15,7 @@ struct Session: Identifiable, Hashable {
     var costUSD: Double?
     var model: String
     var isFavorite: Bool = false
+    var isArchived: Bool = false
     var collectionIDs: [SessionCollection.ID] = []
     var firstPrompt: String
     var lastReply: String?
@@ -24,6 +25,17 @@ struct Session: Identifiable, Hashable {
     var filePath: String?
 
     var title: String { customTitle ?? aiTitle }
+
+    /// Del primer al último mensaje («1 h 20 min», «3 d»); nil si duró menos de un minuto.
+    var durationText: String? {
+        let seconds = lastActivity.timeIntervalSince(startedAt)
+        guard seconds >= 60 else { return nil }
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.allowedUnits = seconds >= 86_400 ? [.day, .hour] : [.hour, .minute]
+        formatter.maximumUnitCount = 2
+        return formatter.string(from: seconds)
+    }
 
     static let homePath = NSHomeDirectory()
 
@@ -67,6 +79,8 @@ nonisolated struct Message: Identifiable, Hashable, Sendable {
     var date: Date
     var text: String
     var toolCount: Int = 0
+    /// Razonamiento de Claude (bloque `thinking`); solo se ve si se activa en «Mostrar».
+    var isThinking = false
 }
 
 /// Nodo del árbol de carpetas de la barra lateral.
@@ -82,8 +96,38 @@ enum SidebarItem: Hashable {
     case recents
     case favorites
     case activity
+    case archived
     case collection(SessionCollection.ID)
     case project(String)
+}
+
+/// Periodo del filtro de la lista, contado hacia atrás desde hoy.
+enum DatePeriod: String, CaseIterable, Identifiable {
+    case all, today, week, month, quarter
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .all: String(localized: "Cualquier fecha")
+        case .today: String(localized: "Hoy")
+        case .week: String(localized: "Últimos 7 días")
+        case .month: String(localized: "Últimos 30 días")
+        case .quarter: String(localized: "Últimos 3 meses")
+        }
+    }
+
+    /// Fecha desde la que se muestran sesiones (nil = todas).
+    func start(from now: Date) -> Date? {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        switch self {
+        case .all: return nil
+        case .today: return today
+        case .week: return calendar.date(byAdding: .day, value: -6, to: today)
+        case .month: return calendar.date(byAdding: .day, value: -29, to: today)
+        case .quarter: return calendar.date(byAdding: .month, value: -3, to: today)
+        }
+    }
 }
 
 enum SessionListStyle: String, CaseIterable, Identifiable {

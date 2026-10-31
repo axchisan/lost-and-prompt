@@ -51,7 +51,7 @@ struct MenuBarView: View {
     }
 
     private var recent: [Session] {
-        let base = model.sessions.filter { $0.userMessages > 0 }
+        let base = model.activeSessions.filter { $0.userMessages > 0 }
             .filter { query.isEmpty || $0.title.localizedStandardContains(query) }
             .sorted { $0.lastActivity > $1.lastActivity }
         return Array(base.prefix(6))

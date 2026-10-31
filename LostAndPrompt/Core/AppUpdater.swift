@@ -16,6 +16,12 @@ final class AppUpdater {
         controller = Self.isConfigured
             ? SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
             : nil
+        // Sparkle por sí solo mira como mucho una vez cada 24 horas, y no al abrir: una versión
+        // publicada justo después de su última comprobación tardaba hasta un día en aparecer.
+        // Como en Windows y Linux, se comprueba también al arrancar (sin aviso si no hay nada).
+        if let updater = controller?.updater, updater.automaticallyChecksForUpdates {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { updater.checkForUpdatesInBackground() }
+        }
     }
 
     var isAvailable: Bool { controller != nil }

@@ -150,6 +150,8 @@ struct SessionContextMenu: View {
             }
         }
         Button("Renombrar…", systemImage: "pencil") { model.renamingSession = session }
+        Button(session.isArchived ? "Sacar del archivo" : "Archivar",
+               systemImage: session.isArchived ? "tray.and.arrow.up" : "archivebox") { model.toggleArchive(session.id) }
         Divider()
         Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: session.cwd) }
             .disabled(!session.folderExists)

@@ -25,14 +25,14 @@ struct MainView: View {
                                     .inspectorColumnWidth(min: 400, ideal: 480, max: 600)
                             }
                         }
-                        .toolbar { listStylePicker }
+                        .toolbar { listStylePicker; filterMenu }
                 }
             } else {
                 NavigationSplitView {
                     SidebarView()
                 } content: {
                     SessionListView()
-                        .toolbar { listStylePicker }
+                        .toolbar { listStylePicker; filterMenu }
                 } detail: {
                     if let session = model.selectedSession {
                         SessionDetailView(session: session)
@@ -75,6 +75,32 @@ struct MainView: View {
                 }
                 .onKeyPress(.escape) { model.isQuickOpenPresented = false; return .handled }
             }
+        }
+    }
+
+    private var filterMenu: some ToolbarContent {
+        @Bindable var model = model
+        return ToolbarItem(placement: .navigation) {
+            Menu {
+                Picker("Fecha", selection: $model.filterPeriod) {
+                    ForEach(DatePeriod.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.inline)
+                Toggle("Solo favoritos", isOn: $model.filterFavoritesOnly)
+                if !model.branches.isEmpty {
+                    Picker("Rama de git", selection: $model.filterBranch) {
+                        Text("Cualquier rama").tag(String?.none)
+                        ForEach(model.branches, id: \.self) { Text($0).tag(Optional($0)) }
+                    }
+                }
+                Divider()
+                Button("Quitar filtros") { model.clearFilters() }
+                    .disabled(!model.isFiltering)
+            } label: {
+                Label("Filtrar", systemImage: model.isFiltering
+                      ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            }
+            .help(model.isFiltering ? "Filtros activos" : "Filtrar la lista")
         }
     }
 

@@ -298,6 +298,26 @@
         }
       }
     },
+    "Archivadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archived"
+          }
+        }
+      }
+    },
+    "Archivar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive"
+          }
+        }
+      }
+    },
     "Argumentos extra": {
       "localizations": {
         "en": {
@@ -758,12 +778,42 @@
         }
       }
     },
+    "Cualquier fecha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any date"
+          }
+        }
+      }
+    },
+    "Cualquier rama": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any branch"
+          }
+        }
+      }
+    },
     "Código": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Code"
+          }
+        }
+      }
+    },
+    "Del primer al último mensaje": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the first to the last message"
           }
         }
       }
@@ -998,12 +1048,52 @@
         }
       }
     },
+    "Fecha": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date"
+          }
+        }
+      }
+    },
     "Filas": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Rows"
+          }
+        }
+      }
+    },
+    "Filtrar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        }
+      }
+    },
+    "Filtrar la lista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter the list"
+          }
+        }
+      }
+    },
+    "Filtros activos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filters on"
           }
         }
       }
@@ -1544,6 +1634,16 @@
         }
       }
     },
+    "Quitar filtros": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Filters"
+          }
+        }
+      }
+    },
     "Rama de git": {
       "localizations": {
         "en": {
@@ -1650,6 +1750,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rename…"
+          }
+        }
+      }
+    },
+    "Sacar del archivo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unarchive"
           }
         }
       }
@@ -1770,6 +1880,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Only changes the name in Lost & Prompt. Leave it empty to go back to the original title."
+          }
+        }
+      }
+    },
+    "Solo favoritos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites only"
           }
         }
       }
@@ -2000,6 +2120,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep sessions for %lld days?"
+          }
+        }
+      }
+    },
+    "Últimos 3 meses": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 3 months"
+          }
+        }
+      }
+    },
+    "Últimos 30 días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 30 days"
+          }
+        }
+      }
+    },
+    "Últimos 7 días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 7 days"
           }
         }
       }

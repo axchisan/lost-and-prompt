@@ -8,13 +8,18 @@ struct SidebarView: View {
         List(selection: $model.sidebarSelection) {
             Section {
                 Label { Text("Recientes") } icon: { Image(systemName: "clock") }
-                    .badge(model.sessions.filter { $0.userMessages > 0 }.count)
+                    .badge(model.activeSessions.filter { $0.userMessages > 0 }.count)
                     .tag(SidebarItem.recents)
                 Label("Favoritos", systemImage: "star")
                     .badge(model.favoritesCount)
                     .tag(SidebarItem.favorites)
                 Label("Actividad", systemImage: "chart.bar.xaxis")
                     .tag(SidebarItem.activity)
+                if model.archivedCount > 0 {
+                    Label("Archivadas", systemImage: "archivebox")
+                        .badge(model.archivedCount)
+                        .tag(SidebarItem.archived)
+                }
             }
 
             Section("Colecciones") {

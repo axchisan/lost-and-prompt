@@ -88,7 +88,7 @@ struct QuickOpenView: View {
     }
 
     private var matches: [Session] {
-        let base = model.sessions.filter { $0.userMessages > 0 }
+        let base = model.activeSessions.filter { $0.userMessages > 0 }
         let filtered = base.filter { session in
             switch filter {
             case nil: true

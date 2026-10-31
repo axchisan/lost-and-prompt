@@ -126,6 +126,9 @@ struct SessionDetailView: View {
 
     @ViewBuilder private var factsWithoutDate: some View {
         Fact(value: session.userMessages.grouped, label: "mensajes").fixedSize()
+        if let duration = session.durationText {
+            Fact(value: duration).fixedSize().help("Del primer al último mensaje")
+        }
         if let cost = session.costUSD { Fact(value: cost.usd).fixedSize() }
         Text(session.model).fixedSize()
     }
@@ -161,6 +164,8 @@ struct SessionDetailView: View {
             Menu {
                 Button("Renombrar…", systemImage: "pencil") { model.renamingSession = session }
                 Button(session.note == nil ? "Añadir nota…" : "Editar nota…", systemImage: "note.text") { model.editingNoteFor = session }
+                Button(session.isArchived ? "Sacar del archivo" : "Archivar",
+                       systemImage: session.isArchived ? "tray.and.arrow.up" : "archivebox") { model.toggleArchive(session.id) }
                 Divider()
                 Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: session.cwd) }
                     .disabled(!session.folderExists)
@@ -209,7 +214,7 @@ struct ConversationView: View {
 
     /// Los mensajes leídos; con datos de ejemplo, el primer mensaje y la última respuesta.
     static func messages(for session: Session, in model: AppModel) -> [Message] {
-        if let loaded = model.messages[session.id] { return loaded }
+        if let loaded = model.messages[session.id] { return model.showThinking ? loaded : loaded.filter { !$0.isThinking } }
         guard session.filePath == nil else { return [] }
         var list = [Message(role: .user, date: session.startedAt, text: session.firstPrompt)]
         if let reply = session.lastReply { list.append(Message(role: .assistant, date: session.lastActivity, text: reply)) }
@@ -345,6 +350,9 @@ struct MessageView: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(message.role == .user ? "Tú" : "Claude").fontWeight(.semibold)
+                    if message.isThinking {
+                        Label("Razonamiento", systemImage: "brain").labelStyle(.titleAndIcon).foregroundStyle(.secondary)
+                    }
                     Text(message.date.formatted(date: .omitted, time: .shortened))
                         .foregroundStyle(.tertiary)
                 }
@@ -352,6 +360,9 @@ struct MessageView: View {
                 if !message.text.isEmpty {
                     MarkdownView(blocks: MarkdownBlock.blocks(message.text), highlight: highlight, idPrefix: message.id.uuidString)
                         .textSelection(.enabled)
+                        .foregroundStyle(message.isThinking ? .secondary : .primary)
+                        .padding(message.isThinking ? 10 : 0)
+                        .background(message.isThinking ? AnyShapeStyle(.quaternary.opacity(0.4)) : AnyShapeStyle(.clear), in: .rect(cornerRadius: 8))
                 }
                 if message.toolCount > 0 {
                     Label(message.toolCount == 1 ? "1 herramienta" : "\(message.toolCount) herramientas",

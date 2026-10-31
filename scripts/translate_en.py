@@ -15,6 +15,21 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "Archivadas": "Archived",
+    "Archivar": "Archive",
+    "Cualquier fecha": "Any date",
+    "Cualquier rama": "Any branch",
+    "Del primer al último mensaje": "From the first to the last message",
+    "Fecha": "Date",
+    "Filtrar": "Filter",
+    "Filtrar la lista": "Filter the list",
+    "Filtros activos": "Filters on",
+    "Quitar filtros": "Clear Filters",
+    "Sacar del archivo": "Unarchive",
+    "Solo favoritos": "Favorites only",
+    "Últimos 3 meses": "Last 3 months",
+    "Últimos 7 días": "Last 7 days",
+    "Últimos 30 días": "Last 30 days",
     "Abrir carpetas en": "Open folders in",
     "Abrir en %@": "Open in %@",
     "Abrir la carpeta en %@": "Open the folder in %@",

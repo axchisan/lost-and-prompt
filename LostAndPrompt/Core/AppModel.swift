@@ -15,6 +15,24 @@ final class AppModel {
     var selectedSessionID: Session.ID? { didSet { if oldValue != selectedSessionID { findIndex = 0 } } }
     var listStyle: SessionListStyle = .rows { didSet { save(listStyle.rawValue, "listStyle") } }
     var searchText = "" { didSet { scheduleContentSearch() } }
+
+    // Filtros de la lista (no se guardan: al abrir la app se ve todo)
+    var filterPeriod: DatePeriod = .all
+    var filterFavoritesOnly = false
+    var filterBranch: String?
+    var isFiltering: Bool { filterPeriod != .all || filterFavoritesOnly || filterBranch != nil }
+
+    func clearFilters() {
+        filterPeriod = .all
+        filterFavoritesOnly = false
+        filterBranch = nil
+    }
+
+    /// Ramas de git de las sesiones, de la más usada a la menos (las 15 primeras).
+    var branches: [String] {
+        let counts = Dictionary(grouping: activeSessions.compactMap(\.gitBranch).filter { $0 != "HEAD" }, by: \.self).mapValues(\.count)
+        return counts.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }.prefix(15).map(\.key)
+    }
     var isQuickOpenPresented = false
     /// Coincidencias dentro de las conversaciones para la búsqueda actual: sesión → fragmento.
     var contentHits: [Session.ID: String] = [:]
@@ -59,21 +77,30 @@ final class AppModel {
     }
 
     func count(in collectionID: SessionCollection.ID) -> Int {
-        sessions.filter { $0.collectionIDs.contains(collectionID) }.count
+        activeSessions.filter { $0.collectionIDs.contains(collectionID) }.count
     }
 
-    var favoritesCount: Int { sessions.filter(\.isFavorite).count }
+    var favoritesCount: Int { activeSessions.filter(\.isFavorite).count }
+
+    /// Las sesiones sin archivar: las que se ven en la lista, los contadores y los buscadores.
+    var activeSessions: [Session] { sessions.filter { !$0.isArchived } }
+
+    var archivedCount: Int { sessions.filter { $0.isArchived && (!hideEmptySessions || $0.userMessages > 0) }.count }
 
     /// Sesiones de la sección elegida en la barra lateral, filtradas por la búsqueda.
     var visibleSessions: [Session] {
         var result: [Session]
         switch sidebarSelection {
-        case .favorites: result = sessions.filter(\.isFavorite)
-        case .collection(let id): result = sessions.filter { $0.collectionIDs.contains(id) }
-        case .project(let path): result = sessions.filter { $0.cwd == path || $0.cwd.hasPrefix(path + "/") }
-        default: result = sessions
+        case .favorites: result = activeSessions.filter(\.isFavorite)
+        case .archived: result = sessions.filter(\.isArchived)
+        case .collection(let id): result = activeSessions.filter { $0.collectionIDs.contains(id) }
+        case .project(let path): result = activeSessions.filter { $0.cwd == path || $0.cwd.hasPrefix(path + "/") }
+        default: result = activeSessions
         }
         if hideEmptySessions { result = result.filter { $0.userMessages > 0 } }
+        if let start = filterPeriod.start(from: now) { result = result.filter { $0.lastActivity >= start } }
+        if filterFavoritesOnly { result = result.filter(\.isFavorite) }
+        if let branch = filterBranch { result = result.filter { $0.gitBranch == branch } }
         let query = searchText.trimmingCharacters(in: .whitespaces)
         if !query.isEmpty {
             result = result.filter {
@@ -90,6 +117,7 @@ final class AppModel {
         switch sidebarSelection {
         case .favorites: String(localized: "Favoritos")
         case .activity: String(localized: "Actividad")
+        case .archived: String(localized: "Archivadas")
         case .collection(let id): collection(id)?.name ?? ""
         case .project(let path): path == Session.homePath ? String(localized: "Inicio") : (path as NSString).lastPathComponent
         default: String(localized: "Recientes")
@@ -151,7 +179,7 @@ final class AppModel {
 
     /// Carpetas con sesiones, anidadas bajo su carpeta padre más cercana que también tenga sesiones.
     var projectTree: [ProjectNode] {
-        let counts = Dictionary(grouping: sessions, by: \.cwd).mapValues(\.count)
+        let counts = Dictionary(grouping: activeSessions, by: \.cwd).mapValues(\.count)
         let paths = counts.keys.sorted()
         func name(_ path: String) -> String {
             path == Session.homePath ? String(localized: "Inicio") : (path as NSString).lastPathComponent
@@ -290,6 +318,7 @@ final class AppModel {
             costUSD: summary.costUSD,
             model: Self.modelName(summary.model),
             isFavorite: organization.favorites.contains(id),
+            isArchived: organization.archived.contains(id),
             collectionIDs: organization.memberships.compactMap { $0.value.contains(id) ? $0.key : nil }.sorted(),
             firstPrompt: summary.firstPrompt ?? "",
             lastReply: summary.lastReply,
@@ -394,6 +423,19 @@ final class AppModel {
         sessions[index].isFavorite.toggle()
         if sessions[index].isFavorite { organization.favorites.insert(id) } else { organization.favorites.remove(id) }
         persist()
+    }
+
+    /// Archiva o recupera la sesión. Al archivar la elegida, pasa a la siguiente de la lista.
+    func toggleArchive(_ id: Session.ID) {
+        guard let index = sessions.firstIndex(where: { $0.id == id }) else { return }
+        let list = visibleSessions
+        sessions[index].isArchived.toggle()
+        if sessions[index].isArchived { organization.archived.insert(id) } else { organization.archived.remove(id) }
+        persist()
+        if selectedSessionID == id, let position = list.firstIndex(where: { $0.id == id }) {
+            let remaining = list.filter { $0.id != id }
+            selectedSessionID = remaining.isEmpty ? nil : remaining[min(position, remaining.count - 1)].id
+        }
     }
 
     func toggle(_ id: Session.ID, in collectionID: SessionCollection.ID) {

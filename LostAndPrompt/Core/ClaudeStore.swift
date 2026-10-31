@@ -133,8 +133,13 @@ nonisolated enum ClaudeStore {
                             if let text = block["text"] as? String, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 result.append(Message(role: .assistant, date: when, text: text))
                             }
+                        case "thinking":
+                            // Muchas veces viene vacío (solo la firma): esos no se muestran.
+                            if let text = block["thinking"] as? String, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                result.append(Message(role: .assistant, date: when, text: text, isThinking: true))
+                            }
                         case "tool_use":
-                            if let last = result.indices.last, result[last].role == .assistant {
+                            if let last = result.indices.last, result[last].role == .assistant, !result[last].isThinking {
                                 result[last].toolCount += 1
                             } else {
                                 result.append(Message(role: .assistant, date: when, text: "", toolCount: 1))
