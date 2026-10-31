@@ -12,7 +12,7 @@
 | 6b. Preparar publicación | Datos de ejemplo ficticios ✅, capturas nuevas ✅, material con datos reales fuera del repositorio ✅, historial limpio y repositorio público ✅ | ✅ 2026-10-31 |
 | 8. Linux y Windows | Tauri 2 + Rust con instaladores propios | ⏳ en curso |
 | 8a. Núcleo Rust (`core/`) | Lector, búsqueda FTS5, organización y retención; pruebas en macOS, Linux y Windows (CI); paridad 0 diferencias con Swift en 83 sesiones reales | ✅ |
-| 8b. App Tauri | Ventana principal con el diseño A e íconos Lucide | Pendiente |
+| 8b. App Tauri (`desktop/`) | Ventana principal con el diseño A, íconos Lucide, lanzador, Actividad, Ajustes, diálogos; CI que compila .exe (NSIS) en Windows y .deb/.rpm/AppImage en Linux | ✅ (falta probarla en Windows y Linux reales) |
 | 8c. Integración por plataforma | Reanudar (Windows Terminal, PowerShell, WSL, terminales de Linux), bandeja, atajo global | Pendiente |
 | 8d. Instaladores | .msi/.exe, .deb/.rpm/AppImage generados en GitHub Actions; winget y Flathub | Pendiente |
 | 7. Comunidad | Repositorio público, guía de contribución, traducciones | Pendiente |
