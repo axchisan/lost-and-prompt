@@ -7,14 +7,26 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-31
+
 ### Fixed
 - Windows and Linux: the window title bar now follows the theme chosen in Settings (it stayed light
   in dark mode).
+- Windows: when installed with Scoop, the update notice tells you to run `scoop update` instead of
+  installing a second copy.
+
+### Added
+- Install with Scoop: `scoop bucket add axchisan https://github.com/axchisan/scoop-bucket` and
+  `scoop install axchisan/lost-and-prompt`.
 
 ---
 
 - Windows y Linux: la barra de título de la ventana sigue el tema elegido en Ajustes (se quedaba
   clara en modo oscuro).
+- Windows: si la instalaste con Scoop, el aviso de actualización indica `scoop update` en vez de
+  instalar una segunda copia.
+- Instalación con Scoop: `scoop bucket add axchisan https://github.com/axchisan/scoop-bucket` y
+  `scoop install axchisan/lost-and-prompt`.
 
 ## [0.2.0] - 2026-10-31
 
@@ -83,7 +95,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/axchisan/lost-and-prompt/releases/tag/v0.1.0
