@@ -110,5 +110,6 @@ autor; **si se pierden, las apps instaladas ya no podrán actualizarse solas**.
    y capturas para el README.
 2. **Guardar las claves de actualización** cuando se generen (fase D): en un gestor de
    contraseñas, además de los secretos de GitHub.
-3. **Un token de GitHub** (fine-grained, con permiso de escritura solo en `homebrew-tap`)
-   para que el flujo actualice el cask, y una cuenta de GitHub enlazada para los PR de winget.
+3. **Clave de despliegue de Homebrew**: ejecutar una vez `scripts/setup-tap-key.sh` (clave SSH con
+   escritura solo en `homebrew-tap`, guardada como secreto `HOMEBREW_TAP_DEPLOY_KEY`). Para winget,
+   una cuenta de GitHub enlazada para los PR.
