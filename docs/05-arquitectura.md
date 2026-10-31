@@ -105,3 +105,23 @@ pide confirmación antes de hacerlo.
 - Pruebas de interfaz de los flujos clave: buscar → reanudar, marcar favorito, crear colección.
 - CI en GitHub Actions: compilar, probar y, en cada etiqueta, firmar, notarizar y publicar el
   release y actualizar el cask.
+
+## Núcleo multiplataforma (Rust)
+
+`core/` (crate `lost-and-prompt-core`, librería `lap_core`) reimplementa `LostAndPrompt/Core` para
+Linux y Windows y debe comportarse igual:
+
+| Módulo | Equivale a |
+|---|---|
+| `store.rs` | `ClaudeStore.swift`: `memchr`/`memmem` sobre archivos mapeados en memoria, en paralelo con `rayon`, caché por tamaño y fecha |
+| `search.rs` | `SearchIndex.swift`: SQLite FTS5 (`rusqlite` con SQLite incluido) |
+| `organization.rs` | `OrganizationStore.swift` |
+| `settings.rs` | `ClaudeSettings.swift`: conserva el orden de las claves |
+| `paths.rs` | Rutas por sistema; respeta `CLAUDE_CONFIG_DIR` |
+
+Datos propios: `~/Library/Application Support/LostAndPrompt` (macOS), `%APPDATA%\LostAndPrompt`
+(Windows), `~/.local/share/lost-and-prompt` (Linux).
+
+Pruebas: `cargo test -p lost-and-prompt-core` (sesión ficticia con los casos difíciles del formato)
+y `cargo run --release -p lost-and-prompt-core --example parity`, que compara con la caché de la app
+de Swift. El 2026-10-31: 83 sesiones reales, 0 diferencias; escaneo de 1,17 GB en ~50 ms.

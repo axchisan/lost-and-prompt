@@ -5,3 +5,4 @@ DerivedData/
 xcuserdata/
 LostAndPrompt.xcodeproj/
 .idea/
+/target

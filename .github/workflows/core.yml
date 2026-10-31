@@ -1,0 +1,23 @@
+name: Núcleo (Rust)
+
+on:
+  push:
+    paths: ["core/**", "Cargo.toml", "Cargo.lock", ".github/workflows/core.yml"]
+  pull_request:
+    paths: ["core/**", "Cargo.toml", "Cargo.lock", ".github/workflows/core.yml"]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p lost-and-prompt-core --locked
+      - run: cargo clippy -p lost-and-prompt-core --locked -- -D warnings

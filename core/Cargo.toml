@@ -1,0 +1,25 @@
+[package]
+name = "lost-and-prompt-core"
+description = "Lectura, búsqueda y organización de sesiones de Claude Code (núcleo multiplataforma de Lost & Prompt)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "lap_core"
+
+[dependencies]
+memchr = "2"
+memmap2 = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+rayon = "1"
+uuid = { version = "1", features = ["serde", "v4"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "serde", "clock"] }
+dirs = "5"
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

@@ -10,7 +10,11 @@
 | 5. MVP | Requisitos marcados MVP en `03-requisitos.md` | ✅ |
 | 6. v1 pública | Colecciones, etiquetas, ⌘K, Actividad, Ajustes completos, firma, notarización, Homebrew y README en inglés y español | Pendiente |
 | 6b. Preparar publicación | Datos de ejemplo ficticios ✅, capturas nuevas ✅, material con datos reales fuera del repositorio ✅, historial limpio y repositorio público ✅ | ✅ 2026-10-31 |
-| 8. Linux y Windows | Versiones para Linux y Windows con instaladores propios (decisión de tecnología pendiente: SwiftUI es solo de Apple) | Pendiente, después de pulir macOS |
+| 8. Linux y Windows | Tauri 2 + Rust con instaladores propios | ⏳ en curso |
+| 8a. Núcleo Rust (`core/`) | Lector, búsqueda FTS5, organización y retención; pruebas en macOS, Linux y Windows (CI); paridad 0 diferencias con Swift en 83 sesiones reales | ✅ |
+| 8b. App Tauri | Ventana principal con el diseño A e íconos Lucide | Pendiente |
+| 8c. Integración por plataforma | Reanudar (Windows Terminal, PowerShell, WSL, terminales de Linux), bandeja, atajo global | Pendiente |
+| 8d. Instaladores | .msi/.exe, .deb/.rpm/AppImage generados en GitHub Actions; winget y Flathub | Pendiente |
 | 7. Comunidad | Repositorio público, guía de contribución, traducciones | Pendiente |
 
 ## Herramienta de mockups
