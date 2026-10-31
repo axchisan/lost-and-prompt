@@ -44,9 +44,8 @@ jobs:
         with:
           name: lost-and-prompt-${{ matrix.name }}
           path: |
-            ../target/release/bundle/msi/*.msi
-            ../target/release/bundle/nsis/*.exe
-            ../target/release/bundle/deb/*.deb
-            ../target/release/bundle/rpm/*.rpm
-            ../target/release/bundle/appimage/*.AppImage
+            target/release/bundle/nsis/*.exe
+            target/release/bundle/deb/*.deb
+            target/release/bundle/rpm/*.rpm
+            target/release/bundle/appimage/*.AppImage
           if-no-files-found: error
