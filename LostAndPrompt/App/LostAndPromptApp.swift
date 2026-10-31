@@ -1,0 +1,101 @@
+import SwiftUI
+
+@main
+struct LostAndPromptApp: App {
+    @State private var model = LostAndPromptApp.makeModel()
+    @AppStorage("showMenuBarExtra") private var showMenuBarExtra = true
+
+    var body: some Scene {
+        Window("Lost & Prompt", id: "main") {
+            MainView()
+                .environment(model)
+                .onAppear(perform: applyLaunchOptions)
+                .task { await model.reload() }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+                    Task { await model.reload() }
+                }
+        }
+        .defaultSize(width: 1180, height: 740)
+        .commands { AppCommands(model: model) }
+
+        Settings {
+            SettingsView().environment(model)
+        }
+
+        MenuBarExtra("Lost & Prompt", systemImage: "shippingbox", isInserted: $showMenuBarExtra) {
+            MenuBarView().environment(model)
+        }
+        .menuBarExtraStyle(.window)
+    }
+
+    /// Datos reales por defecto; `-LPMock YES` (o cualquier `-LPScreen`) usa los de ejemplo para capturas.
+    private static func makeModel() -> AppModel {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "LPMock") || defaults.string(forKey: "LPScreen") != nil else { return .live() }
+        let model = MockData.model()
+        switch defaults.string(forKey: "LPScreen") {
+        case "cards": model.listStyle = .cards
+        case "favorites": model.sidebarSelection = .favorites
+        case "activity": model.sidebarSelection = .activity
+        case "quickopen": model.isQuickOpenPresented = true
+        case "empty":
+            model.sidebarSelection = .favorites
+            for index in model.sessions.indices { model.sessions[index].isFavorite = false }
+        case "search": model.searchText = "acme"
+        case "missing":
+            if let index = model.sessions.firstIndex(where: { $0.id == MockData.featuredID }) {
+                model.sessions[index].folderExists = false
+            }
+        default: break
+        }
+        return model
+    }
+
+    /// Opciones para capturas: `-LPDark YES` fuerza el modo oscuro.
+    private func applyLaunchOptions() {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: "LPDark") != nil {
+            NSApp.appearance = NSAppearance(named: defaults.bool(forKey: "LPDark") ? .darkAqua : .aqua)
+        }
+    }
+}
+
+struct AppCommands: Commands {
+    var model: AppModel
+
+    var body: some Commands {
+        CommandMenu("Sesión") {
+            Button("Buscar rápido…") { model.isQuickOpenPresented.toggle() }
+                .keyboardShortcut("k")
+            Divider()
+            Button("Reanudar en \(model.terminal.displayName)") { if let s = model.selectedSession { model.resume(s) } }
+                .keyboardShortcut(.return, modifiers: .command)
+                .disabled(model.selectedSession == nil)
+            Button("Copiar comando") { if let s = model.selectedSession { model.copyResumeCommand(s) } }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+                .disabled(model.selectedSession == nil)
+            Button("Favorito") { if let id = model.selectedSessionID { model.toggleFavorite(id) } }
+                .keyboardShortcut("d")
+                .disabled(model.selectedSession == nil)
+            Button("Renombrar…") { model.renamingSession = model.selectedSession }
+                .disabled(model.selectedSession == nil)
+            Divider()
+            Button("Mostrar en Finder") { if let s = model.selectedSession { model.revealInFinder(s) } }
+                .keyboardShortcut("r", modifiers: [.command, .option])
+                .disabled(model.selectedSession == nil)
+        }
+        CommandGroup(after: .newItem) {
+            Button("Nueva colección…") { model.isCreatingCollection = true }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("Volver a leer las sesiones") { Task { await model.reload() } }
+                .keyboardShortcut("r")
+        }
+        CommandGroup(after: .toolbar) {
+            Picker("Vista", selection: Binding(get: { model.listStyle }, set: { model.listStyle = $0 })) {
+                Text("Filas").tag(SessionListStyle.rows).keyboardShortcut("1")
+                Text("Tarjetas").tag(SessionListStyle.cards).keyboardShortcut("2")
+            }
+            .pickerStyle(.inline)
+        }
+    }
+}

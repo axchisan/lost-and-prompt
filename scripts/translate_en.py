@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""Aplica las traducciones al inglés al catálogo de textos.
+
+Uso (desde la raíz del repositorio):
+    xcodebuild -exportLocalizations -project LostAndPrompt.xcodeproj -localizationPath build/loc -exportLanguage en
+    python3 scripts/translate_en.py
+
+La exportación añade al catálogo los textos nuevos del código; este script les pone el
+inglés y avisa de los que todavía no tienen traducción.
+"""
+import json
+import pathlib
+import sys
+
+CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
+
+EN = {
+    "¿Conservar las sesiones %lld días?": "Keep sessions for %lld days?",
+    "%@ mensajes": "%@ messages",
+    "%@ no está instalada.": "%@ is not installed.",
+    "%lld herramientas": "%lld tools",
+    "%lld sesiones": "%lld sessions",
+    "1 año": "1 year",
+    "1 herramienta": "1 tool",
+    "1 mensaje": "1 message",
+    "1 mes": "1 month",
+    "1 sesión": "1 session",
+    "3 meses": "3 months",
+    "6 meses": "6 months",
+    "7 días": "7 days",
+    "30 días": "30 days",
+    "30 días (valor por defecto)": "30 days (default)",
+    "Abrir al iniciar sesión": "Open at login",
+    "Abrir carpeta": "Open Folder",
+    "Abrir Lost & Prompt": "Open Lost & Prompt",
+    "Aceptar": "OK",
+    "Actividad": "Activity",
+    "Ahora mismo": "Current setting",
+    "Añadir a favoritos": "Add to Favorites",
+    "Añadir a favoritos (⌘D)": "Add to Favorites (⌘D)",
+    "Añadir a una colección": "Add to a collection",
+    "Añadir nota…": "Add Note…",
+    "Apariencia": "Appearance",
+    "Aplicar": "Apply",
+    "Argumentos extra": "Extra arguments",
+    "Atajo global": "Global shortcut",
+    "Aún no hay favoritos": "No Favorites Yet",
+    "Ayer": "Yesterday",
+    "Ayer, %@": "Yesterday, %@",
+    "Borrar nota": "Delete Note",
+    "Busca por título, carpeta o lo que se dijo en la conversación. ⌥⌘K abre el buscador desde cualquier app.":
+        "Search by title, folder or anything said in the conversation. ⌥⌘K opens search from any app.",
+    "Buscar": "Search",
+    "Buscar rápido…": "Quick Search…",
+    "Buscar sesiones": "Search sessions",
+    "Buscar sesiones y mensajes": "Search sessions and messages",
+    "Cambiar": "Change",
+    "Cambiar entre filas y tarjetas": "Switch between rows and cards",
+    "Cancelar": "Cancel",
+    "Carpetas": "Folders",
+    "Carpetas con más uso": "Most used folders",
+    "cd '<carpeta>' && claude --resume <id> %@": "cd '<folder>' && claude --resume <id> %@",
+    "Claude": "Claude",
+    "Claude Code borra las sesiones de más de 30 días": "Claude Code deletes sessions older than 30 days",
+    "Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en `~/.claude/settings.json` y guarda antes una copia del archivo.":
+        "Claude Code deletes sessions older than this. Lost & Prompt changes the `cleanupPeriodDays` setting in `~/.claude/settings.json` and backs up the file first.",
+    "Colecciones": "Collections",
+    "Comando": "Command",
+    "Conservar 6 meses": "Keep 6 Months",
+    "Conservar sesiones": "Keep sessions",
+    "Conversación": "Conversation",
+    "Copiar comando": "Copy Command",
+    "Copiar ID de la sesión": "Copy Session ID",
+    "Costo": "Cost",
+    "Costo estimado": "Estimated cost",
+    "Costo estimado según los precios públicos de cada modelo.": "Estimated from each model's public pricing.",
+    "Costo por día": "Cost per day",
+    "Crear": "Create",
+    "Día": "Day",
+    "Días": "Days",
+    "Editar nota": "Edit note",
+    "Editar nota…": "Edit Note…",
+    "Elegir carpeta…": "Choose Folder…",
+    "Elige dónde reanudar esta sesión. Claude Code la buscará en la carpeta nueva.":
+        "Choose where to resume this session. Claude Code will look for it in the new folder.",
+    "Elige la carpeta donde quieres reanudar «%@».": "Choose the folder where you want to resume “%@”.",
+    "Elige una sesión": "Choose a Session",
+    "Eliminar colección": "Delete Collection",
+    "Empezar": "Get Started",
+    "Empezaste con": "You started with",
+    "En mensajes": "In messages",
+    "Encuentra cualquier sesión": "Find any session",
+    "Es el plazo por defecto. Puedes conservarlas más tiempo; se guarda una copia de tus ajustes antes de cambiarlos.":
+        "That's the default. You can keep them longer; your settings are backed up before they change.",
+    "Esta semana": "This Week",
+    "Este mes": "This Month",
+    "Favorito": "Favorite",
+    "Favoritos": "Favorites",
+    "Favoritos, nombres propios, colecciones y notas, sin tocar los archivos de Claude Code.":
+        "Favorites, custom names, collections and notes, without touching Claude Code's files.",
+    "Filas": "Rows",
+    "General": "General",
+    "Guardar": "Save",
+    "Herramientas": "Tools",
+    "Historial": "History",
+    "Historial de Claude Code": "Claude Code history",
+    "Hoy": "Today",
+    "Hoy, %@": "Today, %@",
+    "Indexando mensajes: %lld de %lld": "Indexing messages: %lld of %lld",
+    "Inicio": "Home",
+    "La carpeta «%@» ya no existe.": "The folder “%@” no longer exists.",
+    "La carpeta ya no existe": "The folder no longer exists",
+    "Lanzador": "Launcher",
+    "Las sesiones de Claude Code que abras aparecerán aquí.": "The Claude Code sessions you open will appear here.",
+    "Leyendo la conversación…": "Reading the conversation…",
+    "Leyendo tus sesiones de Claude Code…": "Reading your Claude Code sessions…",
+    "Lista": "List",
+    "Lo último de Claude": "Claude's last reply",
+    "Lost & Prompt": "Lost & Prompt",
+    "Lost & Prompt lee las sesiones de ~/.claude/projects. Usa Claude Code al menos una vez y aparecerán aquí.":
+        "Lost & Prompt reads sessions from ~/.claude/projects. Use Claude Code at least once and they'll show up here.",
+    "Lost & Prompt solo lee ~/.claude y no envía nada a ningún servidor.":
+        "Lost & Prompt only reads ~/.claude and never sends anything to a server.",
+    "Marca una sesión con ⌘D para tenerla siempre a mano.": "Mark a session with ⌘D to keep it close at hand.",
+    "Más": "More",
+    "Más antiguas": "Older",
+    "mensajes": "messages",
+    "Mensajes tuyos": "Your messages",
+    "Mostrar": "Show",
+    "Mostrar el costo en la lista": "Show cost in the list",
+    "Mostrar en Finder": "Show in Finder",
+    "Mostrar en la barra de menús": "Show in menu bar",
+    "msj.": "msgs",
+    "No encontramos Claude Code": "Claude Code Not Found",
+    "No hay sesiones": "No Sessions",
+    "No se pudo cambiar el ajuste: %@": "Couldn't change the setting: %@",
+    "No se pudo completar la acción": "Couldn't complete the action",
+    "Nombre": "Name",
+    "Nota": "Note",
+    "Nueva colección": "New Collection",
+    "Nueva colección…": "New Collection…",
+    "Ocultar sesiones vacías": "Hide empty sessions",
+    "Organiza a tu manera": "Organize your way",
+    "Otro plazo…": "Other…",
+    "Periodo": "Period",
+    "Personalizado": "Custom",
+    "Por ejemplo, qué quedó pendiente. Solo se guarda en Lost & Prompt.": "For example, what's left to do. Only saved in Lost & Prompt.",
+    "Por ejemplo: --model opus": "For example: --model opus",
+    "Por ejemplo: Trabajo": "For example: Work",
+    "Pulsa ⌘K para buscar en todas tus sesiones.": "Press ⌘K to search all your sessions.",
+    "Quitar de favoritos": "Remove from Favorites",
+    "Quitar de favoritos (⌘D)": "Remove from Favorites (⌘D)",
+    "Rama de git": "Git branch",
+    "Razonamiento": "Thinking",
+    "Reanuda en tu terminal": "Resume in your terminal",
+    "Reanudar": "Resume",
+    "Reanudar aquí": "Resume Here",
+    "Reanudar en": "Resume in",
+    "Reanudar en %@": "Resume in %@",
+    "Recientes": "Recents",
+    "Renombrar sesión": "Rename Session",
+    "Renombrar…": "Rename…",
+    "Se abrirá en %@": "Opens in %@",
+    "Se modificará ~/.claude/settings.json. Se guardará una copia del archivo actual.":
+        "~/.claude/settings.json will be changed. A copy of the current file will be saved.",
+    "Sesión": "Session",
+    "Sesión sin título": "Untitled session",
+    "Sesiones": "Sessions",
+    "Sin selección": "No Selection",
+    "Solo cambia el nombre en Lost & Prompt. Déjalo vacío para volver al título original.":
+        "Only changes the name in Lost & Prompt. Leave it empty to go back to the original title.",
+    "Tarjetas": "Cards",
+    "Te damos la bienvenida a Lost & Prompt": "Welcome to Lost & Prompt",
+    "Terminal": "Terminal",
+    "Todas": "All",
+    "Todas tus sesiones de Claude Code, de todas tus carpetas, en un solo lugar.":
+        "All your Claude Code sessions, from every folder, in one place.",
+    "Todo": "All",
+    "Todo se queda en tu Mac": "Everything stays on your Mac",
+    "Tú": "You",
+    "Un clic abre la sesión en Warp, Terminal, iTerm2 o Ghostty, en su carpeta original.":
+        "One click opens the session in Warp, Terminal, iTerm2 or Ghostty, in its original folder.",
+    "Ver en la app": "View in app",
+    "Vista": "View",
+    "Vista de la lista": "List view",
+    "Volver a leer las sesiones": "Reload Sessions",
+}
+
+
+def main() -> int:
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+    missing = []
+    for key, entry in catalog["strings"].items():
+        if not key.strip():
+            continue
+        if key not in EN:
+            missing.append(key)
+            continue
+        entry.setdefault("localizations", {})["en"] = {"stringUnit": {"state": "translated", "value": EN[key]}}
+    CATALOG.write_text(json.dumps(catalog, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    for key in missing:
+        print(f"Sin traducir: {key!r}", file=sys.stderr)
+    print(f"{len(catalog['strings']) - len(missing)} traducidas, {len(missing)} pendientes")
+    return 1 if missing else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

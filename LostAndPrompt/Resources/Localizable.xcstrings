@@ -1,0 +1,1593 @@
+{
+  "sourceLanguage": "es",
+  "strings": {
+    "": {},
+    "%@ mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ messages"
+          }
+        }
+      }
+    },
+    "%@ no está instalada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is not installed."
+          }
+        }
+      }
+    },
+    "%lld herramientas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld tools"
+          }
+        }
+      }
+    },
+    "%lld sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sessions"
+          }
+        }
+      }
+    },
+    "1 año": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 year"
+          }
+        }
+      }
+    },
+    "1 herramienta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 tool"
+          }
+        }
+      }
+    },
+    "1 mensaje": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 message"
+          }
+        }
+      }
+    },
+    "1 mes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month"
+          }
+        }
+      }
+    },
+    "1 sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 session"
+          }
+        }
+      }
+    },
+    "3 meses": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 months"
+          }
+        }
+      }
+    },
+    "30 días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days"
+          }
+        }
+      }
+    },
+    "30 días (valor por defecto)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days (default)"
+          }
+        }
+      }
+    },
+    "6 meses": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 months"
+          }
+        }
+      }
+    },
+    "7 días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 days"
+          }
+        }
+      }
+    },
+    "Abrir Lost & Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Lost & Prompt"
+          }
+        }
+      }
+    },
+    "Abrir al iniciar sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open at login"
+          }
+        }
+      }
+    },
+    "Abrir carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Folder"
+          }
+        }
+      }
+    },
+    "Aceptar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Actividad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity"
+          }
+        }
+      }
+    },
+    "Ahora mismo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current setting"
+          }
+        }
+      }
+    },
+    "Apariencia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "Aplicar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply"
+          }
+        }
+      }
+    },
+    "Argumentos extra": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra arguments"
+          }
+        }
+      }
+    },
+    "Atajo global": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global shortcut"
+          }
+        }
+      }
+    },
+    "Ayer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        }
+      }
+    },
+    "Ayer, %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday, %@"
+          }
+        }
+      }
+    },
+    "Añadir a favoritos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
+          }
+        }
+      }
+    },
+    "Añadir a favoritos (⌘D)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites (⌘D)"
+          }
+        }
+      }
+    },
+    "Añadir a una colección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to a collection"
+          }
+        }
+      }
+    },
+    "Añadir nota…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Note…"
+          }
+        }
+      }
+    },
+    "Aún no hay favoritos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Favorites Yet"
+          }
+        }
+      }
+    },
+    "Borrar nota": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Note"
+          }
+        }
+      }
+    },
+    "Busca por título, carpeta o lo que se dijo en la conversación. ⌥⌘K abre el buscador desde cualquier app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search by title, folder or anything said in the conversation. ⌥⌘K opens search from any app."
+          }
+        }
+      }
+    },
+    "Buscar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "Buscar rápido…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Search…"
+          }
+        }
+      }
+    },
+    "Buscar sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search sessions"
+          }
+        }
+      }
+    },
+    "Buscar sesiones y mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search sessions and messages"
+          }
+        }
+      }
+    },
+    "Cambiar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        }
+      }
+    },
+    "Cambiar entre filas y tarjetas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch between rows and cards"
+          }
+        }
+      }
+    },
+    "Cancelar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Carpetas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folders"
+          }
+        }
+      }
+    },
+    "Carpetas con más uso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most used folders"
+          }
+        }
+      }
+    },
+    "Claude": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude"
+          }
+        }
+      }
+    },
+    "Claude Code borra las sesiones de más de 30 días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code deletes sessions older than 30 days"
+          }
+        }
+      }
+    },
+    "Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en `~/.claude/settings.json` y guarda antes una copia del archivo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code deletes sessions older than this. Lost & Prompt changes the `cleanupPeriodDays` setting in `~/.claude/settings.json` and backs up the file first."
+          }
+        }
+      }
+    },
+    "Colecciones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collections"
+          }
+        }
+      }
+    },
+    "Comando": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command"
+          }
+        }
+      }
+    },
+    "Conservar 6 meses": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep 6 Months"
+          }
+        }
+      }
+    },
+    "Conservar sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep sessions"
+          }
+        }
+      }
+    },
+    "Conversación": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation"
+          }
+        }
+      }
+    },
+    "Copiar ID de la sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Session ID"
+          }
+        }
+      }
+    },
+    "Copiar comando": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Command"
+          }
+        }
+      }
+    },
+    "Costo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cost"
+          }
+        }
+      }
+    },
+    "Costo estimado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimated cost"
+          }
+        }
+      }
+    },
+    "Costo estimado según los precios públicos de cada modelo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimated from each model's public pricing."
+          }
+        }
+      }
+    },
+    "Costo por día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cost per day"
+          }
+        }
+      }
+    },
+    "Crear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create"
+          }
+        }
+      }
+    },
+    "Día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        }
+      }
+    },
+    "Días": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
+          }
+        }
+      }
+    },
+    "Editar nota": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit note"
+          }
+        }
+      }
+    },
+    "Editar nota…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Note…"
+          }
+        }
+      }
+    },
+    "Elegir carpeta…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder…"
+          }
+        }
+      }
+    },
+    "Elige dónde reanudar esta sesión. Claude Code la buscará en la carpeta nueva.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose where to resume this session. Claude Code will look for it in the new folder."
+          }
+        }
+      }
+    },
+    "Elige la carpeta donde quieres reanudar «%@».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder where you want to resume “%@”."
+          }
+        }
+      }
+    },
+    "Elige una sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a Session"
+          }
+        }
+      }
+    },
+    "Eliminar colección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Collection"
+          }
+        }
+      }
+    },
+    "Empezar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
+          }
+        }
+      }
+    },
+    "Empezaste con": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You started with"
+          }
+        }
+      }
+    },
+    "En mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In messages"
+          }
+        }
+      }
+    },
+    "Encuentra cualquier sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find any session"
+          }
+        }
+      }
+    },
+    "Es el plazo por defecto. Puedes conservarlas más tiempo; se guarda una copia de tus ajustes antes de cambiarlos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That's the default. You can keep them longer; your settings are backed up before they change."
+          }
+        }
+      }
+    },
+    "Esta semana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Week"
+          }
+        }
+      }
+    },
+    "Este mes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Month"
+          }
+        }
+      }
+    },
+    "Favorito": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorite"
+          }
+        }
+      }
+    },
+    "Favoritos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites"
+          }
+        }
+      }
+    },
+    "Favoritos, nombres propios, colecciones y notas, sin tocar los archivos de Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites, custom names, collections and notes, without touching Claude Code's files."
+          }
+        }
+      }
+    },
+    "Filas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rows"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "Guardar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "Herramientas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools"
+          }
+        }
+      }
+    },
+    "Historial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        }
+      }
+    },
+    "Historial de Claude Code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code history"
+          }
+        }
+      }
+    },
+    "Hoy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "Hoy, %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today, %@"
+          }
+        }
+      }
+    },
+    "Indexando mensajes: %lld de %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indexing messages: %lld of %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Indexando mensajes: %1$lld de %2$lld"
+          }
+        }
+      }
+    },
+    "Inicio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
+    "La carpeta ya no existe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder no longer exists"
+          }
+        }
+      }
+    },
+    "La carpeta «%@» ya no existe.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder “%@” no longer exists."
+          }
+        }
+      }
+    },
+    "Lanzador": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launcher"
+          }
+        }
+      }
+    },
+    "Las sesiones de Claude Code que abras aparecerán aquí.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Claude Code sessions you open will appear here."
+          }
+        }
+      }
+    },
+    "Leyendo la conversación…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the conversation…"
+          }
+        }
+      }
+    },
+    "Leyendo tus sesiones de Claude Code…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading your Claude Code sessions…"
+          }
+        }
+      }
+    },
+    "Lista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
+          }
+        }
+      }
+    },
+    "Lo último de Claude": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude's last reply"
+          }
+        }
+      }
+    },
+    "Lost & Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost & Prompt"
+          }
+        }
+      }
+    },
+    "Lost & Prompt lee las sesiones de ~/.claude/projects. Usa Claude Code al menos una vez y aparecerán aquí.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost & Prompt reads sessions from ~/.claude/projects. Use Claude Code at least once and they'll show up here."
+          }
+        }
+      }
+    },
+    "Lost & Prompt solo lee ~/.claude y no envía nada a ningún servidor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost & Prompt only reads ~/.claude and never sends anything to a server."
+          }
+        }
+      }
+    },
+    "Marca una sesión con ⌘D para tenerla siempre a mano.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark a session with ⌘D to keep it close at hand."
+          }
+        }
+      }
+    },
+    "Mensajes tuyos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your messages"
+          }
+        }
+      }
+    },
+    "Mostrar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        }
+      }
+    },
+    "Mostrar el costo en la lista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show cost in the list"
+          }
+        }
+      }
+    },
+    "Mostrar en Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Finder"
+          }
+        }
+      }
+    },
+    "Mostrar en la barra de menús": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in menu bar"
+          }
+        }
+      }
+    },
+    "Más": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "Más antiguas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Older"
+          }
+        }
+      }
+    },
+    "No encontramos Claude Code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code Not Found"
+          }
+        }
+      }
+    },
+    "No hay sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Sessions"
+          }
+        }
+      }
+    },
+    "No se pudo cambiar el ajuste: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't change the setting: %@"
+          }
+        }
+      }
+    },
+    "No se pudo completar la acción": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't complete the action"
+          }
+        }
+      }
+    },
+    "Nombre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "Nota": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
+    "Nueva colección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Collection"
+          }
+        }
+      }
+    },
+    "Nueva colección…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Collection…"
+          }
+        }
+      }
+    },
+    "Ocultar sesiones vacías": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide empty sessions"
+          }
+        }
+      }
+    },
+    "Organiza a tu manera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organize your way"
+          }
+        }
+      }
+    },
+    "Otro plazo…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other…"
+          }
+        }
+      }
+    },
+    "Periodo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Period"
+          }
+        }
+      }
+    },
+    "Personalizado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        }
+      }
+    },
+    "Por ejemplo, qué quedó pendiente. Solo se guarda en Lost & Prompt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example, what's left to do. Only saved in Lost & Prompt."
+          }
+        }
+      }
+    },
+    "Por ejemplo: --model opus": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example: --model opus"
+          }
+        }
+      }
+    },
+    "Por ejemplo: Trabajo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example: Work"
+          }
+        }
+      }
+    },
+    "Pulsa ⌘K para buscar en todas tus sesiones.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press ⌘K to search all your sessions."
+          }
+        }
+      }
+    },
+    "Quitar de favoritos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "Quitar de favoritos (⌘D)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites (⌘D)"
+          }
+        }
+      }
+    },
+    "Rama de git": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Git branch"
+          }
+        }
+      }
+    },
+    "Razonamiento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thinking"
+          }
+        }
+      }
+    },
+    "Reanuda en tu terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume in your terminal"
+          }
+        }
+      }
+    },
+    "Reanudar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        }
+      }
+    },
+    "Reanudar aquí": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume Here"
+          }
+        }
+      }
+    },
+    "Reanudar en": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume in"
+          }
+        }
+      }
+    },
+    "Reanudar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume in %@"
+          }
+        }
+      }
+    },
+    "Recientes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recents"
+          }
+        }
+      }
+    },
+    "Renombrar sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename Session"
+          }
+        }
+      }
+    },
+    "Renombrar…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename…"
+          }
+        }
+      }
+    },
+    "Se abrirá en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens in %@"
+          }
+        }
+      }
+    },
+    "Se modificará ~/.claude/settings.json. Se guardará una copia del archivo actual.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json will be changed. A copy of the current file will be saved."
+          }
+        }
+      }
+    },
+    "Sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sessions"
+          }
+        }
+      }
+    },
+    "Sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session"
+          }
+        }
+      }
+    },
+    "Sesión sin título": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Untitled session"
+          }
+        }
+      }
+    },
+    "Sin selección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Selection"
+          }
+        }
+      }
+    },
+    "Solo cambia el nombre en Lost & Prompt. Déjalo vacío para volver al título original.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only changes the name in Lost & Prompt. Leave it empty to go back to the original title."
+          }
+        }
+      }
+    },
+    "Tarjetas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cards"
+          }
+        }
+      }
+    },
+    "Te damos la bienvenida a Lost & Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Lost & Prompt"
+          }
+        }
+      }
+    },
+    "Terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal"
+          }
+        }
+      }
+    },
+    "Todas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "Todas tus sesiones de Claude Code, de todas tus carpetas, en un solo lugar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your Claude Code sessions, from every folder, in one place."
+          }
+        }
+      }
+    },
+    "Todo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "Todo se queda en tu Mac": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything stays on your Mac"
+          }
+        }
+      }
+    },
+    "Tú": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        }
+      }
+    },
+    "Un clic abre la sesión en Warp, Terminal, iTerm2 o Ghostty, en su carpeta original.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One click opens the session in Warp, Terminal, iTerm2 or Ghostty, in its original folder."
+          }
+        }
+      }
+    },
+    "Ver en la app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View in app"
+          }
+        }
+      }
+    },
+    "Vista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View"
+          }
+        }
+      }
+    },
+    "Vista de la lista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List view"
+          }
+        }
+      }
+    },
+    "Volver a leer las sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload Sessions"
+          }
+        }
+      }
+    },
+    "cd '<carpeta>' && claude --resume <id> %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cd '<folder>' && claude --resume <id> %@"
+          }
+        }
+      }
+    },
+    "mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "messages"
+          }
+        }
+      }
+    },
+    "msj.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "msgs"
+          }
+        }
+      }
+    },
+    "¿Conservar las sesiones %lld días?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep sessions for %lld days?"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
