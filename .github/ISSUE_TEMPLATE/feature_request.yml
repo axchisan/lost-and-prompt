@@ -1,0 +1,23 @@
+name: 💡 Proponer una idea / Feature request
+description: Una función nueva o una mejora. A new feature or improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qué problema resuelve / What problem does it solve
+      description: Cuéntanos la situación en la que la echas en falta.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Cómo te lo imaginas / How do you picture it
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Sistema / Platform
+      multiple: true
+      options: [macOS, Windows, Linux, Todas / All]

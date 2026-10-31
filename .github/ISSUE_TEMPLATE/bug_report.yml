@@ -1,0 +1,56 @@
+name: 🐞 Reportar un fallo / Bug report
+description: Algo no funciona como debería. Something isn't working.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportarlo. **No adjuntes sesiones reales ni capturas con datos personales.**
+        Thanks for the report. **Please don't attach real sessions or screenshots with personal data.**
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué pasó / What happened
+      description: Describe el fallo y qué esperabas que pasara.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducirlo / Steps to reproduce
+      placeholder: |
+        1. Abrir la app
+        2. …
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Sistema / Platform
+      options: [macOS, Windows, Windows + WSL, Linux]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión de Lost & Prompt / Version
+      description: Ajustes → Acerca de (Windows/Linux) o Lost & Prompt → Acerca de (macOS)
+      placeholder: "0.2.2"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Versión del sistema y terminal / OS version and terminal
+      placeholder: "Windows 11 24H2 · Windows Terminal"
+  - type: input
+    id: claude
+    attributes:
+      label: Versión de Claude Code / Claude Code version
+      description: "`claude --version`"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Registro de errores / Error log
+      description: En Windows y Linux, engranaje → Abrir registro de errores. Revisa que no tenga datos personales.
+      render: text

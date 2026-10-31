@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Preguntas y conversación / Questions & discussion
+    url: https://github.com/axchisan/lost-and-prompt/discussions
+    about: Dudas, ideas a medio cocinar y compartir cómo usas Lost & Prompt.
+  - name: 🔒 Vulnerabilidad de seguridad / Security vulnerability
+    url: https://github.com/axchisan/lost-and-prompt/security/advisories/new
+    about: Repórtala en privado, no en un issue público.

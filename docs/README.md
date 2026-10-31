@@ -2,8 +2,8 @@
 
 > *Every Claude Code session you ever lost, found.*
 
-App nativa de macOS (SwiftUI) para **encontrar, organizar y reanudar** todas las sesiones de
-Claude Code de la máquina, sin importar en qué directorio se abrieron.
+App para **encontrar, organizar y reanudar** todas las sesiones de Claude Code de la máquina, sin
+importar en qué directorio se abrieron. Nativa en SwiftUI en macOS; Tauri 2 + Rust en Windows y Linux.
 
 ## Índice
 
@@ -17,6 +17,9 @@ Claude Code de la máquina, sin importar en qué directorio se abrieron.
 | 6 | [Diseño](06-diseno.md) | Principios visuales y las direcciones propuestas |
 | 7 | [Hoja de ruta](07-hoja-de-ruta.md) | Fases: documentación → diseño → mockups → construcción → publicación |
 | 8 | [Distribución](08-distribucion.md) | Versiones, publicación automática, actualizaciones y canales en las tres plataformas |
+| 9 | [Pendientes](09-pendientes.md) | Qué falta: funciones, plataformas, canales y difusión |
+| — | [Promoción](promocion.md) | Textos listos para Reddit, Hacker News, X, Product Hunt… |
+| — | [QA](QA.md) | Lista de comprobación manual antes de cada versión |
 | — | [Decisiones](decisiones.md) | Registro de decisiones tomadas (y pendientes) |
 
 Las capturas de la app, con datos de ejemplo ficticios, están en [`screenshots/`](screenshots/) (`es` y `en`); se regeneran con `scripts/screenshots.sh`.
@@ -35,4 +38,10 @@ Para regenerar el proyecto de Xcode: `xcodegen generate` en la raíz. La app ace
 - [x] Mockups en SwiftUI y construcción de la app
 - [x] Lectura real, búsqueda, reanudar, organización y traducción al inglés
 - [x] Publicada la 0.1.0: [release](https://github.com/axchisan/lost-and-prompt/releases/tag/v0.1.0) y `brew install --cask axchisan/tap/lost-and-prompt`
-- [ ] **Versiones para Linux y Windows** ← siguiente gran paso
+- [x] Versiones para Windows y Linux (Tauri 2 + núcleo Rust compartido), probada en Windows
+- [x] Publicación automática, actualizaciones firmadas (Sparkle y Tauri), Homebrew y Scoop — 0.2.2
+- [x] Sitio web, README en español e inglés, guía de contribución y plantillas
+- [ ] winget (en revisión) y AUR (registro cerrado)
+- [ ] **0.3.0**: buscar en la conversación, Markdown completo, nueva sesión, abrir en el editor ← siguiente
+
+Detalle en [Pendientes](09-pendientes.md).

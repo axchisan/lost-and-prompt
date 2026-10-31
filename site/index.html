@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost & Prompt — todas tus sesiones de Claude Code en un solo lugar</title>
+<meta name="description" content="App gratuita y de código abierto para macOS, Windows y Linux: encuentra, organiza y reanuda todas tus sesiones de Claude Code, de todas tus carpetas.">
+<meta property="og:title" content="Lost & Prompt">
+<meta property="og:description" content="Every Claude Code session you ever lost, found. Free and open source for macOS, Windows and Linux.">
+<meta property="og:image" content="https://axchisan.github.io/lost-and-prompt/og.png">
+<meta property="og:url" content="https://axchisan.github.io/lost-and-prompt/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.png">
+<style>
+:root {
+  --bg: #fbfbfd; --fg: #1d1d1f; --muted: #6e6e73; --card: #ffffff; --line: rgba(0,0,0,.08);
+  --accent: #0a6cff; --accent-fg: #fff; --soft: #f0f2f7;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #121214; --fg: #f2f2f4; --muted: #a1a1a8; --card: #1c1c1f; --line: rgba(255,255,255,.09); --accent: #4c94ff; --soft: #1a1b20; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 max(20px, env(safe-area-inset-left)); }
+nav { display: flex; align-items: center; justify-content: space-between; padding-block: 18px; gap: 12px; }
+nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--fg); }
+nav .brand img { width: 30px; height: 30px; }
+nav .links { display: flex; gap: 18px; align-items: center; font-size: 15px; }
+nav .links a { color: var(--muted); }
+.lang { border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+header.hero { text-align: center; padding-block: 56px 24px; display: grid; justify-items: center; gap: 18px; }
+header.hero img.icon { width: 132px; height: 132px; filter: drop-shadow(0 18px 30px rgba(10,60,160,.25)); }
+h1 { margin: 0; font: 700 clamp(38px, 6vw, 64px)/1.05 var(--display); letter-spacing: -.03em; text-wrap: balance; }
+.lead { margin: 0; max-width: 640px; color: var(--muted); font-size: clamp(18px, 2.2vw, 21px); text-wrap: balance; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 22px; border-radius: 12px; font-weight: 600; background: var(--soft); color: var(--fg); border: 1px solid var(--line); }
+.btn:hover { text-decoration: none; filter: brightness(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; box-shadow: 0 6px 18px rgba(10,108,255,.28); }
+.btn svg { width: 18px; height: 18px; }
+.small { color: var(--muted); font-size: 14px; }
+.shot { margin: 36px auto 0; max-width: 1040px; }
+.shot img { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.18), 0 0 0 1px var(--line); display: block; }
+section { padding-block: 72px 8px; }
+h2 { margin: 0 0 10px; font: 700 clamp(28px, 4vw, 40px)/1.15 var(--display); letter-spacing: -.02em; text-align: center; text-wrap: balance; }
+.sub { text-align: center; color: var(--muted); max-width: 640px; margin: 0 auto 36px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+.feature { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.feature svg { width: 26px; height: 26px; color: var(--accent); }
+.feature h3 { margin: 0; font-size: 18px; }
+.feature p { margin: 0; color: var(--muted); font-size: 15.5px; }
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; }
+.duo figure { margin: 0; display: grid; gap: 8px; }
+.duo img { width: 100%; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,.14), 0 0 0 1px var(--line); }
+.duo figcaption { color: var(--muted); font-size: 14px; text-align: center; }
+.install { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+.os { min-width: 0; }
+.os { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.os h3 { margin: 0; font-size: 19px; }
+code, pre { font-family: var(--mono); font-size: 13.5px; }
+pre { margin: 0; background: var(--soft); border-radius: 10px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+.privacy { max-width: 760px; margin: 0 auto; display: grid; gap: 10px; }
+.privacy li { color: var(--muted); }
+footer { padding-block: 64px 40px; text-align: center; color: var(--muted); font-size: 14px; display: grid; gap: 8px; }
+[data-lang="en"] .es, [data-lang="es"] .en { display: none !important; }
+@media (max-width: 640px) { nav .links a.hide-m { display: none; } }
+</style>
+</head>
+<body data-lang="es">
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><img src="icon.png" alt="">Lost &amp; Prompt</a>
+    <div class="links">
+      <a class="hide-m" href="#features"><span class="es">Funciones</span><span class="en">Features</span></a>
+      <a class="hide-m" href="#install"><span class="es">Instalar</span><span class="en">Install</span></a>
+      <a href="https://github.com/axchisan/lost-and-prompt">GitHub</a>
+      <button class="lang" id="lang" type="button">English</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <img class="icon" src="icon.png" alt="Ícono de Lost & Prompt: una caja de cartón con una tarjeta de terminal">
+    <h1><span class="es">Todas tus sesiones de Claude Code, en un solo lugar.</span><span class="en">Every Claude Code session you ever lost, found.</span></h1>
+    <p class="lead">
+      <span class="es">Claude Code guarda cada sesión en la carpeta donde la abriste. Lost &amp; Prompt las reúne todas: búscalas por lo que se dijo, reanúdalas en tu terminal con un clic y organízalas a tu manera.</span>
+      <span class="en">Claude Code ties every session to the folder you opened it in. Lost &amp; Prompt brings them all together: find them by what was said, resume them in your terminal with one click, and organize them your way.</span>
+    </p>
+    <div class="cta">
+      <a class="btn primary" id="download" href="https://github.com/axchisan/lost-and-prompt/releases/latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
+        <span id="download-label"><span class="es">Descargar</span><span class="en">Download</span></span>
+      </a>
+      <a class="btn" href="https://github.com/axchisan/lost-and-prompt">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+        <span class="es">Ver en GitHub</span><span class="en">View on GitHub</span>
+      </a>
+    </div>
+    <p class="small"><span class="es">Gratis y de código abierto · macOS, Windows y Linux · </span><span class="en">Free and open source · macOS, Windows and Linux · </span><span id="version"></span></p>
+  </header>
+
+  <div class="shot"><img id="hero-shot" src="screenshots/es/recents-light.png" alt="Ventana principal de Lost & Prompt"></div>
+
+  <section id="features">
+    <h2><span class="es">Deja de buscar carpeta por carpeta</span><span class="en">Stop hunting folder by folder</span></h2>
+    <p class="sub"><span class="es">Todo lo que necesitas para volver a cualquier conversación con Claude Code.</span><span class="en">Everything you need to get back to any Claude Code conversation.</span></p>
+    <div class="grid">
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <h3><span class="es">Busca dentro de las conversaciones</span><span class="en">Search inside conversations</span></h3>
+        <p><span class="es">Por título, carpeta o cualquier cosa que se dijo, con el fragmento resaltado.</span><span class="en">By title, folder or anything that was said, with the match highlighted.</span></p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3M12 15h5"/></svg>
+        <h3><span class="es">Reanuda con un clic</span><span class="en">Resume in one click</span></h3>
+        <p><span class="es">En su carpeta original y con tu terminal: Warp, Windows Terminal, iTerm2, Ghostty, Konsole… o la que quieras.</span><span class="en">In its original folder with your terminal: Warp, Windows Terminal, iTerm2, Ghostty, Konsole… or any other.</span></p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>
+        <h3><span class="es">Organiza a tu manera</span><span class="en">Organize your way</span></h3>
+        <p><span class="es">Favoritos, nombres propios, colecciones y notas, sin tocar los archivos de Claude Code.</span><span class="en">Favorites, custom names, collections and notes, without touching Claude Code's files.</span></p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+        <h3><span class="es">Desde cualquier app</span><span class="en">From any app</span></h3>
+        <p><span class="es">Atajo global (⌥⌘K o Ctrl+Alt+K) y sesiones recientes en la barra de menús o la bandeja.</span><span class="en">Global shortcut (⌥⌘K or Ctrl+Alt+K) and recent sessions in the menu bar or system tray.</span></p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <h3><span class="es">No pierdas tu historial</span><span class="en">Keep your history</span></h3>
+        <p><span class="es">Claude Code borra las sesiones de más de 30 días. Elige cuánto tiempo guardarlas.</span><span class="en">Claude Code deletes sessions older than 30 days. Choose how long to keep them.</span></p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V11M13 17V7M18 17v-4"/></svg>
+        <h3><span class="es">Actividad</span><span class="en">Activity</span></h3>
+        <p><span class="es">Costo estimado, sesiones y las carpetas en las que más trabajas.</span><span class="en">Estimated cost, sessions and the folders you work in most.</span></p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="es">Se siente en casa en cada sistema</span><span class="en">At home on every system</span></h2>
+    <p class="sub"><span class="es">Nativa en SwiftUI en el Mac; Tauri y Rust en Windows y Linux, con el mismo diseño.</span><span class="en">Native SwiftUI on the Mac; Tauri and Rust on Windows and Linux, with the same design.</span></p>
+    <div class="duo">
+      <figure><img class="loc" data-src="screenshots/{lang}/quickopen-light.png" src="screenshots/es/quickopen-light.png" alt="Búsqueda rápida en macOS"><figcaption><span class="es">Búsqueda rápida en macOS</span><span class="en">Quick search on macOS</span></figcaption></figure>
+      <figure><img class="loc" data-src="screenshots/windows/{lang}/recents-dark.png" src="screenshots/windows/es/recents-dark.png" alt="Modo oscuro en Windows"><figcaption><span class="es">Modo oscuro en Windows</span><span class="en">Dark mode on Windows</span></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2><span class="es">Instalar</span><span class="en">Install</span></h2>
+    <p class="sub"><span class="es">Una vez instalada, se actualiza sola.</span><span class="en">Once installed, it updates itself.</span></p>
+    <div class="install">
+      <div class="os"><h3>macOS 15+</h3>
+        <pre>brew install --cask axchisan/tap/lost-and-prompt</pre>
+        <p class="small"><span class="es">O descarga el</span><span class="en">Or download the</span> <a href="https://github.com/axchisan/lost-and-prompt/releases/latest">.dmg</a> <span class="es">(Apple Silicon e Intel).</span><span class="en">(Apple Silicon and Intel).</span></p></div>
+      <div class="os"><h3>Windows 10/11</h3>
+        <pre>scoop bucket add axchisan https://github.com/axchisan/scoop-bucket
+scoop install axchisan/lost-and-prompt</pre>
+        <p class="small"><span class="es">O descarga el</span><span class="en">Or download the</span> <a href="https://github.com/axchisan/lost-and-prompt/releases/latest">.exe</a>. <span class="es">Pronto en winget.</span><span class="en">Coming soon to winget.</span></p></div>
+      <div class="os"><h3>Linux x86_64</h3>
+        <pre>sudo apt install ./LostAndPrompt-*-linux-amd64.deb</pre>
+        <p class="small"><a href="https://github.com/axchisan/lost-and-prompt/releases/latest">AppImage</a> <span class="es">(se actualiza sola),</span><span class="en">(updates itself),</span> <a href="https://github.com/axchisan/lost-and-prompt/releases/latest">.deb</a> <span class="es">y</span><span class="en">and</span> <a href="https://github.com/axchisan/lost-and-prompt/releases/latest">.rpm</a>.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="es">Tus sesiones no salen de tu equipo</span><span class="en">Your sessions never leave your computer</span></h2>
+    <ul class="privacy">
+      <li><span class="es">Lee las sesiones de Claude Code sin modificarlas y no las envía a ningún sitio.</span><span class="en">It reads Claude Code's sessions without modifying them and never sends them anywhere.</span></li>
+      <li><span class="es">La única conexión es la que comprueba actualizaciones en GitHub, firmadas y verificadas.</span><span class="en">The only network request checks GitHub for signed, verified updates.</span></li>
+      <li><span class="es">Código abierto con licencia MIT: puedes revisar todo lo que hace.</span><span class="en">Open source under the MIT license: you can review everything it does.</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    <div><a href="https://github.com/axchisan/lost-and-prompt">GitHub</a> · <a href="https://github.com/axchisan/lost-and-prompt/releases"><span class="es">Versiones</span><span class="en">Releases</span></a> · <a href="https://github.com/axchisan/lost-and-prompt/issues/new/choose"><span class="es">Reportar un problema</span><span class="en">Report a problem</span></a></div>
+    <div>© 2026 axchisan · MIT · <span class="es">Proyecto independiente, sin relación con Anthropic.</span><span class="en">Independent project, not affiliated with Anthropic.</span></div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var body = document.body;
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  var lang = saved === "en" ? "en" : "es";
+  function apply(next) {
+    lang = next;
+    body.dataset.lang = next;
+    document.documentElement.lang = next;
+    document.getElementById("lang").textContent = next === "es" ? "English" : "Español";
+    var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.getElementById("hero-shot").src = "screenshots/" + next + "/recents-" + (dark ? "dark" : "light") + ".png";
+    document.querySelectorAll("img.loc").forEach(function (img) { img.src = img.dataset.src.replace("{lang}", next); });
+    try { localStorage.setItem("lang", next); } catch (e) {}
+  }
+  apply(lang);
+  document.getElementById("lang").addEventListener("click", function () { apply(lang === "es" ? "en" : "es"); });
+
+  // Botón de descarga según el sistema del visitante, con la última versión publicada.
+  var ua = navigator.userAgent;
+  var os = /Mac/.test(ua) ? "mac" : /Win/.test(ua) ? "win" : /Linux/.test(ua) && !/Android/.test(ua) ? "linux" : null;
+  var names = { mac: "macOS", win: "Windows", linux: "Linux" };
+  if (os) {
+    document.getElementById("download-label").innerHTML =
+      '<span class="es">Descargar para ' + names[os] + '</span><span class="en">Download for ' + names[os] + "</span>";
+  }
+  fetch("https://api.github.com/repos/axchisan/lost-and-prompt/releases/latest")
+    .then(function (r) { return r.json(); })
+    .then(function (release) {
+      if (!release || !release.assets) return;
+      var v = release.tag_name.replace(/^v/, "");
+      document.getElementById("version").innerHTML = '<span class="es">versión ' + v + '</span><span class="en">version ' + v + "</span>";
+      var pattern = { mac: /macos-universal\.dmg$/, win: /windows-x64-setup\.exe$/, linux: /linux-x86_64\.AppImage$/ }[os];
+      var asset = pattern && release.assets.find(function (a) { return pattern.test(a.name); });
+      if (asset) document.getElementById("download").href = asset.browser_download_url;
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>
