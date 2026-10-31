@@ -4,7 +4,16 @@ import SwiftUI
 struct SettingsView: View {
     enum Pane: Hashable { case general, history, appearance }
 
-    @State private var pane: Pane = UserDefaults.standard.string(forKey: "LPSettingsPane") == "history" ? .history : .general
+    /// `-LPSettingsPane history|appearance` abre esa pestaña (para capturas).
+    @State private var pane: Pane = Self.initialPane
+
+    private static var initialPane: Pane {
+        switch UserDefaults.standard.string(forKey: "LPSettingsPane") {
+        case "history": .history
+        case "appearance": .appearance
+        default: .general
+        }
+    }
 
     var body: some View {
         TabView(selection: $pane) {
@@ -118,17 +127,47 @@ private struct HistorySettings: View {
 
 private struct AppearanceSettings: View {
     @Environment(AppModel.self) private var model
-    @State private var showCost = false
+    @AppStorage(AppAppearance.key) private var appearance = AppAppearance.system
+    @State private var language = AppLanguage.current
+    private let launchLanguage = AppLanguage.current
 
     var body: some View {
         @Bindable var model = model
         Form {
-            Picker("Vista de la lista", selection: $model.listStyle) {
-                Label("Filas", systemImage: "list.bullet").tag(SessionListStyle.rows)
-                Label("Tarjetas", systemImage: "square.grid.2x2").tag(SessionListStyle.cards)
+            Section {
+                Picker("Tema", selection: $appearance) {
+                    Text("Sistema").tag(AppAppearance.system)
+                    Text("Claro").tag(AppAppearance.light)
+                    Text("Oscuro").tag(AppAppearance.dark)
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: appearance) { _, value in value.apply() }
+
+                Picker("Idioma", selection: $language) {
+                    Text("Sistema").tag(AppLanguage.system)
+                    Text(verbatim: "Español").tag(AppLanguage.spanish)
+                    Text(verbatim: "English").tag(AppLanguage.english)
+                }
+                .onChange(of: language) { _, value in value.save() }
+
+                if language != launchLanguage {
+                    HStack {
+                        Text("El idioma cambia al reiniciar Lost & Prompt.")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Reiniciar ahora") { AppLanguage.relaunch() }
+                    }
+                    .font(.callout)
+                }
             }
-            .pickerStyle(.inline)
-            Toggle("Mostrar el costo en la lista", isOn: $showCost)
+
+            Section {
+                Picker("Vista de la lista", selection: $model.listStyle) {
+                    Label("Filas", systemImage: "list.bullet").tag(SessionListStyle.rows)
+                    Label("Tarjetas", systemImage: "square.grid.2x2").tag(SessionListStyle.cards)
+                }
+                .pickerStyle(.inline)
+            }
         }
         .formStyle(.grouped)
     }

@@ -8,12 +8,12 @@ APP_NAME="Lost & Prompt"
 
 xcodegen generate >/dev/null
 xcodebuild -project LostAndPrompt.xcodeproj -scheme LostAndPrompt -configuration Release \
-  -derivedDataPath build/release ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO build | grep -E "error:|BUILD" || true
+  -derivedDataPath build/release.noindex ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO build | grep -E "error:|BUILD" || true
 
-BUILT=build/release/Build/Products/Release/LostAndPrompt.app
+BUILT=build/release.noindex/Build/Products/Release/LostAndPrompt.app
 [[ -d $BUILT ]] || { echo "No se generó la app"; exit 1; }
 
-STAGE=build/dmg
+STAGE=build/dmg.noindex
 rm -rf $STAGE && mkdir -p $STAGE
 ditto "$BUILT" "$STAGE/$APP_NAME.app"
 codesign --force --deep --options runtime --sign - "$STAGE/$APP_NAME.app"

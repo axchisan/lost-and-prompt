@@ -422,6 +422,16 @@
         }
       }
     },
+    "Claro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        }
+      }
+    },
     "Claude": {
       "localizations": {
         "en": {
@@ -608,6 +618,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edit Note…"
+          }
+        }
+      }
+    },
+    "El idioma cambia al reiniciar Lost & Prompt.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The language changes when Lost & Prompt restarts."
           }
         }
       }
@@ -842,6 +862,16 @@
         }
       }
     },
+    "Idioma": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        }
+      }
+    },
     "Indexando mensajes: %lld de %lld": {
       "localizations": {
         "en": {
@@ -1008,16 +1038,6 @@
         }
       }
     },
-    "Mostrar el costo en la lista": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show cost in the list"
-          }
-        }
-      }
-    },
     "Mostrar en Finder": {
       "localizations": {
         "en": {
@@ -1154,6 +1174,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Organize your way"
+          }
+        }
+      }
+    },
+    "Oscuro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
           }
         }
       }
@@ -1328,6 +1358,16 @@
         }
       }
     },
+    "Reiniciar ahora": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Now"
+          }
+        }
+      }
+    },
     "Renombrar sesión": {
       "localizations": {
         "en": {
@@ -1408,6 +1448,16 @@
         }
       }
     },
+    "Sistema": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
     "Solo cambia el nombre en Lost & Prompt. Déjalo vacío para volver al título original.": {
       "localizations": {
         "en": {
@@ -1434,6 +1484,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Welcome to Lost & Prompt"
+          }
+        }
+      }
+    },
+    "Tema": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
           }
         }
       }

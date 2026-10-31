@@ -56,6 +56,8 @@ struct LostAndPromptApp: App {
         let defaults = UserDefaults.standard
         if defaults.object(forKey: "LPDark") != nil {
             NSApp.appearance = NSAppearance(named: defaults.bool(forKey: "LPDark") ? .darkAqua : .aqua)
+        } else {
+            AppAppearance.saved.apply()
         }
     }
 }

@@ -1,9 +1,9 @@
 #!/bin/zsh
 # Genera las capturas de docs/screenshots/<idioma>/ con los datos de ejemplo ficticios.
-# Uso: scripts/screenshots.sh   (después de compilar en Debug con -derivedDataPath build)
+# Uso: scripts/screenshots.sh   (después de compilar en Debug con -derivedDataPath build/debug.noindex)
 set -e
 cd "${0:A:h}/.."
-APP=build/Build/Products/Debug/LostAndPrompt.app
+APP=build/debug.noindex/Build/Products/Debug/LostAndPrompt.app
 swiftc -O scripts/window-id.swift -o build/window-id 2>/dev/null
 
 shot() {
