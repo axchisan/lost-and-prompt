@@ -18,7 +18,7 @@ fi
 mkdir -p ~/.tauri
 password=$(openssl rand -base64 24)
 
-(cd desktop && pnpm -s tauri signer generate --ci -w "$key" -p "$password" >/dev/null)
+(cd desktop && ./node_modules/.bin/tauri signer generate --ci -w "$key" -p "$password" >/dev/null)
 
 python3 - "$key.pub" <<'PY'
 import json, sys
