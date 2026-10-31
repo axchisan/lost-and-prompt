@@ -132,7 +132,8 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 /* Tarjetas */
 .cards { overflow-y: auto; padding: 20px 24px 28px; flex: 1; }
 .cards h3 { margin: 18px 0 10px; font-size: 15px; display: flex; gap: 8px; align-items: baseline; }
-.cards h3:first-child { margin-top: 0; }
+.cards > div:first-child h3 { margin-top: 0; }
+.cards > div + div { margin-top: 10px; }
 .cards h3 small { color: var(--fg-2); font-weight: 400; font-size: 12.5px; }
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .card { min-width: 0; background: var(--card); border-radius: 12px; padding: 12px 14px; display: grid; gap: 7px; align-content: start; box-shadow: inset 0 0 0 2.5px transparent; }
@@ -294,3 +295,37 @@ kbd { font: 500 11px var(--font); background: var(--field); border-radius: 4px; 
 .feature p { margin: 2px 0 0; color: var(--fg-2); }
 
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--panel); box-shadow: var(--shadow); border-radius: 99px; padding: 8px 16px; z-index: 40; display: flex; gap: 8px; align-items: center; }
+
+/* Barras de desplazamiento finas y sin flechas (WebView2 y WebKitGTK las dibujan clásicas) */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+::-webkit-scrollbar-thumb { background-color: color-mix(in srgb, var(--fg) 20%, transparent); border: 3px solid transparent; border-radius: 99px; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--fg) 34%, transparent); }
+
+/* Con el detalle estrecho, los botones secundarios quedan solo con el ícono (como en Mac) */
+.column { container-type: inline-size; }
+@container (max-width: 600px) {
+  .actions .btn .label { display: none; }
+  .actions .btn:not(.primary) { padding-inline: 11px; }
+}
+
+/* Engranaje de la barra lateral */
+.sidebar-footer { position: relative; padding: 8px 10px; border-top: 1px solid var(--sep); display: flex; }
+.menu.up { position: absolute; bottom: calc(100% + 4px); left: 10px; }
+.menu kbd { margin: 0 0 0 12px; }
+
+/* Ajustes: fila con campo a todo el ancho */
+.form-row.column-row { flex-direction: column; align-items: stretch; gap: 6px; }
+.form-row.column-row input { min-width: 0; width: 100%; }
+.form-row .mono, input.mono { font-family: var(--mono); font-size: 12px; }
+.form-row .hint { color: var(--fg-2); font-size: 12px; }
+
+/* Acerca de */
+.about { width: 360px; max-width: calc(100vw - 32px); background: var(--panel); border-radius: 16px; box-shadow: var(--shadow); padding: 28px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.about img { width: 88px; height: 88px; }
+.about h2 { margin: 6px 0 0; font-size: 19px; }
+.about p { margin: 0; color: var(--fg-2); }
+.about .tagline { color: var(--fg); }
+.about-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 6px 0; }
+.about .fine { font-size: 11.5px; }

@@ -482,6 +482,16 @@
         }
       }
     },
+    "Comando de la terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal command"
+          }
+        }
+      }
+    },
     "Conservar 6 meses": {
       "localizations": {
         "en": {
@@ -728,6 +738,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "That's the default. You can keep them longer; your settings are backed up before they change."
+          }
+        }
+      }
+    },
+    "Escribe el comando de tu terminal en Ajustes → General.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your terminal command in Settings → General."
           }
         }
       }
@@ -1208,6 +1228,16 @@
         }
       }
     },
+    "Personalizada…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom…"
+          }
+        }
+      }
+    },
     "Personalizado": {
       "localizations": {
         "en": {
@@ -1634,6 +1664,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "msgs"
+          }
+        }
+      }
+    },
+    "tu terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your terminal"
+          }
+        }
+      }
+    },
+    "{cwd} es la carpeta de la sesión y {command} el comando de Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{cwd} is the session's folder and {command} the Claude Code command."
           }
         }
       }

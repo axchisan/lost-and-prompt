@@ -56,6 +56,7 @@ export interface Hit {
 export interface TerminalInfo {
   id: string;
   name: string;
+  installed: boolean;
 }
 
 export const api = {
@@ -70,8 +71,16 @@ export const api = {
   toggleMembership: (id: string, collection: string) => invoke<boolean>("toggle_membership", { id, collection }),
   setRetention: (days: number) => invoke<number | null>("set_retention", { days }),
   terminals: () => invoke<TerminalInfo[]>("terminals"),
-  resume: (id: string, terminal: string, extraArguments: string) => invoke<void>("resume", { id, terminal, extraArguments }),
+  resume: (id: string, terminal: string, extraArguments: string, customTemplate: string) =>
+    invoke<void>("resume", { id, terminal, extraArguments, customTemplate }),
   reveal: (id: string) => invoke<void>("reveal", { id }),
+};
+
+export const links = {
+  repository: "https://github.com/axchisan/lost-and-prompt",
+  releases: "https://github.com/axchisan/lost-and-prompt/releases",
+  issues: "https://github.com/axchisan/lost-and-prompt/issues/new",
+  license: "https://github.com/axchisan/lost-and-prompt/blob/main/LICENSE",
 };
 
 export const tints: Record<Tint, string> = {

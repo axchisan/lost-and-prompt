@@ -240,7 +240,13 @@ fn terminals() -> Vec<launcher::TerminalInfo> {
 }
 
 #[tauri::command]
-fn resume(id: Uuid, terminal: String, extra_arguments: String, state: State<'_, AppState>) -> Result<(), String> {
+fn resume(
+    id: Uuid,
+    terminal: String,
+    extra_arguments: String,
+    custom_template: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     let summaries = state.summaries.lock().unwrap();
     let session = summaries.iter().find(|s| s.id == id).ok_or("No se encontró la sesión")?;
     let cwd = session.cwd.clone().ok_or("La sesión no tiene carpeta")?;
@@ -248,7 +254,7 @@ fn resume(id: Uuid, terminal: String, extra_arguments: String, state: State<'_, 
         return Err(format!("La carpeta «{cwd}» ya no existe."));
     }
     let title = session.display_title().unwrap_or_default();
-    launcher::resume(&terminal, &cwd, &session.resume_command(&extra_arguments), &title)
+    launcher::resume(&terminal, &cwd, &session.resume_command(&extra_arguments), &title, custom_template.as_deref())
 }
 
 #[tauri::command]
@@ -284,6 +290,15 @@ fn watch_projects(app: &AppHandle) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // Abrir la app otra vez enfoca la ventana que ya está abierta.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .manage(AppState::default())
         .setup(|app| {

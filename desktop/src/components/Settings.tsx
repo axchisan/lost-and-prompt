@@ -36,9 +36,16 @@ export function Settings({ initialPane, onClose }: { initialPane: Pane; onClose:
   );
 }
 
+const examples: Record<string, string> = {
+  windows: "wt -d {cwd} pwsh -NoExit -Command {command}",
+  macos: "open -na WezTerm --args start --cwd {cwd} -- zsh -lc \"{command}; exec zsh\"",
+  linux: "foot --working-directory={cwd} bash -lc \"{command}; exec bash\"",
+};
+
 function General() {
-  const { t, prefs, setPrefs, terminals } = useApp();
-  const current = terminals.find((x) => x.id === prefs.terminal)?.id ?? terminals[0]?.id ?? "";
+  const { t, prefs, setPrefs, terminals, library } = useApp();
+  const current = terminals.find((x) => x.id === prefs.terminal)?.id ?? terminals.find((x) => x.installed)?.id ?? "";
+  const example = examples[library.platform] ?? examples.linux;
   return (
     <div className="form-group">
       <h5>{t("terminal")}</h5>
@@ -48,11 +55,26 @@ function General() {
           <select id="terminal" value={current} onChange={(e) => setPrefs({ terminal: e.target.value })}>
             {terminals.map((x) => (
               <option key={x.id} value={x.id}>
-                {x.name}
+                {x.id === "custom" ? t("customTerminal") : x.installed ? x.name : `${x.name} (${t("notDetected")})`}
               </option>
             ))}
           </select>
         </div>
+        {current === "custom" && (
+          <div className="form-row column-row">
+            <label htmlFor="custom-terminal">{t("terminalCommand")}</label>
+            <input
+              id="custom-terminal"
+              type="text"
+              className="mono"
+              value={prefs.customTerminal}
+              placeholder={example}
+              onChange={(e) => setPrefs({ customTerminal: e.target.value })}
+              spellCheck={false}
+            />
+            <span className="hint">{t("terminalCommandHint")}</span>
+          </div>
+        )}
         <div className="form-row">
           <label htmlFor="extra">{t("extraArguments")}</label>
           <input

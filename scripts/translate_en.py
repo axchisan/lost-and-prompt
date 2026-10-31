@@ -169,6 +169,11 @@ EN = {
     "Solo cambia el nombre en Lost & Prompt. Déjalo vacío para volver al título original.":
         "Only changes the name in Lost & Prompt. Leave it empty to go back to the original title.",
     "Tarjetas": "Cards",
+    "Personalizada…": "Custom…",
+    "tu terminal": "your terminal",
+    "Comando de la terminal": "Terminal command",
+    "{cwd} es la carpeta de la sesión y {command} el comando de Claude Code.": "{cwd} is the session's folder and {command} the Claude Code command.",
+    "Escribe el comando de tu terminal en Ajustes → General.": "Enter your terminal command in Settings → General.",
     "Tema": "Theme",
     "Sistema": "System",
     "Claro": "Light",

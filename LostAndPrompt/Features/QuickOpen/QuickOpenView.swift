@@ -57,7 +57,7 @@ struct QuickOpenView: View {
             Divider()
 
             HStack(spacing: 18) {
-                Label("Se abrirá en \(model.terminal.displayName)", systemImage: "terminal")
+                Label("Se abrirá en \(model.terminal.resumeName)", systemImage: "terminal")
                 Spacer()
                 hint("↩", "Reanudar")
                 hint("⌘↩", "Ver en la app")

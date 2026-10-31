@@ -11,6 +11,7 @@ export type SidebarItem =
 
 export interface Prefs {
   terminal: string;
+  customTerminal: string;
   extraArguments: string;
   listStyle: "rows" | "cards";
   theme: "system" | "light" | "dark";
@@ -21,6 +22,7 @@ export interface Prefs {
 
 export const defaultPrefs: Prefs = {
   terminal: "",
+  customTerminal: "",
   extraArguments: "",
   listStyle: "rows",
   theme: "system",
@@ -78,6 +80,7 @@ export interface AppContext {
     quick: () => void;
     menu: (state: MenuState) => void;
     confirm: (message: string, confirmLabel: string, action: () => void) => void;
+    about: () => void;
   };
 }
 

@@ -48,7 +48,7 @@ export function Detail({ session }: { session: Session }) {
             <span>
               <b>{grouped(session.userMessages, language)}</b> {t("messages")}
             </span>
-            {session.costUsd !== null && (
+            {session.costUsd !== null && session.costUsd > 0 && (
               <span>
                 <b>{usd(session.costUsd, language)}</b>
               </span>
@@ -82,13 +82,13 @@ export function Detail({ session }: { session: Session }) {
               <SquareTerminal size={16} />
               {t("resumeIn", { terminal: terminalName })}
             </button>
-            <button className="btn large" onClick={() => actions.copyCommand(session)}>
+            <button className="btn large" onClick={() => actions.copyCommand(session)} title={t("copyCommand")}>
               <Copy size={15} />
-              {t("copyCommand")}
+              <span className="label">{t("copyCommand")}</span>
             </button>
-            <button className="btn large" onClick={() => actions.reveal(session)} disabled={!session.folderExists}>
+            <button className="btn large" onClick={() => actions.reveal(session)} disabled={!session.folderExists} title={t("openFolder")}>
               <FolderOpen size={15} />
-              {t("openFolder")}
+              <span className="label">{t("openFolder")}</span>
             </button>
           </div>
         </div>

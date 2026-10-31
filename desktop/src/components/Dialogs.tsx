@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, Copy, Folder, Layers, Lock, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
-import { tints, type Session, type Tint } from "../api";
+import { links, tints, type Session, type Tint } from "../api";
 import { useApp, type MenuState } from "../state";
 import icon from "../../src-tauri/icons/128x128@2x.png";
 
@@ -213,6 +215,31 @@ export function Toast({ text, onDone }: { text: string; onDone: () => void }) {
     <div className="toast" role="status">
       <Check size={15} />
       {text}
+    </div>
+  );
+}
+
+export function About({ onClose }: { onClose: () => void }) {
+  const { t } = useApp();
+  const [version, setVersion] = useState("");
+  useEffect(() => {
+    getVersion().then(setVersion).catch(() => setVersion(""));
+  }, []);
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="about" role="dialog" aria-label={t("aboutApp")} onClick={(e) => e.stopPropagation()}>
+        <img src={icon} alt="" />
+        <h2>Lost &amp; Prompt</h2>
+        <p className="tagline">Every Claude Code session you ever lost, found.</p>
+        <p className="selectable">{t("versionN", { v: version })}</p>
+        <div className="about-links">
+          <button className="btn small" onClick={() => openUrl(links.repository)}>GitHub</button>
+          <button className="btn small" onClick={() => openUrl(links.releases)}>{t("checkUpdates")}</button>
+          <button className="btn small" onClick={() => openUrl(links.license)}>{t("license")}</button>
+        </div>
+        <p className="fine">© 2026 axchisan · MIT · {t("notAffiliated")}</p>
+        <button className="btn primary" autoFocus onClick={onClose}>{t("ok")}</button>
+      </div>
     </div>
   );
 }

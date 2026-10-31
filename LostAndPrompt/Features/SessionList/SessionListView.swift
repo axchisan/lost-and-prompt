@@ -135,7 +135,7 @@ struct SessionContextMenu: View {
     var session: Session
 
     var body: some View {
-        Button("Reanudar en \(model.terminal.displayName)", systemImage: "terminal") { model.resume(session) }
+        Button("Reanudar en \(model.terminal.resumeName)", systemImage: "terminal") { model.resume(session) }
         Button("Copiar comando", systemImage: "doc.on.doc") { model.copyResumeCommand(session) }
         Divider()
         Button(session.isFavorite ? "Quitar de favoritos" : "Añadir a favoritos",

@@ -9,7 +9,7 @@ import { Detail, NoSelection } from "./components/Detail";
 import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
-import { ConfirmSheet, ContextMenu, NewCollectionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, ConfirmSheet, ContextMenu, NewCollectionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
@@ -19,6 +19,7 @@ type Dialog =
   | { kind: "quick" }
   | { kind: "error"; message: string }
   | { kind: "confirm"; message: string; confirmLabel: string; action: () => void }
+  | { kind: "about" }
   | null;
 
 function loadPrefs(): Prefs {
@@ -152,7 +153,7 @@ export default function App() {
     if (!selectedId && visible.length > 0 && sidebar.kind !== "activity") setSelectedId(visible[0].id);
   }, [visible, selectedId, sidebar.kind]);
 
-  const terminal = terminals.find((x) => x.id === prefs.terminal) ?? terminals[0];
+  const terminal = terminals.find((x) => x.id === prefs.terminal) ?? terminals.find((x) => x.installed) ?? terminals[0];
 
   const updateSession = (id: string, change: Partial<Session>) =>
     setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.map((s) => (s.id === id ? { ...s, ...change } : s)) });
@@ -160,7 +161,7 @@ export default function App() {
   const actions: AppContext["actions"] = {
     resume: (session) => {
       if (!terminal) return showError(t("noTerminal"));
-      api.resume(session.id, terminal.id, prefs.extraArguments).catch(showError);
+      api.resume(session.id, terminal.id, prefs.extraArguments, prefs.customTerminal).catch(showError);
     },
     copyCommand: (session) => {
       navigator.clipboard.writeText(resumeCommand(session, prefs.extraArguments)).then(() => setToast(t("copied")), showError);
@@ -273,7 +274,7 @@ export default function App() {
     prefs,
     setPrefs,
     terminals,
-    terminalName: terminal?.name ?? "—",
+    terminalName: terminal?.id === "custom" ? t("yourTerminal") : (terminal?.name ?? "—"),
     modKey,
     sidebar,
     setSidebar: (item) => {
@@ -299,6 +300,7 @@ export default function App() {
       quick: () => setDialog({ kind: "quick" }),
       menu: setMenu,
       confirm: (message, confirmLabel, action) => setDialog({ kind: "confirm", message, confirmLabel, action }),
+      about: () => setDialog({ kind: "about" }),
     },
   };
 
@@ -330,6 +332,7 @@ export default function App() {
       {dialog?.kind === "settings" && <Settings initialPane={dialog.pane} onClose={() => setDialog(null)} />}
       {dialog?.kind === "quick" && <QuickOpen onClose={() => setDialog(null)} />}
       {dialog?.kind === "error" && <ErrorSheet message={dialog.message} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
       {dialog?.kind === "confirm" && (
         <ConfirmSheet message={dialog.message} confirmLabel={dialog.confirmLabel} onConfirm={dialog.action} onClose={() => setDialog(null)} />
       )}

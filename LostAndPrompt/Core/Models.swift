@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 
 /// Una sesión de Claude Code, tal como la muestra la app.
 struct Session: Identifiable, Hashable {
@@ -89,7 +89,7 @@ enum SessionListStyle: String, CaseIterable, Identifiable {
 }
 
 enum TerminalApp: String, CaseIterable, Identifiable {
-    case warp, terminal, iterm, ghostty
+    case warp, terminal, iterm, ghostty, wezterm, kitty, alacritty, custom
     var id: Self { self }
 
     var displayName: String {
@@ -98,6 +98,35 @@ enum TerminalApp: String, CaseIterable, Identifiable {
         case .terminal: "Terminal"
         case .iterm: "iTerm2"
         case .ghostty: "Ghostty"
+        case .wezterm: "WezTerm"
+        case .kitty: "Kitty"
+        case .alacritty: "Alacritty"
+        case .custom: String(localized: "Personalizada…")
         }
     }
+
+    /// Nombre para «Reanudar en …».
+    var resumeName: String { self == .custom ? String(localized: "tu terminal") : displayName }
+
+    /// Identificador de la app en macOS (`nil` para la opción personalizada).
+    var bundleID: String? {
+        switch self {
+        case .warp: "dev.warp.Warp-Stable"
+        case .terminal: "com.apple.Terminal"
+        case .iterm: "com.googlecode.iterm2"
+        case .ghostty: "com.mitchellh.ghostty"
+        case .wezterm: "com.github.wez.wezterm"
+        case .kitty: "net.kovidgoyal.kitty"
+        case .alacritty: "org.alacritty"
+        case .custom: nil
+        }
+    }
+
+    var isInstalled: Bool {
+        guard let bundleID else { return true }
+        return NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) != nil
+    }
+
+    /// Las instaladas y la personalizada, en el orden de la lista.
+    static var available: [TerminalApp] { allCases.filter(\.isInstalled) }
 }

@@ -86,7 +86,7 @@ struct SessionDetailView: View {
         Button {
             model.resume(session)
         } label: {
-            Label("Reanudar en \(model.terminal.displayName)", systemImage: "terminal")
+            Label("Reanudar en \(model.terminal.resumeName)", systemImage: "terminal")
                 .padding(.horizontal, 4)
         }
         .buttonStyle(.borderedProminent)

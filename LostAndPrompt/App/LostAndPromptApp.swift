@@ -70,7 +70,7 @@ struct AppCommands: Commands {
             Button("Buscar rápido…") { model.isQuickOpenPresented.toggle() }
                 .keyboardShortcut("k")
             Divider()
-            Button("Reanudar en \(model.terminal.displayName)") { if let s = model.selectedSession { model.resume(s) } }
+            Button("Reanudar en \(model.terminal.resumeName)") { if let s = model.selectedSession { model.resume(s) } }
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(model.selectedSession == nil)
             Button("Copiar comando") { if let s = model.selectedSession { model.copyResumeCommand(s) } }

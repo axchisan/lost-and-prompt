@@ -141,6 +141,19 @@ const es = {
   error: "No se pudo completar la acción",
   ok: "Aceptar",
   noTerminal: "No se encontró ninguna terminal compatible",
+  customTerminal: "Personalizada…",
+  yourTerminal: "tu terminal",
+  notDetected: "no detectada",
+  terminalCommand: "Comando de la terminal",
+  terminalCommandHint: "{cwd} es la carpeta de la sesión y {command} el comando de Claude Code.",
+  settingsEllipsis: "Ajustes…",
+  checkUpdates: "Buscar actualizaciones",
+  reportProblem: "Informar de un problema",
+  help: "Ayuda",
+  aboutApp: "Acerca de Lost & Prompt",
+  versionN: "Versión {v}",
+  license: "Licencia",
+  notAffiliated: "Sin relación con Anthropic",
 };
 
 export type Key = keyof typeof es;
@@ -284,6 +297,19 @@ const en: Record<Key, string> = {
   error: "Couldn't complete the action",
   ok: "OK",
   noTerminal: "No supported terminal was found",
+  customTerminal: "Custom…",
+  yourTerminal: "your terminal",
+  notDetected: "not detected",
+  terminalCommand: "Terminal command",
+  terminalCommandHint: "{cwd} is the session's folder and {command} the Claude Code command.",
+  settingsEllipsis: "Settings…",
+  checkUpdates: "Check for Updates",
+  reportProblem: "Report a Problem",
+  help: "Help",
+  aboutApp: "About Lost & Prompt",
+  versionN: "Version {v}",
+  license: "License",
+  notAffiliated: "Not affiliated with Anthropic",
 };
 
 const dictionaries: Record<Language, Record<Key, string>> = { es, en };

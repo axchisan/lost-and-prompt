@@ -35,7 +35,15 @@ private struct GeneralSettings: View {
         Form {
             Section {
                 Picker("Reanudar en", selection: $model.terminal) {
-                    ForEach(TerminalApp.allCases) { Text($0.displayName).tag($0) }
+                    ForEach(TerminalApp.available) { Text($0.displayName).tag($0) }
+                }
+                if model.terminal == .custom {
+                    TextField("Comando de la terminal", text: $model.customTerminal,
+                              prompt: Text(verbatim: "open -na WezTerm --args start --cwd {cwd} -- zsh -lc \"{command}\""))
+                        .font(.callout.monospaced())
+                    Text("{cwd} es la carpeta de la sesión y {command} el comando de Claude Code.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 TextField("Argumentos extra", text: $model.extraArguments, prompt: Text("Por ejemplo: --model opus"))
                 LabeledContent("Comando") {

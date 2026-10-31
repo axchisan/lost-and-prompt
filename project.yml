@@ -28,6 +28,7 @@ targets:
         PRODUCT_NAME: LostAndPrompt
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: "Lost & Prompt"
+        INFOPLIST_KEY_CFBundleName: "Lost & Prompt"
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 axchisan · MIT"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

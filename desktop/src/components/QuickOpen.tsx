@@ -136,7 +136,7 @@ export function QuickOpen({ onClose }: { onClose: () => void }) {
                 <h4>{current.title}</h4>
                 <div className="facts">
                   <span>{relativeDay(current.lastActivity, language, t)}</span>
-                  {current.costUsd !== null && <b>{usd(current.costUsd, language)}</b>}
+                  {current.costUsd !== null && current.costUsd > 0 && <b>{usd(current.costUsd, language)}</b>}
                 </div>
                 {current.firstPrompt && (
                   <div className="quote">

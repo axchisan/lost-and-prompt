@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
-import { ChartColumn, ChevronRight, Clock, Folder, House, Plus, Search, Star, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { links } from "../api";
 import { tints, type Session } from "../api";
 import { useApp, type SidebarItem } from "../state";
 import { isInside } from "../App";
@@ -85,6 +87,7 @@ export function Sidebar() {
           <FolderRow key={node.path} node={node} depth={0} isHome={node.path === library.home} />
         ))}
       </nav>
+      <SidebarFooter />
     </aside>
   );
 }
@@ -145,5 +148,55 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
       </button>
       {open && node.children.map((child) => <FolderRow key={child.path} node={child} depth={depth + 1} isHome={false} />)}
     </>
+  );
+}
+
+/** Engranaje fijo abajo: en Windows y Linux no hay barra de menús como en Mac. */
+function SidebarFooter() {
+  const { t, open, modKey } = useApp();
+  const [menu, setMenu] = useState(false);
+  useEffect(() => {
+    if (!menu) return;
+    const close = () => setMenu(false);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [menu]);
+  const item = (icon: React.ReactNode, label: string, action: () => void, shortcut?: string) => (
+    <button
+      onClick={() => {
+        setMenu(false);
+        action();
+      }}
+    >
+      {icon}
+      <span style={{ flex: 1 }}>{label}</span>
+      {shortcut && <kbd>{shortcut}</kbd>}
+    </button>
+  );
+  return (
+    <div className="sidebar-footer">
+      <button
+        className="icon-btn"
+        title={t("settings")}
+        aria-haspopup="menu"
+        onClick={(e) => {
+          e.stopPropagation();
+          setMenu(!menu);
+        }}
+      >
+        <Settings />
+      </button>
+      {menu && (
+        <div className="menu up" role="menu" onClick={(e) => e.stopPropagation()}>
+          {item(<Settings size={14} />, t("settingsEllipsis"), () => open.settings(), `${modKey},`)}
+          <hr />
+          {item(<RefreshCw size={14} />, t("checkUpdates"), () => openUrl(links.releases))}
+          {item(<MessageSquareWarning size={14} />, t("reportProblem"), () => openUrl(links.issues))}
+          {item(<CircleHelp size={14} />, t("help"), () => openUrl(links.repository))}
+          <hr />
+          {item(<Info size={14} />, t("aboutApp"), open.about)}
+        </div>
+      )}
+    </div>
   );
 }

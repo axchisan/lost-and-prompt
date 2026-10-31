@@ -5,16 +5,18 @@ enum Launcher {
     enum LaunchError: LocalizedError {
         case missingFolder(String)
         case terminalNotInstalled(String)
+        case emptyTemplate
 
         var errorDescription: String? {
             switch self {
             case .missingFolder(let path): String(localized: "La carpeta «\(path)» ya no existe.")
             case .terminalNotInstalled(let name): String(localized: "\(name) no está instalada.")
+            case .emptyTemplate: String(localized: "Escribe el comando de tu terminal en Ajustes → General.")
             }
         }
     }
 
-    static func resume(_ session: Session, in terminal: TerminalApp, extraArguments: String) throws {
+    static func resume(_ session: Session, in terminal: TerminalApp, extraArguments: String, customTemplate: String = "") throws {
         guard FileManager.default.fileExists(atPath: session.cwd) else { throw LaunchError.missingFolder(session.abbreviatedPath) }
         let arguments = extraArguments.trimmingCharacters(in: .whitespaces)
         let command = "claude --resume \(session.id.uuidString.lowercased())" + (arguments.isEmpty ? "" : " " + arguments)
@@ -24,6 +26,10 @@ enum Launcher {
         case .terminal: try openScript(cwd: session.cwd, command: command, bundleID: "com.apple.Terminal", name: "Terminal")
         case .iterm: try openScript(cwd: session.cwd, command: command, bundleID: "com.googlecode.iterm2", name: "iTerm2")
         case .ghostty: try openInGhostty(cwd: session.cwd, command: command)
+        case .wezterm: try openApp("WezTerm", bundleID: "com.github.wez.wezterm", ["start", "--cwd", session.cwd, "--", "/bin/zsh", "-lc", command])
+        case .kitty: try openApp("Kitty", bundleID: "net.kovidgoyal.kitty", ["--directory", session.cwd, "/bin/zsh", "-lc", command + "; exec zsh"])
+        case .alacritty: try openApp("Alacritty", bundleID: "org.alacritty", ["--working-directory", session.cwd, "-e", "/bin/zsh", "-lc", command + "; exec zsh"])
+        case .custom: try runTemplate(customTemplate, cwd: session.cwd, command: command)
         }
     }
 
@@ -81,6 +87,28 @@ enum Launcher {
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/open")
         process.arguments = ["-na", "Ghostty", "--args", "--working-directory=\(cwd)", "-e", "/bin/zsh", "-lc", command]
+        try process.run()
+    }
+
+    /// Abre una instancia nueva de la app con argumentos (`open -na`).
+    private static func openApp(_ name: String, bundleID: String, _ arguments: [String]) throws {
+        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) != nil else {
+            throw LaunchError.terminalNotInstalled(name)
+        }
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/open")
+        process.arguments = ["-nb", bundleID, "--args"] + arguments
+        try process.run()
+    }
+
+    /// Plantilla del usuario: `{cwd}` es la carpeta (entre comillas) y `{command}` el comando de Claude Code.
+    private static func runTemplate(_ template: String, cwd: String, command: String) throws {
+        guard !template.trimmingCharacters(in: .whitespaces).isEmpty else { throw LaunchError.emptyTemplate }
+        let line = template.replacingOccurrences(of: "{cwd}", with: shell(cwd)).replacingOccurrences(of: "{command}", with: command)
+        let process = Process()
+        process.executableURL = URL(filePath: "/bin/zsh")
+        process.arguments = ["-lc", line]
+        process.currentDirectoryURL = URL(filePath: cwd)
         try process.run()
     }
 

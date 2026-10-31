@@ -22,6 +22,7 @@ final class AppModel {
     // Preferencias (se guardan en UserDefaults cuando se usan datos reales)
     var terminal: TerminalApp = .warp { didSet { save(terminal.rawValue, "terminal") } }
     var extraArguments = "" { didSet { save(extraArguments, "extraArguments") } }
+    var customTerminal = "" { didSet { save(customTerminal, "customTerminal") } }
     var retentionDays: Int? = 180
     var hideEmptySessions = true { didSet { save(hideEmptySessions, "hideEmptySessions") } }
     var showToolCalls = false
@@ -177,8 +178,10 @@ final class AppModel {
     static func live() -> AppModel {
         let model = AppModel(sessions: [], collections: [], messages: [:], now: .now)
         let defaults = UserDefaults.standard
-        model.terminal = defaults.string(forKey: "terminal").flatMap(TerminalApp.init) ?? .warp
+        model.terminal = defaults.string(forKey: "terminal").flatMap(TerminalApp.init).flatMap { $0.isInstalled ? $0 : nil }
+            ?? TerminalApp.available.first ?? .terminal
         model.extraArguments = defaults.string(forKey: "extraArguments") ?? ""
+        model.customTerminal = defaults.string(forKey: "customTerminal") ?? ""
         model.hideEmptySessions = defaults.object(forKey: "hideEmptySessions") as? Bool ?? true
         model.listStyle = defaults.string(forKey: "listStyle").flatMap(SessionListStyle.init) ?? .rows
         model.retentionDays = ClaudeSettings.retentionDays()
@@ -301,7 +304,7 @@ final class AppModel {
     func resume(_ session: Session) {
         guard usesRealData else { return }
         do {
-            try Launcher.resume(session, in: terminal, extraArguments: extraArguments)
+            try Launcher.resume(session, in: terminal, extraArguments: extraArguments, customTemplate: customTerminal)
         } catch {
             errorMessage = error.localizedDescription
         }
