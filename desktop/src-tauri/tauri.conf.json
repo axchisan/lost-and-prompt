@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Lost & Prompt",
+  "mainBinaryName": "lost-and-prompt",
+  "version": "../package.json",
+  "identifier": "com.axchisan.lostandprompt",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Lost & Prompt",
+        "width": 1180,
+        "height": 740,
+        "minWidth": 900,
+        "minHeight": 560,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "Find, organize and resume your Claude Code sessions",
+    "longDescription": "Lost & Prompt puts every Claude Code session from every folder in one window: search the conversations, resume them in your terminal and organize them with favorites, collections and notes.",
+    "copyright": "© 2026 axchisan · MIT",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "linux": { "deb": { "section": "devel" } }
+  }
+}
