@@ -19,7 +19,7 @@ All your Claude Code sessions, from every folder, in one place.</p>
   <a href="#install"><b>Install</b></a> ·
   <a href="#features">Features</a> ·
   <a href="#faq">FAQ</a> ·
-  <a href="https://axchisan.github.io/lost-and-prompt/">Website</a> ·
+  <a href="https://lostandprompt.axchisan.com/">Website</a> ·
   <a href="README.md">Español</a>
 </p>
 

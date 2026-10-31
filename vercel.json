@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R docs/screenshots _site/screenshots && cp docs/diseno/icono/icono-caja-1024.png _site/icon.png",
+  "outputDirectory": "_site",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site docs/screenshots docs/diseno/icono vercel.json",
+  "cleanUrls": true,
+  "headers": [
+    { "source": "/screenshots/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
+  ]
+}

@@ -54,7 +54,7 @@ atajo global configurable desde Ajustes.
 
 | Pendiente | Detalle |
 |---|---|
-| Sitio web | `site/`, publicado en <https://axchisan.github.io/lost-and-prompt/> por `.github/workflows/pages.yml` |
+| Sitio web | `site/`, en Vercel (proyecto `lost-and-prompt`, conectado al repo): <https://lostandprompt.axchisan.com/>. Se publica solo al hacer push si cambian `site/`, las capturas o el ícono (`vercel.json`) |
 | Imagen para redes | `site/og.png` (1280×640). **Subirla a mano** en GitHub → Settings → General → Social preview (GitHub no tiene API para esto) |
 | Publicaciones | Borradores listos en [`promocion.md`](promocion.md) |
 | Vídeo o GIF corto | 15–20 s: buscar algo, reanudar en la terminal. Es lo que más convierte en Reddit y X |

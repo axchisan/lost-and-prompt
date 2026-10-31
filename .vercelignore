@@ -1,0 +1,10 @@
+# Solo se sube lo que necesita el sitio web.
+/*
+!/site
+!/docs
+/docs/*
+!/docs/screenshots
+!/docs/diseno
+/docs/diseno/*
+!/docs/diseno/icono
+!/vercel.json

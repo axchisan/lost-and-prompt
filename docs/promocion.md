@@ -2,7 +2,7 @@
 
 Textos listos para copiar y pegar. Enlaces que se repiten:
 
-- Sitio: <https://axchisan.github.io/lost-and-prompt/>
+- Sitio: <https://lostandprompt.axchisan.com/>
 - Repo: <https://github.com/axchisan/lost-and-prompt>
 - Imagen: `site/og.png` · capturas: `docs/screenshots/`
 
@@ -76,7 +76,7 @@ session manager for Claude Code (free, open source)**
 >
 > `brew install --cask axchisan/tap/lost-and-prompt`
 >
-> https://axchisan.github.io/lost-and-prompt/
+> https://lostandprompt.axchisan.com/
 
 ## Hacker News — Show HN
 
@@ -129,7 +129,7 @@ Descripción para el formulario:
 >
 > Free and open source for macOS, Windows and Linux.
 >
-> https://axchisan.github.io/lost-and-prompt/
+> https://lostandprompt.axchisan.com/
 
 Adjunta el GIF o `site/og.png`. Etiqueta a `@claudeai` solo si el texto no parece pedir que lo
 compartan.
@@ -145,7 +145,7 @@ compartan.
 > terminal, colecciones y notas. Es nativa en SwiftUI para Mac y usa Tauri + Rust en Windows y Linux,
 > con instaladores, actualizaciones firmadas y publicación automática desde GitHub Actions.
 >
-> Es gratis: https://axchisan.github.io/lost-and-prompt/
+> Es gratis: https://lostandprompt.axchisan.com/
 
 ## Comunidades en español
 
@@ -155,7 +155,7 @@ Para Discord/Telegram de desarrolladores, r/programacion, r/devsarg, r/colombia_
 > sesiones de todas las carpetas, las buscas por lo que se dijo y las reanudas en tu terminal con
 > un clic. Funciona en macOS, Windows y Linux, y está en español.
 >
-> https://axchisan.github.io/lost-and-prompt/
+> https://lostandprompt.axchisan.com/
 >
 > Si la pruebas, me encantaría saber qué le falta.
 

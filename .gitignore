@@ -9,3 +9,8 @@ LostAndPrompt.xcodeproj/
 desktop/node_modules/
 desktop/dist/
 desktop/src-tauri/gen/schemas/
+
+# Sitio web (Vercel)
+.vercel
+_site
+.env*

@@ -19,7 +19,7 @@
   <a href="#instalación"><b>Instalar</b></a> ·
   <a href="#qué-hace">Qué hace</a> ·
   <a href="#preguntas-frecuentes">Preguntas frecuentes</a> ·
-  <a href="https://axchisan.github.io/lost-and-prompt/">Sitio web</a> ·
+  <a href="https://lostandprompt.axchisan.com/">Sitio web</a> ·
   <a href="README.en.md">English</a>
 </p>
 
