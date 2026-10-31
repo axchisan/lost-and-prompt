@@ -1,0 +1,22 @@
+pkgbase = lost-and-prompt-bin
+	pkgdesc = Find, organize and resume all your Claude Code sessions, from every folder
+	pkgver = 0.2.0
+	pkgrel = 1
+	url = https://github.com/axchisan/lost-and-prompt
+	arch = x86_64
+	license = MIT
+	depends = webkit2gtk-4.1
+	depends = gtk3
+	depends = libayatana-appindicator
+	depends = hicolor-icon-theme
+	provides = lost-and-prompt
+	conflicts = lost-and-prompt
+	noextract = LostAndPrompt-0.2.0-linux-amd64.deb
+	options = !strip
+	options = !debug
+	source = LostAndPrompt-0.2.0-linux-amd64.deb::https://github.com/axchisan/lost-and-prompt/releases/download/v0.2.0/LostAndPrompt-0.2.0-linux-amd64.deb
+	source = LICENSE-0.2.0::https://raw.githubusercontent.com/axchisan/lost-and-prompt/v0.2.0/LICENSE
+	sha256sums = 3a4b43a5ae02ba9b9b1043e2a9751d405005db4af356dc2e465b009cefb3bb8f
+	sha256sums = 4b4fa319bede116c8b1350477878b22efa9c821397ba98967ce0522731413bd9
+
+pkgname = lost-and-prompt-bin

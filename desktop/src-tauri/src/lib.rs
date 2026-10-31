@@ -350,7 +350,10 @@ fn set_autostart(enabled: bool, app: AppHandle) -> Result<(), String> {
 /// Cómo se instaló la app: decide si el actualizador puede instalar versiones nuevas solo.
 #[tauri::command]
 fn install_kind() -> &'static str {
-    if cfg!(target_os = "windows") {
+    let exe = std::env::current_exe().map(|p| p.to_string_lossy().to_lowercase()).unwrap_or_default();
+    if cfg!(target_os = "windows") && exe.contains(r"\scoop\apps\") {
+        "scoop"
+    } else if cfg!(target_os = "windows") {
         "nsis"
     } else if cfg!(target_os = "macos") {
         "dev"

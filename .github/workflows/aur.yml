@@ -1,0 +1,28 @@
+name: Paquete de AUR
+
+# Construye el PKGBUILD en un contenedor de Arch Linux, lo instala y comprueba que .SRCINFO
+# coincide. Se ejecuta al cambiar packaging/aur o a mano.
+on:
+  push:
+    paths: ["packaging/aur/**", ".github/workflows/aur.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir e instalar como usuario sin privilegios
+        run: |
+          pacman -Syu --noconfirm --needed namcap
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
+          cp -r packaging/aur /home/builder/pkg && chown -R builder /home/builder/pkg
+          cd /home/builder/pkg
+          sudo -u builder makepkg --syncdeps --install --noconfirm
+          sudo -u builder makepkg --printsrcinfo > generated.SRCINFO
+          diff -u .SRCINFO generated.SRCINFO && echo ".SRCINFO al día"
+          namcap PKGBUILD || true
+          pacman -Ql lost-and-prompt-bin | grep -E "bin/|applications/|licenses/"
+          test -x /usr/bin/lost-and-prompt

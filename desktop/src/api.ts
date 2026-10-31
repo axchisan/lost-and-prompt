@@ -80,7 +80,7 @@ export const api = {
   updateTray: (content: TrayContent) => invoke<void>("update_tray", { content }),
   autostartEnabled: () => invoke<boolean>("autostart_enabled"),
   setAutostart: (enabled: boolean) => invoke<void>("set_autostart", { enabled }),
-  installKind: () => invoke<"nsis" | "appimage" | "package" | "dev">("install_kind"),
+  installKind: () => invoke<"nsis" | "scoop" | "appimage" | "package" | "dev">("install_kind"),
   openLogs: () => invoke<void>("open_logs"),
 };
 

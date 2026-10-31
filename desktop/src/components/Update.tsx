@@ -48,7 +48,7 @@ export function UpdateSheet({ update, onClose }: { update: Update; onClose: () =
         <h4>{t("updateAvailable")}</h4>
         <p>{t("updateVersion", { new: update.version, current })}</p>
         {update.body && <div className="update-notes selectable">{update.body}</div>}
-        {!canInstall && <p>{t("updatePackageHint")}</p>}
+        {!canInstall && <p>{kind === "scoop" ? t("updateScoopHint") : t("updatePackageHint")}</p>}
         {progress !== null && (
           <>
             <div className="progress">
