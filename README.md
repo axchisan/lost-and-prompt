@@ -8,8 +8,9 @@
 
 <p align="center"><a href="README.es.md">Leer en español</a></p>
 
-Lost & Prompt is a native macOS app to **find, organize and resume** all your Claude Code
-sessions, no matter which folder you started them in.
+Lost & Prompt is an app for **macOS, Windows and Linux** to **find, organize and resume** all your
+Claude Code sessions, no matter which folder you started them in. Native SwiftUI on the Mac;
+Tauri + Rust on Windows and Linux, with the same design.
 
 Claude Code ties every session to the directory it was opened in, and `/resume` only lists the
 current folder by default. Once you work across many folders, remembering where you talked about
@@ -21,9 +22,12 @@ something gets hard. Lost & Prompt puts every session in one window.
 
 - **Find**: every session from every folder, grouped by day. Search titles, folders and the
   conversations themselves, with the matching snippet highlighted.
-- **Resume**: one click (or ↩) opens the session in Warp, Terminal, iTerm2 or Ghostty, in its
-  original folder.
-- **Quick search from anywhere**: press ⌥⌘K in any app, type two letters, hit ↩.
+- **Resume**: one click (or ↩) opens the session in its original folder, in your terminal: Warp,
+  Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, GNOME Terminal, Konsole, Kitty,
+  WezTerm… or any terminal with a custom command.
+- **Quick search from anywhere**: ⌥⌘K on the Mac, Ctrl+Alt+K on Windows and Linux, plus a menu
+  bar / system tray icon with your recent sessions.
+- **WSL**: on Windows it also finds sessions from Claude Code inside WSL.
 - **Organize**: favorites, custom names, collections and notes, without touching Claude Code's
   files.
 - **Read**: the conversation without the technical noise, before you resume it.
@@ -31,6 +35,7 @@ something gets hard. Lost & Prompt puts every session in one window.
 - **Keep your history**: Claude Code deletes sessions older than 30 days by default. Choose how
   long to keep them from Settings.
 - Rows or cards, light and dark mode, English and Spanish. Updates live while you use Claude Code.
+- **Automatic updates** on all three platforms.
 
 | Cards | Quick search | Dark mode |
 |---|---|---|
@@ -38,44 +43,56 @@ something gets hard. Lost & Prompt puts every session in one window.
 
 ## Install
 
-Requires macOS 15 Sequoia or later (Apple Silicon or Intel).
+Download from [Releases](https://github.com/axchisan/lost-and-prompt/releases/latest). Once
+installed, Lost & Prompt updates itself.
 
-**Homebrew**
+### macOS
+
+macOS 15 Sequoia or later, Apple Silicon or Intel.
 
 ```bash
 brew install --cask axchisan/tap/lost-and-prompt
 ```
 
-**Download**: get the `.dmg` from [Releases](https://github.com/axchisan/lost-and-prompt/releases)
-and drag Lost & Prompt to Applications.
+Or download `LostAndPrompt-<version>-macos-universal.dmg` and drag the app to Applications.
 
-### Opening it the first time
+Lost & Prompt isn't notarized by Apple (that requires a paid developer account), so the first
+time macOS says it can't verify the developer. Open it once, then go to **System Settings →
+Privacy & Security → Open Anyway**, or run
+`xattr -dr com.apple.quarantine "/Applications/Lost & Prompt.app"`. Homebrew does this for you.
 
-Lost & Prompt is free and open source, and it isn't notarized by Apple (that requires a paid
-developer account). macOS will say it can't verify the developer the first time you open it.
-To allow it:
+### Windows
 
-1. Open Lost & Prompt once and close the warning.
-2. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway**.
+Windows 10 or 11 (x64). Download `LostAndPrompt-<version>-windows-x64-setup.exe` and run it; it
+installs for your user, no administrator needed. The installer isn't code-signed, so SmartScreen
+shows "Windows protected your PC": click **More info → Run anyway**.
 
-Or run this once in Terminal:
+### Linux
+
+x86_64. Pick one:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Lost & Prompt.app"
-```
+# AppImage (updates itself)
+chmod +x LostAndPrompt-*-linux-x86_64.AppImage && ./LostAndPrompt-*-linux-x86_64.AppImage
 
-The Homebrew cask does this for you.
+# Debian, Ubuntu, Mint…
+sudo apt install ./LostAndPrompt-*-linux-amd64.deb
+
+# Fedora, openSUSE…
+sudo dnf install ./LostAndPrompt-*-linux-x86_64.rpm
+```
 
 ## Privacy
 
-Lost & Prompt runs entirely on your Mac. It reads `~/.claude/projects` without modifying it and
-never sends anything anywhere. The only Claude Code file it can change is
+Lost & Prompt runs entirely on your computer. It reads Claude Code's sessions (`~/.claude/projects`,
+or `%USERPROFILE%\.claude\projects` on Windows) without modifying them and never sends them
+anywhere; the only network request is the update check against GitHub Releases. The only Claude Code file it can change is
 `~/.claude/settings.json`, and only when you change the history setting yourself; it backs the
 file up first.
 
 ## Build from source
 
-Requirements: macOS 15+, Xcode 16+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+**macOS app** (SwiftUI): macOS 15+, Xcode 26+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 brew install xcodegen
@@ -83,7 +100,17 @@ xcodegen generate
 open LostAndPrompt.xcodeproj
 ```
 
-`scripts/release.sh` builds the universal `.dmg`. The design notes and decisions (in Spanish) are
+**Windows and Linux app** (Tauri 2 + Rust, also runs on macOS for development): Rust, Node 24 and
+pnpm.
+
+```bash
+cd desktop
+pnpm install
+pnpm tauri dev
+```
+
+The shared Rust core lives in `core/` (`cargo test -p lost-and-prompt-core`). Releases are built by
+GitHub Actions when a `vX.Y.Z` tag is pushed (`scripts/bump-version.sh`). The design notes and decisions (in Spanish) are
 in [`docs/`](docs/README.md).
 
 ## License

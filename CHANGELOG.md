@@ -7,6 +7,12 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-31
+
+First release for Windows and Linux, and automatic updates on all three platforms.
+
+Primera versión para Windows y Linux, y actualizaciones automáticas en las tres plataformas.
+
 ### Added
 - Windows and Linux: pick any terminal — Warp, Windows Terminal, PowerShell 7, cmd, Git Bash,
   WezTerm, Alacritty, GNOME Terminal, Konsole, Kitty, Ghostty… — or set a custom command.
@@ -68,6 +74,7 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/axchisan/lost-and-prompt/releases/tag/v0.1.0
