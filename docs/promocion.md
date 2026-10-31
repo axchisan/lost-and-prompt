@@ -36,16 +36,23 @@ Flair: *Built with Claude* o *Productivity* (según lo que permita el subreddit)
 
 **Título:** I built a free app to find and resume every Claude Code session, from every folder
 
+**Adjunto:** sube `docs/screenshots/en/demo.mp4` como vídeo (Reddit lo reproduce solo) y pega el texto
+debajo. Si el subreddit no deja vídeo + texto, publica el enlace al repo y pon el texto como primer
+comentario.
+
 **Texto:**
 
-> Claude Code saves each session next to the folder you opened it in, and `/resume` only shows the
-> current folder. After a few months across a dozen projects I kept asking myself "which folder did
-> I talk about this in?", so I built **Lost & Prompt**.
+> Claude Code saves each session next to the folder you opened it in, and `/resume` starts with the
+> current folder (Ctrl+A lists everything, but as a flat list in the terminal). After a few months
+> across a dozen projects I kept asking myself "which folder did I talk about this in?", so I built
+> **Lost & Prompt**.
 >
 > - Every session from every folder in one window, grouped by day
-> - Search inside the conversations, not just titles
+> - Search inside the conversations, not just titles, and ⌘F / Ctrl+F within one
 > - Resume in its original folder with one click, in your terminal (Warp, iTerm2, Ghostty, Windows
->   Terminal, Konsole…)
+>   Terminal, Konsole…), or start a new session there
+> - Replies rendered properly: code blocks, tables, lists
+> - Open the folder in VS Code, Cursor, Zed…
 > - Favorites, custom names, collections and notes, without touching Claude Code's files
 > - Global shortcut and menu bar / tray
 > - Warns you that Claude Code deletes sessions after 30 days and lets you change it
@@ -85,8 +92,9 @@ session manager for Claude Code (free, open source)**
 **URL:** el repositorio. **Primer comentario** (publícalo tú justo después):
 
 > Hi HN. Claude Code stores each session as a JSONL file under `~/.claude/projects/<folder>`, and
-> its `/resume` picker only shows sessions for the current directory. I work across many folders, so
-> I kept losing conversations.
+> its `/resume` picker starts with the current directory (Ctrl+A shows all of them as one flat list,
+> without search inside the conversations). I work across many folders, so I kept losing
+> conversations.
 >
 > Lost & Prompt indexes all of them and lets you search the full text, then resumes a session with
 > `claude --resume <id>` in its original directory, in whatever terminal you use.
@@ -122,7 +130,8 @@ Descripción para el formulario:
 
 ## X / Bluesky
 
-> Claude Code's `/resume` only shows sessions from the current folder.
+> Claude Code's `/resume` starts with the current folder, and finding an old conversation across
+> projects is a pain.
 >
 > So I built Lost & Prompt: every session from every folder in one window, full-text search, and
 > one-click resume in your terminal.

@@ -25,8 +25,8 @@
 
 ---
 
-Claude Code guarda cada sesión ligada a la carpeta donde la abriste, y `/resume` solo te muestra
-las de la carpeta actual. Si trabajas en muchos proyectos, acabas preguntándote: *«¿en qué carpeta
+Claude Code guarda cada sesión ligada a la carpeta donde la abriste, y `/resume` empieza por las
+de la carpeta actual (con Ctrl+A ves todas, pero en una lista plana dentro de la terminal). Si trabajas en muchos proyectos, acabas preguntándote: *«¿en qué carpeta
 hablé de esto?»*.
 
 **Lost & Prompt** reúne todas tus sesiones en una sola ventana. Las buscas por lo que se dijo en

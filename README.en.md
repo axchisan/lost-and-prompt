@@ -25,8 +25,8 @@ All your Claude Code sessions, from every folder, in one place.</p>
 
 ---
 
-Claude Code ties every session to the folder you opened it in, and `/resume` only lists the current
-folder. Work across enough projects and you end up asking: *"which folder did I talk about this
+Claude Code ties every session to the folder you opened it in, and `/resume` starts with the current
+folder (Ctrl+A lists everything, but as a flat list in the terminal). Work across enough projects and you end up asking: *"which folder did I talk about this
 in?"*
 
 **Lost & Prompt** puts every session in one window. Find them by what was said, resume them in your
