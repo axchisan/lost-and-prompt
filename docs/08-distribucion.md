@@ -71,7 +71,7 @@ autor; **si se pierden, las apps instaladas ya no podrán actualizarse solas**.
 | Homebrew (tap propio) | macOS | ✅ ya existe | El flujo actualiza versión y sha256 solo |
 | **winget** | Windows | ⏳ enviado | `winget install axchisan.LostAndPrompt`. PR [microsoft/winget-pkgs#467137](https://github.com/microsoft/winget-pkgs/pull/467137) (2026-10-31), en revisión. Manifiestos en `packaging/winget/` |
 | Scoop | Windows | ✅ | `scoop bucket add axchisan https://github.com/axchisan/scoop-bucket` + `scoop install axchisan/lost-and-prompt`; el bucket se actualiza solo (Excavator) |
-| **AUR** (`lost-and-prompt-bin`) | Arch y derivados | ⏳ listo para publicar | `packaging/aur/`; CI lo construye e instala en Arch. Falta la cuenta de AUR del autor |
+| **AUR** (`lost-and-prompt-bin`) | Arch y derivados | ⏸ en espera | `packaging/aur/`; CI lo construye e instala en Arch; clave `~/.ssh/aur` creada. El 2026-10-31 AUR tenía cerrado el registro de cuentas nuevas (aviso en aur-general y Arch news); cuando reabra: registrarse con `~/.ssh/aur.pub` y `scripts/publish-aur.sh` |
 | **Flathub** | Linux (todas) | v0.4.0 | Revisión humana; sandbox con acceso de lectura a `~/.claude` |
 | Microsoft Store | Windows | Más adelante | Gratis para desarrolladores individuales; firma la app la propia tienda |
 
