@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
@@ -131,6 +132,13 @@ export default function App() {
     document.documentElement.lang = language;
     if (library) document.documentElement.dataset.platform = library.platform;
   }, [dark, language, library]);
+
+  // La barra de título nativa sigue el tema elegido; con «Sistema» vuelve al del sistema.
+  useEffect(() => {
+    getCurrentWindow()
+      .setTheme(prefs.theme === "system" ? null : prefs.theme)
+      .catch(() => {});
+  }, [prefs.theme]);
 
   // Búsqueda en las conversaciones, con una pequeña espera entre pulsaciones.
   useEffect(() => {

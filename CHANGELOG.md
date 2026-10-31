@@ -7,6 +7,15 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Fixed
+- Windows and Linux: the window title bar now follows the theme chosen in Settings (it stayed light
+  in dark mode).
+
+---
+
+- Windows y Linux: la barra de título de la ventana sigue el tema elegido en Ajustes (se quedaba
+  clara en modo oscuro).
+
 ## [0.2.0] - 2026-10-31
 
 First release for Windows and Linux, and automatic updates on all three platforms.
