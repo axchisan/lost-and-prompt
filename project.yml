@@ -59,7 +59,7 @@ targets:
         ENABLE_HARDENED_RUNTIME: NO
         SPARKLE_FEED_URL: https://github.com/axchisan/lost-and-prompt/releases/latest/download/appcast.xml
         # Clave pública EdDSA de Sparkle (scripts/setup-sparkle-key.sh). Vacía = sin actualizaciones automáticas.
-        SPARKLE_PUBLIC_KEY: ""
+        SPARKLE_PUBLIC_KEY: "e8i/pGa8/sFYJdZO3k9CEUb7IRFmFif+unVMq9k6PlY="
         ENABLE_PREVIEWS: YES
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
