@@ -16,23 +16,50 @@ settings:
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     SWIFT_EMIT_LOC_STRINGS: YES
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.10.1
+
 targets:
   LostAndPrompt:
     type: application
     platform: macOS
     sources:
       - path: LostAndPrompt
+    dependencies:
+      - package: Sparkle
+    info:
+      path: LostAndPrompt/Info.plist
+      properties:
+        CFBundleName: Lost & Prompt
+        CFBundleDisplayName: Lost & Prompt
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.developer-tools
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: © 2026 axchisan · MIT
+        NSPrincipalClass: NSApplication
+        SUFeedURL: $(SPARKLE_FEED_URL)
+        SUPublicEDKey: $(SPARKLE_PUBLIC_KEY)
+        SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 86400
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.axchisan.LostAndPrompt
         PRODUCT_NAME: LostAndPrompt
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: "Lost & Prompt"
-        INFOPLIST_KEY_CFBundleName: "Lost & Prompt"
-        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
-        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 axchisan · MIT"
+        # El Info.plist lo genera XcodeGen (sección info); si Xcode también lo generara,
+        # pondría CFBundleName = PRODUCT_NAME («LostAndPrompt») en la barra de menús.
+        GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        ENABLE_HARDENED_RUNTIME: YES
+        # Sin cuenta de Apple Developer no se notariza, y el hardened runtime con firma ad hoc
+        # impide cargar Sparkle (validación de librerías).
+        ENABLE_HARDENED_RUNTIME: NO
+        SPARKLE_FEED_URL: https://github.com/axchisan/lost-and-prompt/releases/latest/download/appcast.xml
+        # Clave pública EdDSA de Sparkle (scripts/setup-sparkle-key.sh). Vacía = sin actualizaciones automáticas.
+        SPARKLE_PUBLIC_KEY: ""
         ENABLE_PREVIEWS: YES
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual

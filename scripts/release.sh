@@ -16,7 +16,7 @@ BUILT=build/release.noindex/Build/Products/Release/LostAndPrompt.app
 STAGE=build/dmg.noindex
 rm -rf $STAGE && mkdir -p $STAGE
 ditto "$BUILT" "$STAGE/$APP_NAME.app"
-codesign --force --deep --options runtime --sign - "$STAGE/$APP_NAME.app"
+codesign --force --deep --sign - "$STAGE/$APP_NAME.app"
 ln -s /Applications "$STAGE/Applications"
 
 DMG=build/LostAndPrompt-$VERSION.dmg

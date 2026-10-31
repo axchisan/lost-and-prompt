@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct LostAndPromptApp: App {
     @State private var model = LostAndPromptApp.makeModel()
+    @State private var updater = AppUpdater()
     @AppStorage("showMenuBarExtra") private var showMenuBarExtra = true
 
     var body: some Scene {
@@ -16,10 +17,16 @@ struct LostAndPromptApp: App {
                 }
         }
         .defaultSize(width: 1180, height: 740)
-        .commands { AppCommands(model: model) }
+        .commands {
+            AppCommands(model: model)
+            CommandGroup(after: .appInfo) {
+                Button("Buscar actualizaciones…") { updater.checkForUpdates() }
+                    .disabled(!updater.isAvailable)
+            }
+        }
 
         Settings {
-            SettingsView().environment(model)
+            SettingsView().environment(model).environment(updater)
         }
 
         MenuBarExtra("Lost & Prompt", systemImage: "shippingbox", isInserted: $showMenuBarExtra) {

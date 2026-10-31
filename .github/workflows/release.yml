@@ -50,10 +50,49 @@ jobs:
       - run: brew install xcodegen
       - run: scripts/release.sh
       - run: mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.dmg" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.dmg"
+      - uses: actions/download-artifact@v4
+        with:
+          name: notes
+      - name: Firmar para Sparkle y generar appcast.xml
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "::warning::Sin SPARKLE_PRIVATE_KEY: la versión de Mac no tendrá actualizaciones automáticas."
+            exit 0
+          fi
+          v=${{ needs.verify.outputs.version }}
+          dmg="LostAndPrompt-$v-macos-universal.dmg"
+          build=$(sed -n 's/.*CURRENT_PROJECT_VERSION: "\([0-9]*\)"/\1/p' project.yml | head -1)
+          curl -sL -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz
+          mkdir sparkle && tar xf sparkle.tar.xz -C sparkle
+          sig=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | sparkle/bin/sign_update --ed-key-file - "$dmg")
+          notes=$(sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' notes.md)
+          cat > appcast.xml <<XML
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>Lost &amp; Prompt</title>
+              <item>
+                <title>Lost &amp; Prompt $v</title>
+                <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+                <sparkle:version>$build</sparkle:version>
+                <sparkle:shortVersionString>$v</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+                <description><![CDATA[<pre style="white-space: pre-wrap; font: 13px -apple-system">$notes</pre>]]></description>
+                <enclosure url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$dmg" $sig type="application/octet-stream"/>
+              </item>
+            </channel>
+          </rss>
+          XML
+          sed -i '' 's/^          //' appcast.xml
+          cat appcast.xml
       - uses: actions/upload-artifact@v4
         with:
           name: macos
-          path: LostAndPrompt-*.dmg
+          path: |
+            LostAndPrompt-*.dmg
+            appcast.xml
           if-no-files-found: error
 
   desktop:
@@ -159,7 +198,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           v=${{ needs.verify.outputs.version }}
-          extra=""; [ -f dist/latest.json ] && extra="dist/latest.json"
+          extra=""
+          [ -f dist/latest.json ] && extra="$extra dist/latest.json"
+          [ -f dist/appcast.xml ] && extra="$extra dist/appcast.xml"
           gh release create "$TAG" dist/LostAndPrompt-* dist/SHA256SUMS.txt $extra \
             --repo "$GITHUB_REPOSITORY" --title "Lost & Prompt $v" --notes-file dist/notes.md
       - name: Actualizar el cask de Homebrew
@@ -179,6 +220,7 @@ jobs:
           cd tap
           sed -i "s/^  version \".*\"/  version \"$v\"/; s/^  sha256 \".*\"/  sha256 \"$sha\"/" Casks/lost-and-prompt.rb
           sed -i 's|^  url ".*"|  url "https://github.com/axchisan/lost-and-prompt/releases/download/v#{version}/LostAndPrompt-#{version}-macos-universal.dmg"|' Casks/lost-and-prompt.rb
+          grep -q "auto_updates true" Casks/lost-and-prompt.rb || sed -i 's|^  depends_on macos:|  auto_updates true\n  depends_on macos:|' Casks/lost-and-prompt.rb
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "lost-and-prompt $v" && git push

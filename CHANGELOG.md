@@ -11,6 +11,7 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - Windows and Linux: pick any terminal — Warp, Windows Terminal, PowerShell 7, cmd, Git Bash,
   WezTerm, Alacritty, GNOME Terminal, Konsole, Kitty, Ghostty… — or set a custom command.
 - macOS: WezTerm, Kitty, Alacritty and custom terminals; only installed terminals are listed.
+- macOS: automatic updates with Sparkle (Lost & Prompt → Check for Updates…, and in Settings).
 - Windows and Linux: settings button with About, Check for Updates and Report a Problem.
 - Windows and Linux: the app opens a single window and remembers its size and position.
 - Windows and Linux: automatic updates — the app tells you when there's a new version and installs
@@ -31,6 +32,7 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - Windows y Linux: elige cualquier terminal (Warp, Windows Terminal, PowerShell 7, cmd, Git Bash,
   WezTerm, Alacritty, GNOME Terminal, Konsole, Kitty, Ghostty…) o un comando personalizado.
 - macOS: WezTerm, Kitty, Alacritty y terminal personalizada; solo se listan las instaladas.
+- macOS: actualizaciones automáticas con Sparkle (Lost & Prompt → Buscar actualizaciones…, y en Ajustes).
 - Windows y Linux: botón de Ajustes con Acerca de, Buscar actualizaciones e Informar de un problema.
 - Windows y Linux: una sola ventana de la app, que recuerda su tamaño y posición.
 - Windows y Linux: actualizaciones automáticas; la app avisa de la versión nueva y la instala con un

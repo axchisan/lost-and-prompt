@@ -56,6 +56,8 @@ private struct GeneralSettings: View {
                 Text("Terminal")
             }
 
+            UpdatesSection()
+
             Section("Lanzador") {
                 Toggle("Mostrar en la barra de menús", isOn: $showInMenuBar)
                 LabeledContent("Atajo global", value: "⌥⌘K")
@@ -71,6 +73,27 @@ private struct GeneralSettings: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+private struct UpdatesSection: View {
+    @Environment(AppUpdater.self) private var updater
+
+    var body: some View {
+        @Bindable var updater = updater
+        Section("Actualizaciones") {
+            if updater.isAvailable {
+                Toggle("Buscar actualizaciones automáticamente", isOn: $updater.automaticallyChecks)
+                LabeledContent("Versión \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")") {
+                    Button("Buscar ahora") { updater.checkForUpdates() }
+                }
+            } else {
+                LabeledContent("Versión", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
+                Text("Esta compilación no busca actualizaciones. Si la instalaste con Homebrew, usa brew upgrade --cask lost-and-prompt.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -182,5 +205,5 @@ private struct AppearanceSettings: View {
 }
 
 #Preview {
-    SettingsView().environment(MockData.model())
+    SettingsView().environment(MockData.model()).environment(AppUpdater())
 }
