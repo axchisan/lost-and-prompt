@@ -52,7 +52,7 @@ jobs:
       - run: |
           mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.dmg" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.dmg"
           mv "build/LostAndPrompt-${{ needs.verify.outputs.version }}.zip" "LostAndPrompt-${{ needs.verify.outputs.version }}-macos-universal.zip"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: notes
       - name: Firmar para Sparkle y generar appcast.xml
@@ -169,7 +169,7 @@ jobs:
     needs: [verify, macos, desktop]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
