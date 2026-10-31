@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Construir e instalar como usuario sin privilegios
         run: |
           pacman -Syu --noconfirm --needed namcap
