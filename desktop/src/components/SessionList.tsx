@@ -1,7 +1,7 @@
-import { Check, ClockAlert, Folder, ListFilter, MessageSquarePlus, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
+import { Check, ClockAlert, Folder, Layers, ListFilter, MessageSquarePlus, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
 import { tints, type Session } from "../api";
 import { dayGroups, grouped, shortDate } from "../format";
-import { noFilter, useApp } from "../state";
+import { collectionsOf, noFilter, useApp } from "../state";
 import { Dropdown } from "./Detail";
 import { plain, Snippet } from "./Text";
 
@@ -137,6 +137,15 @@ export function EmptyState() {
       </div>
     );
   }
+  if (sidebar.kind === "collection") {
+    return (
+      <div className="empty">
+        <Layers />
+        <b>{t("emptyCollection")}</b>
+        <p>{t("emptyCollectionHint")}</p>
+      </div>
+    );
+  }
   if (sidebar.kind === "favorites") {
     return (
       <div className="empty">
@@ -181,7 +190,7 @@ function Meta({ session }: { session: Session }) {
   return (
     <div className="meta">
       {session.isFavorite && <Star className="star" />}
-      {session.collectionIds.map((id) => {
+      {collectionsOf(session).map((id) => {
         const c = app.collection(id);
         return c ? <span key={id} className="dot sm" style={{ background: tints[c.tint] }} /> : null;
       })}
@@ -219,6 +228,8 @@ export function SessionList() {
                 <div
                   key={session.id}
                   id={`session-${session.id}`}
+                  draggable
+                  onDragStart={(e) => e.dataTransfer.setData("text/plain", `session:${session.id}`)}
                   role="option"
                   aria-selected={selected?.id === session.id}
                   className={`row${selected?.id === session.id ? " on" : ""}`}
@@ -268,6 +279,8 @@ export function SessionCards() {
                   <div
                     key={session.id}
                     className={`card${selected?.id === session.id ? " on" : ""}`}
+                    draggable
+                    onDragStart={(e) => e.dataTransfer.setData("text/plain", `session:${session.id}`)}
                     onClick={() => select(session.id)}
                     onDoubleClick={() => app.actions.resume(session)}
                     onContextMenu={(e) => {
@@ -285,7 +298,7 @@ export function SessionCards() {
                     <p>{plain(session.firstPrompt)}</p>
                     <div className="foot">
                       {session.isFavorite && <Star size={12} className="star" />}
-                      {session.collectionIds.map((id) => {
+                      {collectionsOf(session).map((id) => {
                         const c = app.collection(id);
                         return c ? (
                           <span key={id} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>

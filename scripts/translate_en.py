@@ -15,6 +15,16 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "%@ (por su carpeta)": "%@ (through its folder)",
+    "Añadir a colección": "Add to Collection",
+    "Arrastra aquí sesiones de la lista. Para una carpeta entera, usa «Añadir a colección» en su menú contextual.": "Drag sessions here from the list. For a whole folder, use “Add to Collection” in its context menu.",
+    "Carpetas incluidas": "Included Folders",
+    "Editar colección": "Edit collection",
+    "Editar colección…": "Edit Collection…",
+    "Esta colección está vacía": "This Collection Is Empty",
+    "Incluirá la sesión «%@».": "It will include the session “%@”.",
+    "Incluirá todas las sesiones de %@.": "It will include every session in %@, future ones too.",
+    "Quitar %@": "Remove %@",
     "Abrir sesión": "Open Session",
     "Abrir sesión aquí": "Open Session Here",
     "Buscar carpeta": "Search folders",

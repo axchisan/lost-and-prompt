@@ -31,7 +31,24 @@ struct SidebarView: View {
                     }
                     .badge(model.count(in: collection.id))
                     .tag(SidebarItem.collection(collection.id))
+                    // Sesiones (desde la lista) y carpetas (desde esta barra) se pueden soltar encima.
+                    .onDrop(of: [.utf8PlainText, .plainText], isTargeted: nil) { providers in
+                        model.receiveDrop(providers, on: collection.id)
+                        return true
+                    }
                     .contextMenu {
+                        Button("Editar colección…", systemImage: "pencil") { model.editingCollection = collection }
+                        let folders = model.folders(in: collection.id)
+                        if !folders.isEmpty {
+                            Menu("Carpetas incluidas", systemImage: "folder") {
+                                ForEach(folders, id: \.self) { path in
+                                    Button("Quitar \(Session.abbreviate(path))", systemImage: "minus.circle") {
+                                        model.toggleFolder(path, in: collection.id)
+                                    }
+                                }
+                            }
+                        }
+                        Divider()
                         Button("Eliminar colección", systemImage: "trash", role: .destructive) {
                             model.deleteCollection(collection.id)
                         }
@@ -90,6 +107,18 @@ private struct ProjectRow: View {
             .help(node.path)
             .contextMenu {
                 Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: node.path) }
+                Menu("Añadir a colección", systemImage: "square.stack") {
+                    ForEach(model.collections) { collection in
+                        Toggle(collection.name, isOn: Binding(
+                            get: { model.isFolder(node.path, in: collection.id) },
+                            set: { _ in model.toggleFolder(node.path, in: collection.id) }))
+                    }
+                    if !model.collections.isEmpty { Divider() }
+                    Button("Nueva colección…") {
+                        model.newCollectionTarget = .folder(node.path)
+                        model.isCreatingCollection = true
+                    }
+                }
                 if let editor = model.editor {
                     Button("Abrir en \(editor.shortName)", systemImage: "chevron.left.forwardslash.chevron.right") { model.openInEditor(node.path) }
                 }

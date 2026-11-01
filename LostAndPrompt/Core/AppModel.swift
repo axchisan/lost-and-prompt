@@ -78,7 +78,7 @@ final class AppModel {
     }
 
     func count(in collectionID: SessionCollection.ID) -> Int {
-        activeSessions.filter { $0.collectionIDs.contains(collectionID) }.count
+        activeSessions.filter { $0.isIn(collectionID) }.count
     }
 
     var favoritesCount: Int { activeSessions.filter(\.isFavorite).count }
@@ -94,7 +94,7 @@ final class AppModel {
         switch sidebarSelection {
         case .favorites: result = activeSessions.filter(\.isFavorite)
         case .archived: result = sessions.filter(\.isArchived)
-        case .collection(let id): result = activeSessions.filter { $0.collectionIDs.contains(id) }
+        case .collection(let id): result = activeSessions.filter { $0.isIn(id) }
         case .project(let path): result = activeSessions.filter { $0.cwd == path || $0.cwd.hasPrefix(path + "/") }
         default: result = activeSessions
         }
@@ -208,6 +208,10 @@ final class AppModel {
     var renamingSession: Session?
     var editingNoteFor: Session?
     var isCreatingCollection = false
+    /// Lo que entra en la colección nueva al crearla (sesión o carpeta del menú contextual).
+    var newCollectionTarget: CollectionTarget?
+    /// Colección que se está editando (nombre y color).
+    var editingCollection: SessionCollection?
     private var organization = OrganizationData()
 
     private let searchIndex = SearchIndex()
@@ -321,6 +325,7 @@ final class AppModel {
             isFavorite: organization.favorites.contains(id),
             isArchived: organization.archived.contains(id),
             collectionIDs: organization.memberships.compactMap { $0.value.contains(id) ? $0.key : nil }.sorted(),
+            folderCollectionIDs: folderCollections(of: cwd),
             firstPrompt: summary.firstPrompt ?? "",
             lastReply: summary.lastReply,
             folderExists: FileManager.default.fileExists(atPath: cwd),
@@ -522,6 +527,77 @@ final class AppModel {
     var claudeFolderExists: Bool { FileManager.default.fileExists(atPath: ClaudeStore.projectsURL.path) }
 
     @discardableResult
+    // MARK: Carpetas en colecciones
+
+    /// Colecciones que incluyen la carpeta `cwd` o una carpeta que la contiene.
+    func folderCollections(of cwd: String) -> [SessionCollection.ID] {
+        organization.collectionFolders.compactMap { id, folders in
+            folders.contains { cwd == $0 || cwd.hasPrefix($0.hasSuffix("/") ? $0 : $0 + "/") } ? id : nil
+        }.sorted()
+    }
+
+    func folders(in collectionID: SessionCollection.ID) -> [String] {
+        organization.collectionFolders[collectionID] ?? []
+    }
+
+    func isFolder(_ path: String, in collectionID: SessionCollection.ID) -> Bool {
+        folders(in: collectionID).contains(path)
+    }
+
+    /// Añade o quita una carpeta de la colección; sus sesiones (y las de sus subcarpetas) entran o salen.
+    func toggleFolder(_ path: String, in collectionID: SessionCollection.ID) {
+        var folders = organization.collectionFolders[collectionID] ?? []
+        if folders.contains(path) { folders.removeAll { $0 == path } } else { folders.append(path) }
+        organization.collectionFolders[collectionID] = folders.isEmpty ? nil : folders
+        for index in sessions.indices { sessions[index].folderCollectionIDs = folderCollections(of: sessions[index].cwd) }
+        persist()
+    }
+
+    /// Lo que se suelta sobre una colección en la barra lateral: sesiones (su id) o carpetas («folder:ruta»).
+    @discardableResult
+    func drop(_ items: [String], on collectionID: SessionCollection.ID) -> Bool {
+        var changed = false
+        for item in items {
+            if item.hasPrefix("folder:") {
+                let path = String(item.dropFirst("folder:".count))
+                if !isFolder(path, in: collectionID) { toggleFolder(path, in: collectionID); changed = true }
+            } else if let id = UUID(uuidString: item), let session = sessions.first(where: { $0.id == id }),
+                      !session.collectionIDs.contains(collectionID) {
+                toggle(id, in: collectionID)
+                changed = true
+            }
+        }
+        return changed
+    }
+
+    /// Lee el texto de lo que se soltó (el id de una sesión de la lista) y la añade a la colección.
+    /// Las carpetas se añaden desde su menú contextual: en macOS, una fila de la barra lateral no se
+    /// puede arrastrar a otra fila de la misma lista.
+    func receiveDrop(_ providers: [NSItemProvider], on collectionID: SessionCollection.ID) {
+        for provider in providers where provider.canLoadObject(ofClass: NSString.self) {
+            _ = provider.loadObject(ofClass: NSString.self) { item, _ in
+                guard let text = (item as? NSString).map({ String($0) }) else { return }
+                Task { @MainActor in self.drop([text], on: collectionID) }
+            }
+        }
+    }
+
+    func updateCollection(_ id: SessionCollection.ID, name: String, tint: SessionCollection.Tint) {
+        guard let index = collections.firstIndex(where: { $0.id == id }),
+              let stored = organization.collections.firstIndex(where: { $0.id == id }) else { return }
+        collections[index].name = name
+        collections[index].tint = tint
+        organization.collections[stored].name = name
+        organization.collections[stored].tint = tint.rawValue
+        persist()
+    }
+
+    /// Qué añadir a la colección que se cree con la hoja de «Nueva colección…».
+    enum CollectionTarget: Equatable {
+        case session(Session.ID)
+        case folder(String)
+    }
+
     func createCollection(name: String, tint: SessionCollection.Tint) -> SessionCollection {
         let collection = SessionCollection(id: UUID().uuidString, name: name, tint: tint)
         collections.append(collection)
@@ -534,7 +610,11 @@ final class AppModel {
         collections.removeAll { $0.id == id }
         organization.collections.removeAll { $0.id == id }
         organization.memberships[id] = nil
-        for index in sessions.indices { sessions[index].collectionIDs.removeAll { $0 == id } }
+        organization.collectionFolders[id] = nil
+        for index in sessions.indices {
+            sessions[index].collectionIDs.removeAll { $0 == id }
+            sessions[index].folderCollectionIDs.removeAll { $0 == id }
+        }
         if sidebarSelection == .collection(id) { sidebarSelection = .recents }
         persist()
     }

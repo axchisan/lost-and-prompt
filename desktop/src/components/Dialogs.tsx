@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { Archive, ArchiveRestore, Check, CodeXml, Copy, House, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
-import { links, tints, type Session, type Tint } from "../api";
-import { useApp, type MenuState } from "../state";
+import { Archive, ArchiveRestore, Check, CodeXml, Copy, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { links, tints, type Collection, type Session, type Tint } from "../api";
+import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
 // Sin la sombra incrustada del icono del sistema, que dentro de un diálogo se veía como un cuadrado.
 import icon from "../assets/app-icon.png";
@@ -68,29 +68,33 @@ export function NoteSheet({ session, onClose }: { session: Session; onClose: () 
   );
 }
 
-export function NewCollectionSheet({ onClose }: { onClose: () => void }) {
+/** Crear una colección (con la sesión o carpeta desde la que se pidió) o editar nombre y color. */
+export function CollectionSheet({ editing, target, onClose }: { editing?: Collection; target?: CollectionTarget; onClose: () => void }) {
   const { t, actions } = useApp();
-  const [name, setName] = useState("");
-  const [tint, setTint] = useState<Tint>("blue");
-  const create = () => {
+  const [name, setName] = useState(editing?.name ?? "");
+  const [tint, setTint] = useState<Tint>(editing?.tint ?? "blue");
+  const save = () => {
     if (!name.trim()) return;
-    actions.createCollection(name.trim(), tint);
+    if (editing) actions.updateCollection(editing.id, name.trim(), tint);
+    else actions.createCollection(name.trim(), tint, target);
     onClose();
   };
+  const hint = target && ("session" in target ? t("collectionIncludesSession", { title: target.session.title }) : t("collectionIncludesFolder", { folder: target.folder }));
   return (
-    <Sheet title={t("newCollection")} onClose={onClose}>
-      <input className="field" autoFocus value={name} placeholder={t("collectionPlaceholder")} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && create()} />
-      <div className="swatches">
+    <Sheet title={editing ? t("editCollection") : t("newCollection")} onClose={onClose}>
+      {!editing && hint && <p>{hint}</p>}
+      <input className="field" autoFocus value={name} placeholder={t("collectionPlaceholder")} aria-label={t("collectionPlaceholder")} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && save()} />
+      <div className="swatches" role="radiogroup" aria-label={t("color")}>
         {(Object.keys(tints) as Tint[]).map((value) => (
-          <button key={value} className={`swatch${tint === value ? " on" : ""}`} style={{ background: tints[value] }} onClick={() => setTint(value)} aria-label={value} />
+          <button key={value} role="radio" aria-checked={tint === value} className={`swatch${tint === value ? " on" : ""}`} style={{ background: tints[value] }} onClick={() => setTint(value)} aria-label={value} />
         ))}
       </div>
       <div className="buttons">
         <button className="btn" onClick={onClose}>
           {t("cancel")}
         </button>
-        <button className="btn primary" onClick={create} disabled={!name.trim()}>
-          {t("create")}
+        <button className="btn primary" onClick={save} disabled={!name.trim()}>
+          {editing ? t("save") : t("create")}
         </button>
       </div>
     </Sheet>
@@ -272,6 +276,7 @@ export function Welcome({ onClose }: { onClose: () => void }) {
 /** Menú contextual de una sesión (clic derecho en la lista o en una tarjeta). */
 export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () => void }) {
   const { t, terminalName, actions, open, library, editor } = useApp();
+  if (state.collection) return <CollectionMenu state={state} collection={state.collection} onClose={onClose} />;
   const run = (action: () => void) => () => {
     action();
     onClose();
@@ -292,6 +297,21 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
             {t("openIn", { editor: shortEditorName(editor.name) })}
           </button>
         )}
+        <hr />
+        <div className="menu-label">{t("addFolderToCollection")}</div>
+        {library.collections.map((c) => {
+          const inside = (library.collectionFolders[c.id] ?? []).includes(folder.cwd);
+          return (
+            <button key={c.id} role="menuitemcheckbox" aria-checked={inside} onClick={run(() => actions.toggleFolder(c.id, folder.cwd))}>
+              <span className="check">{inside ? <Check size={14} /> : <span className="dot sm" style={{ background: tints[c.tint] }} />}</span>
+              {c.name}
+            </button>
+          );
+        })}
+        <button role="menuitem" onClick={run(() => open.newCollection({ folder: folder.cwd }))}>
+          <span className="check" />
+          {t("newCollection")}…
+        </button>
       </div>
     );
   }
@@ -311,12 +331,20 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
         <Star size={14} />
         {session.isFavorite ? t("removeFavorite") : t("addFavorite")}
       </button>
-      {library.collections.map((c) => (
-        <button key={c.id} role="menuitemcheckbox" aria-checked={session.collectionIds.includes(c.id)} onClick={run(() => actions.toggleMembership(session, c.id))}>
-          <span className="check">{session.collectionIds.includes(c.id) ? <Check size={14} /> : <span className="dot sm" style={{ background: tints[c.tint] }} />}</span>
-          {c.name}
-        </button>
-      ))}
+      {library.collections.map((c) => {
+        const byFolder = session.folderCollectionIds.includes(c.id) && !session.collectionIds.includes(c.id);
+        const inside = session.collectionIds.includes(c.id) || byFolder;
+        return (
+          <button key={c.id} role="menuitemcheckbox" aria-checked={inside} disabled={byFolder} onClick={run(() => actions.toggleMembership(session, c.id))}>
+            <span className="check">{inside ? <Check size={14} /> : <span className="dot sm" style={{ background: tints[c.tint] }} />}</span>
+            {byFolder ? t("collectionByFolder", { name: c.name }) : c.name}
+          </button>
+        );
+      })}
+      <button role="menuitem" onClick={run(() => open.newCollection({ session }))}>
+        <span className="check" />
+        {t("newCollection")}…
+      </button>
       <button role="menuitem" onClick={run(() => open.rename(session))}>
         <Pencil size={14} />
         {t("rename")}
@@ -343,6 +371,41 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
       <button role="menuitem" onClick={run(() => actions.reveal(session))}>
         <Folder size={14} />
         {t("showInFolder")}
+      </button>
+    </div>
+  );
+}
+
+/** Menú contextual de una colección: editarla, quitar sus carpetas o eliminarla. */
+function CollectionMenu({ state, collection, onClose }: { state: MenuState; collection: Collection; onClose: () => void }) {
+  const { t, actions, open, library } = useApp();
+  const run = (action: () => void) => () => {
+    action();
+    onClose();
+  };
+  const folders = library.collectionFolders[collection.id] ?? [];
+  return (
+    <div className="menu" role="menu" aria-label={collection.name} style={{ left: Math.min(state.x, window.innerWidth - 260), top: Math.min(state.y, window.innerHeight - 300) }} onClick={(e) => e.stopPropagation()}>
+      <button role="menuitem" onClick={run(() => open.editCollection(collection))}>
+        <Pencil size={14} />
+        {t("editCollection")}…
+      </button>
+      {folders.length > 0 && (
+        <>
+          <hr />
+          <div className="menu-label">{t("collectionFolders")}</div>
+          {folders.map((folder) => (
+            <button key={folder} role="menuitem" title={folder} onClick={run(() => actions.toggleFolder(collection.id, folder))}>
+              <FolderMinus size={14} />
+              {t("removeFolder", { folder: folder.split(/[\\/]/).filter(Boolean).pop() ?? folder })}
+            </button>
+          ))}
+        </>
+      )}
+      <hr />
+      <button role="menuitem" onClick={run(() => open.confirm(t("deleteCollectionConfirm", { name: collection.name }), t("deleteCollection"), () => actions.deleteCollection(collection.id)))}>
+        <Trash2 size={14} />
+        {t("deleteCollection")}
       </button>
     </div>
   );

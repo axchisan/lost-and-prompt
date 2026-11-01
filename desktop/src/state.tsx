@@ -51,8 +51,25 @@ export interface Place {
   environment: string | null;
 }
 
-/** Menú contextual de una sesión o de una carpeta de la barra lateral. */
-export type MenuState = { x: number; y: number } & ({ session: Session; folder?: undefined } | { folder: Place; session?: undefined });
+/** Menú contextual de una sesión, de una carpeta o de una colección de la barra lateral. */
+export type MenuState = { x: number; y: number } & (
+  | { session: Session; folder?: undefined; collection?: undefined }
+  | { folder: Place; session?: undefined; collection?: undefined }
+  | { collection: Collection; session?: undefined; folder?: undefined }
+);
+
+/** Qué entra en una colección nueva al crearla desde el menú de una sesión o de una carpeta. */
+export type CollectionTarget = { session: Session } | { folder: string };
+
+/** `true` si la sesión está en la colección, por sí misma o por su carpeta. */
+export function inCollection(session: Session, collection: string) {
+  return session.collectionIds.includes(collection) || session.folderCollectionIds.includes(collection);
+}
+
+/** Sus colecciones, primero las añadidas a mano y luego las de su carpeta. */
+export function collectionsOf(session: Session) {
+  return [...session.collectionIds, ...session.folderCollectionIds.filter((c) => !session.collectionIds.includes(c))];
+}
 
 /** Filtros de la lista; no se guardan, al abrir la app se ve todo. */
 export interface ListFilter {
@@ -117,7 +134,11 @@ export interface AppContext {
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;
-    createCollection: (name: string, tint: Tint) => void;
+    createCollection: (name: string, tint: Tint, target?: CollectionTarget) => void;
+    updateCollection: (id: string, name: string, tint: Tint) => void;
+    toggleFolder: (collection: string, folder: string) => void;
+    /** Lo que se suelta sobre una colección: «session:<id>» o «folder:<ruta>». */
+    dropOnCollection: (collection: string, data: string) => void;
     deleteCollection: (id: string) => void;
     applyRetention: (days: number) => void;
     reload: () => void;
@@ -127,7 +148,8 @@ export interface AppContext {
   open: {
     rename: (session: Session) => void;
     note: (session: Session) => void;
-    newCollection: () => void;
+    newCollection: (target?: CollectionTarget) => void;
+    editCollection: (collection: Collection) => void;
     settings: (pane?: "general" | "history" | "appearance") => void;
     quick: () => void;
     newSession: () => void;

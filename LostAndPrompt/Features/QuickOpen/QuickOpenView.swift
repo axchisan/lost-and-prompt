@@ -93,7 +93,7 @@ struct QuickOpenView: View {
             switch filter {
             case nil: true
             case "fav": session.isFavorite
-            case let id?: session.collectionIDs.contains(id)
+            case let id?: session.isIn(id)
             }
         }
         guard !query.isEmpty else { return Array(filtered.sorted { $0.lastActivity > $1.lastActivity }.prefix(8)) }

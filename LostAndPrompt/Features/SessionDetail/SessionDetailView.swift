@@ -149,13 +149,7 @@ struct SessionDetailView: View {
             .help(session.isFavorite ? "Quitar de favoritos (⌘D)" : "Añadir a favoritos (⌘D)")
 
             Menu {
-                ForEach(model.collections) { collection in
-                    Toggle(collection.name, isOn: Binding(
-                        get: { session.collectionIDs.contains(collection.id) },
-                        set: { _ in model.toggle(session.id, in: collection.id) }))
-                }
-                Divider()
-                Button("Nueva colección…") { model.isCreatingCollection = true }
+                CollectionToggles(session: session)
             } label: {
                 Label("Colecciones", systemImage: "square.stack")
             }

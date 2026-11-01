@@ -3,7 +3,7 @@ import { Archive, ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, I
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
-import { useApp, type SidebarItem } from "../state";
+import { inCollection, useApp, type SidebarItem } from "../state";
 import { isInside } from "../App";
 
 interface FolderNode {
@@ -33,6 +33,7 @@ export function Sidebar() {
   const app = useApp();
   const { t, library, sidebar, setSidebar, search, setSearch } = app;
   const sessions = useMemo(() => library.sessions.filter((s) => !s.isArchived), [library.sessions]);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
   const archived = library.sessions.filter((s) => s.isArchived && (!app.prefs.hideEmpty || s.userMessages > 0)).length;
   const tree = useMemo(() => folderTree(sessions, library.home, t("home")), [sessions, library.home, t]);
   const nonEmpty = sessions.filter((s) => s.userMessages > 0).length;
@@ -75,13 +76,17 @@ export function Sidebar() {
             item={{ kind: "collection", id: c.id }}
             icon={<span className="dot" style={{ background: tints[c.tint] }} />}
             label={c.name}
-            count={sessions.filter((s) => s.collectionIds.includes(c.id)).length}
+            count={sessions.filter((s) => inCollection(s, c.id)).length}
             on={is({ kind: "collection", id: c.id })}
             onSelect={setSidebar}
-            onDelete={() => app.actions.deleteCollection(c.id)}
+            onContextMenu={(e) => app.open.menu({ x: e.clientX, y: e.clientY, collection: c })}
+            dropping={dropTarget === c.id}
+            onDragOver={() => setDropTarget(c.id)}
+            onDragLeave={() => setDropTarget(null)}
+            onDrop={(data) => (setDropTarget(null), app.actions.dropOnCollection(c.id, data))}
           />
         ))}
-        <button className="side-item muted" onClick={app.open.newCollection}>
+        <button className="side-item muted" onClick={() => app.open.newCollection()}>
           <Plus />
           <span className="label">{t("newCollection")}</span>
         </button>
@@ -103,18 +108,34 @@ function Item(props: {
   count?: number;
   on: boolean;
   onSelect: (item: SidebarItem) => void;
-  onDelete?: () => void;
+  onContextMenu?: (event: React.MouseEvent) => void;
+  /** Destino de arrastre (colecciones): sesiones de la lista y carpetas de la barra lateral. */
+  dropping?: boolean;
+  onDragOver?: () => void;
+  onDragLeave?: () => void;
+  onDrop?: (data: string) => void;
 }) {
-  const { t, open } = useApp();
+  const droppable = props.onDrop !== undefined;
   return (
     <button
-      className={`side-item${props.on ? " on" : ""}`}
+      className={`side-item${props.on ? " on" : ""}${props.dropping ? " drop" : ""}`}
       onClick={() => props.onSelect(props.item)}
       onContextMenu={(e) => {
-        if (!props.onDelete) return;
+        if (!props.onContextMenu) return;
         e.preventDefault();
-        open.confirm(t("deleteCollectionConfirm", { name: props.label }), t("deleteCollection"), props.onDelete);
+        e.stopPropagation();
+        props.onContextMenu(e);
       }}
+      onDragOver={droppable ? (e) => (e.preventDefault(), props.onDragOver?.()) : undefined}
+      onDragLeave={droppable ? () => props.onDragLeave?.() : undefined}
+      onDrop={
+        droppable
+          ? (e) => {
+              e.preventDefault();
+              props.onDrop?.(e.dataTransfer.getData("text/plain"));
+            }
+          : undefined
+      }
     >
       {props.icon}
       <span className="label">{props.label}</span>
@@ -129,10 +150,21 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
   const on = sidebar.kind === "folder" && sidebar.path === node.path;
   return (
     <>
-      <button
+      {/* div con papel de botón: un <button> no siempre se puede arrastrar (WebKit, Firefox). */}
+      <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setSidebar({ kind: "folder", path: node.path });
+          }
+        }}
         className={`side-item${on ? " on" : ""}`}
         style={{ paddingLeft: 10 + depth * 16 }}
         onClick={() => setSidebar({ kind: "folder", path: node.path })}
+        draggable
+        onDragStart={(e) => e.dataTransfer.setData("text/plain", `folder:${node.path}`)}
         onContextMenu={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -155,7 +187,7 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
         {isHome ? <House /> : <Folder />}
         <span className="label">{node.name}</span>
         <span className="count">{node.count}</span>
-      </button>
+      </div>
       {open && node.children.map((child) => <FolderRow key={child.path} node={child} depth={depth + 1} isHome={false} />)}
     </>
   );

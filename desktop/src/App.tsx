@@ -3,9 +3,9 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { api, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
+import { api, type Collection, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
-import { Ctx, defaultPrefs, noFilter, resumeCommand, type AppContext, type FindState, type ListFilter, type MenuState, type Prefs, type SidebarItem } from "./state";
+import { Ctx, defaultPrefs, inCollection, noFilter, resumeCommand, type AppContext, type CollectionTarget, type FindState, type ListFilter, type MenuState, type Prefs, type SidebarItem } from "./state";
 import { Sidebar } from "./components/Sidebar";
 import { SessionList, SessionCards } from "./components/SessionList";
 import { Detail, NoSelection } from "./components/Detail";
@@ -13,12 +13,13 @@ import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
-import { About, ConfirmSheet, ContextMenu, NewCollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
   | { kind: "note"; session: Session }
-  | { kind: "newCollection" }
+  | { kind: "newCollection"; target?: CollectionTarget }
+  | { kind: "editCollection"; collection: Collection }
   | { kind: "settings"; pane: "general" | "history" | "appearance" }
   | { kind: "quick" }
   | { kind: "newSession" }
@@ -161,7 +162,7 @@ export default function App() {
   const visible = useMemo(() => {
     let list = sidebar.kind === "archived" ? sessions.filter((s) => s.isArchived) : active;
     if (sidebar.kind === "favorites") list = list.filter((s) => s.isFavorite);
-    else if (sidebar.kind === "collection") list = list.filter((s) => s.collectionIds.includes(sidebar.id));
+    else if (sidebar.kind === "collection") list = list.filter((s) => inCollection(s, sidebar.id));
     else if (sidebar.kind === "folder") list = list.filter((s) => s.cwd === sidebar.path || isInside(s.cwd, sidebar.path));
     if (prefs.hideEmpty) list = list.filter((s) => s.userMessages > 0);
     const start = periodStart(filter.period);
@@ -242,11 +243,30 @@ export default function App() {
       }, showError),
     setNote: (session, text) =>
       api.setNote(session.id, text).then(() => updateSession(session.id, { note: text.trim() || null }), showError),
-    createCollection: (name, tint: Tint) =>
-      api.createCollection(name, tint).then((collection) => {
+    createCollection: (name, tint: Tint, target) =>
+      api.createCollection(name, tint).then(async (collection) => {
         setLibrary((lib) => lib && { ...lib, collections: [...lib.collections, collection] });
+        if (target && "session" in target) await api.toggleMembership(target.session.id, collection.id);
+        if (target && "folder" in target) await api.toggleFolderMembership(collection.id, target.folder);
+        if (target) await reload();
         setSidebar({ kind: "collection", id: collection.id });
       }, showError),
+    updateCollection: (id, name, tint) =>
+      api.updateCollection(id, name, tint).then(
+        () => setLibrary((lib) => lib && { ...lib, collections: lib.collections.map((c) => (c.id === id ? { ...c, name: name.trim(), tint } : c)) }),
+        showError,
+      ),
+    // La pertenencia por carpeta la calcula el núcleo: se vuelve a leer la biblioteca.
+    toggleFolder: (collection, folder) => api.toggleFolderMembership(collection, folder).then(() => reload(), showError),
+    dropOnCollection: (collection, data) => {
+      if (data.startsWith("folder:")) {
+        const folder = data.slice("folder:".length);
+        if (!(library?.collectionFolders[collection] ?? []).includes(folder)) actions.toggleFolder(collection, folder);
+      } else if (data.startsWith("session:")) {
+        const session = sessions.find((s) => s.id === data.slice("session:".length));
+        if (session && !session.collectionIds.includes(collection)) actions.toggleMembership(session, collection);
+      }
+    },
     deleteCollection: (id) =>
       api.deleteCollection(id).then(() => {
         setLibrary(
@@ -254,7 +274,11 @@ export default function App() {
             lib && {
               ...lib,
               collections: lib.collections.filter((c) => c.id !== id),
-              sessions: lib.sessions.map((s) => ({ ...s, collectionIds: s.collectionIds.filter((c) => c !== id) })),
+              sessions: lib.sessions.map((s) => ({
+                ...s,
+                collectionIds: s.collectionIds.filter((c) => c !== id),
+                folderCollectionIds: s.folderCollectionIds.filter((c) => c !== id),
+              })),
             },
         );
         if (sidebar.kind === "collection" && sidebar.id === id) setSidebar({ kind: "recents" });
@@ -438,7 +462,8 @@ export default function App() {
     open: {
       rename: (session) => setDialog({ kind: "rename", session }),
       note: (session) => setDialog({ kind: "note", session }),
-      newCollection: () => setDialog({ kind: "newCollection" }),
+      newCollection: (target) => setDialog({ kind: "newCollection", target }),
+      editCollection: (collection) => setDialog({ kind: "editCollection", collection }),
       settings: (pane = "general") => setDialog({ kind: "settings", pane }),
       quick: () => setDialog({ kind: "quick" }),
       newSession: () => setDialog({ kind: "newSession" }),
@@ -472,7 +497,8 @@ export default function App() {
       {menu && <ContextMenu state={menu} onClose={() => setMenu(null)} />}
       {dialog?.kind === "rename" && <RenameSheet session={dialog.session} onClose={() => setDialog(null)} />}
       {dialog?.kind === "note" && <NoteSheet session={dialog.session} onClose={() => setDialog(null)} />}
-      {dialog?.kind === "newCollection" && <NewCollectionSheet onClose={() => setDialog(null)} />}
+      {dialog?.kind === "newCollection" && <CollectionSheet target={dialog.target} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "editCollection" && <CollectionSheet editing={dialog.collection} onClose={() => setDialog(null)} />}
       {dialog?.kind === "settings" && <Settings initialPane={dialog.pane} onClose={() => setDialog(null)} />}
       {dialog?.kind === "quick" && <QuickOpen onClose={() => setDialog(null)} />}
       {dialog?.kind === "newSession" && <NewSessionSheet onClose={() => setDialog(null)} />}

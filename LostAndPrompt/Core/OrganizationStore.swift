@@ -16,6 +16,9 @@ struct OrganizationData: Codable {
     var memberships: [String: [UUID]] = [:]
     /// Sesiones archivadas: no salen en Recientes, carpetas ni colecciones.
     var archived: Set<UUID> = []
+    /// Carpetas («entornos») de cada colección: todas sus sesiones y las de sus subcarpetas, también
+    /// las futuras, entran en la colección.
+    var collectionFolders: [String: [String]] = [:]
 
     init() {}
 
@@ -29,6 +32,7 @@ struct OrganizationData: Codable {
         collections = try c.decodeIfPresent([StoredCollection].self, forKey: .collections) ?? []
         memberships = try c.decodeIfPresent([String: [UUID]].self, forKey: .memberships) ?? [:]
         archived = try c.decodeIfPresent(Set<UUID>.self, forKey: .archived) ?? []
+        collectionFolders = try c.decodeIfPresent([String: [String]].self, forKey: .collectionFolders) ?? [:]
     }
 }
 

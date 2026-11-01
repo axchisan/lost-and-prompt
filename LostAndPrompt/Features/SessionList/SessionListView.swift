@@ -21,6 +21,7 @@ struct SessionListView: View {
                                 SessionRow(session: session)
                                     .tag(session.id)
                                     .contextMenu { SessionContextMenu(session: session) }
+                                    .onDrag { NSItemProvider(object: session.id.uuidString as NSString) }
                             }
                         }
                     }
@@ -61,6 +62,9 @@ struct SessionListView: View {
             } actions: {
                 Button("Quitar filtros") { model.clearFilters() }
             }
+        } else if case .collection = model.sidebarSelection {
+            ContentUnavailableView("Esta colección está vacía", systemImage: "square.stack",
+                                   description: Text("Arrastra aquí sesiones de la lista. Para una carpeta entera, usa «Añadir a colección» en su menú contextual."))
         } else if model.sidebarSelection == .favorites {
             ContentUnavailableView("Aún no hay favoritos", systemImage: "star",
                                    description: Text("Marca una sesión con ⌘D para tenerla siempre a mano."))
@@ -91,7 +95,7 @@ struct SessionRow: View {
                 if session.isFavorite {
                     Image(systemName: "star.fill").foregroundStyle(.yellow)
                 }
-                ForEach(session.collectionIDs, id: \.self) { id in
+                ForEach(session.allCollectionIDs, id: \.self) { id in
                     if let collection = model.collection(id) { TintDot(tint: collection.tint, size: 7) }
                 }
                 Image(systemName: session.isInHome ? "house" : "folder")
@@ -137,6 +141,30 @@ struct RetentionBanner: View {
 }
 
 /// Menú contextual compartido por filas y tarjetas.
+/// Las colecciones de una sesión en sus menús. Las que la incluyen por su carpeta salen marcadas pero
+/// no se quitan desde aquí (se quita la carpeta desde el menú de la colección o de la carpeta).
+struct CollectionToggles: View {
+    @Environment(AppModel.self) private var model
+    var session: Session
+
+    var body: some View {
+        ForEach(model.collections) { collection in
+            if session.folderCollectionIDs.contains(collection.id) && !session.collectionIDs.contains(collection.id) {
+                Toggle("\(collection.name) (por su carpeta)", isOn: .constant(true)).disabled(true)
+            } else {
+                Toggle(collection.name, isOn: Binding(
+                    get: { session.collectionIDs.contains(collection.id) },
+                    set: { _ in model.toggle(session.id, in: collection.id) }))
+            }
+        }
+        if !model.collections.isEmpty { Divider() }
+        Button("Nueva colección…") {
+            model.newCollectionTarget = .session(session.id)
+            model.isCreatingCollection = true
+        }
+    }
+}
+
 struct SessionContextMenu: View {
     @Environment(AppModel.self) private var model
     var session: Session
@@ -150,11 +178,7 @@ struct SessionContextMenu: View {
             model.toggleFavorite(session.id)
         }
         Menu("Colecciones", systemImage: "square.stack") {
-            ForEach(model.collections) { collection in
-                Toggle(collection.name, isOn: Binding(
-                    get: { session.collectionIDs.contains(collection.id) },
-                    set: { _ in model.toggle(session.id, in: collection.id) }))
-            }
+            CollectionToggles(session: session)
         }
         Button("Renombrar…", systemImage: "pencil") { model.renamingSession = session }
         Button(session.isArchived ? "Sacar del archivo" : "Archivar",

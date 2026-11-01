@@ -23,6 +23,8 @@ export interface Session {
   isFavorite: boolean;
   isArchived: boolean;
   collectionIds: string[];
+  /** Colecciones que la incluyen por su carpeta. */
+  folderCollectionIds: string[];
   firstPrompt: string;
   lastReply: string | null;
   folderExists: boolean;
@@ -38,6 +40,8 @@ export interface Collection {
 export interface Library {
   sessions: Session[];
   collections: Collection[];
+  /** Carpetas de cada colección (id → carpetas). */
+  collectionFolders: Record<string, string[]>;
   retentionDays: number | null;
   claudeFolderExists: boolean;
   platform: "windows" | "linux" | "macos" | string;
@@ -80,6 +84,8 @@ export const api = {
   createCollection: (name: string, tint: Tint) => invoke<Collection>("create_collection", { name, tint }),
   deleteCollection: (id: string) => invoke<void>("delete_collection", { id }),
   toggleMembership: (id: string, collection: string) => invoke<boolean>("toggle_membership", { id, collection }),
+  toggleFolderMembership: (collection: string, folder: string) => invoke<boolean>("toggle_folder_membership", { collection, folder }),
+  updateCollection: (id: string, name: string, tint: Tint) => invoke<void>("update_collection", { id, name, tint }),
   setRetention: (days: number) => invoke<number | null>("set_retention", { days }),
   terminals: () => invoke<TerminalInfo[]>("terminals"),
   resume: (id: string, terminal: string, extraArguments: string, customTemplate: string) =>

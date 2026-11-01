@@ -182,3 +182,24 @@ fn lee_el_razonamiento_con_texto() {
     assert_eq!(roles, vec![(false, "¿Qué motor usa?"), (true, "Trae UnityPlayer.dll: es Unity."), (false, "Es Unity.")]);
     assert_eq!(list[2].tool_count, 1, "la herramienta cuenta en la respuesta, no en el razonamiento");
 }
+
+#[test]
+fn colecciones_con_carpetas() {
+    let id = uuid::Uuid::parse_str(ID).unwrap();
+    let mut org = Organization::default();
+    let collection = org.create_collection("Cliente Acme", Tint::Indigo);
+    assert!(org.toggle_folder(&collection.id, "/Users/ana/Developer/acme"));
+    assert_eq!(org.folder_collections_of("/Users/ana/Developer/acme"), vec![collection.id.as_str()]);
+    assert_eq!(org.folder_collections_of("/Users/ana/Developer/acme/api"), vec![collection.id.as_str()], "las subcarpetas entran");
+    assert!(org.folder_collections_of("/Users/ana/Developer/acme-store").is_empty(), "un nombre que empieza igual no entra");
+    assert!(org.toggle_folder(&collection.id, r"C:\Users\ana\proyectos"));
+    assert_eq!(org.folder_collections_of(r"C:\Users\ana\proyectos\web").len(), 1, "rutas de Windows");
+
+    org.update_collection(&collection.id, "  Acme  ", Tint::Green);
+    assert_eq!((org.collections[0].name.as_str(), org.collections[0].tint), ("Acme", Tint::Green));
+    assert!(org.collections_of(id).is_empty(), "la pertenencia por carpeta no toca las sesiones añadidas a mano");
+
+    assert!(!org.toggle_folder(&collection.id, "/Users/ana/Developer/acme"));
+    org.delete_collection(&collection.id);
+    assert!(org.collection_folders.is_empty());
+}

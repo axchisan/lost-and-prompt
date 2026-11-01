@@ -2,6 +2,16 @@
   "sourceLanguage": "es",
   "strings": {
     "": {},
+    "%@ (por su carpeta)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (through its folder)"
+          }
+        }
+      }
+    },
     "%@ mensajes": {
       "localizations": {
         "en": {
@@ -364,6 +374,16 @@
         }
       }
     },
+    "Arrastra aquí sesiones de la lista. Para una carpeta entera, usa «Añadir a colección» en su menú contextual.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag sessions here from the list. For a whole folder, use “Add to Collection” in its context menu."
+          }
+        }
+      }
+    },
     "Atajo global": {
       "localizations": {
         "en": {
@@ -390,6 +410,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yesterday, %@"
+          }
+        }
+      }
+    },
+    "Añadir a colección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Collection"
           }
         }
       }
@@ -620,6 +650,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Most used folders"
+          }
+        }
+      }
+    },
+    "Carpetas incluidas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Included Folders"
           }
         }
       }
@@ -894,6 +934,26 @@
         }
       }
     },
+    "Editar colección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit collection"
+          }
+        }
+      }
+    },
+    "Editar colección…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Collection…"
+          }
+        }
+      }
+    },
     "Editar nota": {
       "localizations": {
         "en": {
@@ -1070,6 +1130,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enter your terminal command in Settings → General."
+          }
+        }
+      }
+    },
+    "Esta colección está vacía": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Collection Is Empty"
           }
         }
       }
@@ -1260,6 +1330,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Language"
+          }
+        }
+      }
+    },
+    "Incluirá la sesión «%@».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It will include the session “%@”."
+          }
+        }
+      }
+    },
+    "Incluirá todas las sesiones de %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It will include every session in %@, future ones too."
           }
         }
       }
@@ -1776,6 +1866,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press ⌘K to search all your sessions."
+          }
+        }
+      }
+    },
+    "Quitar %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@"
           }
         }
       }

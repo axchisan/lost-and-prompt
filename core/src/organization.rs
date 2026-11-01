@@ -44,6 +44,9 @@ pub struct Organization {
     pub relocations: BTreeMap<Uuid, String>,
     /// Sesiones archivadas: no salen en Recientes, carpetas ni colecciones.
     pub archived: BTreeSet<Uuid>,
+    /// Carpetas («entornos») de cada colección: sus sesiones y las de sus subcarpetas, también las
+    /// futuras, entran en la colección.
+    pub collection_folders: BTreeMap<String, Vec<String>>,
 }
 
 impl Organization {
@@ -104,6 +107,40 @@ impl Organization {
     pub fn delete_collection(&mut self, id: &str) {
         self.collections.retain(|c| c.id != id);
         self.memberships.remove(id);
+        self.collection_folders.remove(id);
+    }
+
+    /// Cambia el nombre y el color de una colección.
+    pub fn update_collection(&mut self, id: &str, name: &str, tint: Tint) {
+        if let Some(collection) = self.collections.iter_mut().find(|c| c.id == id) {
+            collection.name = name.trim().to_owned();
+            collection.tint = tint;
+        }
+    }
+
+    /// Añade o quita una carpeta de la colección. Devuelve si quedó dentro.
+    pub fn toggle_folder(&mut self, collection: &str, folder: &str) -> bool {
+        let folders = self.collection_folders.entry(collection.to_owned()).or_default();
+        let inside = if let Some(position) = folders.iter().position(|f| f == folder) {
+            folders.remove(position);
+            false
+        } else {
+            folders.push(folder.to_owned());
+            true
+        };
+        if folders.is_empty() {
+            self.collection_folders.remove(collection);
+        }
+        inside
+    }
+
+    /// Colecciones que incluyen la carpeta `cwd` o una carpeta que la contiene.
+    pub fn folder_collections_of(&self, cwd: &str) -> Vec<&str> {
+        self.collection_folders
+            .iter()
+            .filter(|(_, folders)| folders.iter().any(|folder| is_within(cwd, folder)))
+            .map(|(c, _)| c.as_str())
+            .collect()
     }
 
     /// Añade o quita la sesión de la colección. Devuelve si quedó dentro.
@@ -121,4 +158,10 @@ impl Organization {
     pub fn collections_of(&self, session: Uuid) -> Vec<&str> {
         self.memberships.iter().filter(|(_, m)| m.contains(&session)).map(|(c, _)| c.as_str()).collect()
     }
+}
+
+/// `true` si `path` es `folder` o está dentro (con `/` o `\`, para rutas de Windows y WSL).
+fn is_within(path: &str, folder: &str) -> bool {
+    let folder = folder.trim_end_matches(['/', '\\']);
+    path == folder || path.strip_prefix(folder).is_some_and(|rest| rest.starts_with(['/', '\\']))
 }

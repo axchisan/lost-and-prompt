@@ -36,18 +36,23 @@ struct RenameSheet: View {
     }
 }
 
-struct NewCollectionSheet: View {
+/// Crear una colección (y añadirle la sesión o carpeta desde la que se pidió) o editar una existente.
+struct CollectionSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    var editing: SessionCollection?
     @State private var name = ""
     @State private var tint: SessionCollection.Tint = .blue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Nueva colección").font(.headline)
+            Text(editing == nil ? "Nueva colección" : "Editar colección").font(.headline)
+            if editing == nil, let hint = targetHint {
+                Text(hint).font(.callout).foregroundStyle(.secondary)
+            }
             TextField("Nombre", text: $name, prompt: Text("Por ejemplo: Trabajo"))
                 .textFieldStyle(.roundedBorder)
-                .onSubmit(create)
+                .onSubmit(save)
             HStack(spacing: 10) {
                 ForEach(SessionCollection.Tint.allCases, id: \.self) { option in
                     Button {
@@ -58,6 +63,7 @@ struct NewCollectionSheet: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(option.rawValue)
+                    .accessibilityAddTraits(tint == option ? .isSelected : [])
                 }
             }
             .padding(.vertical, 4)
@@ -65,23 +71,45 @@ struct NewCollectionSheet: View {
                 Spacer()
                 Button("Cancelar", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Crear", action: create)
+                Button(editing == nil ? "Crear" : "Guardar", action: save)
                     .keyboardShortcut(.defaultAction)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
         .padding(20)
         .frame(width: 380)
+        .onAppear {
+            if let editing {
+                name = editing.name
+                tint = editing.tint
+            }
+        }
     }
 
-    private func create() {
+    /// «Incluirá …»: qué entra al crearla, si se pidió desde una sesión o una carpeta.
+    private var targetHint: String? {
+        switch model.newCollectionTarget {
+        case .session(let id): model.sessions.first { $0.id == id }.map { String(localized: "Incluirá la sesión «\($0.title)».") }
+        case .folder(let path): String(localized: "Incluirá todas las sesiones de \(Session.abbreviate(path)).")
+        case nil: nil
+        }
+    }
+
+    private func save() {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
-        let collection = model.createCollection(name: trimmed, tint: tint)
-        if let session = model.selectedSession, model.sidebarSelection != .activity {
-            _ = session
+        if let editing {
+            model.updateCollection(editing.id, name: trimmed, tint: tint)
+        } else {
+            let collection = model.createCollection(name: trimmed, tint: tint)
+            switch model.newCollectionTarget {
+            case .session(let id): model.toggle(id, in: collection.id)
+            case .folder(let path): model.toggleFolder(path, in: collection.id)
+            case nil: break
+            }
+            model.newCollectionTarget = nil
+            model.sidebarSelection = .collection(collection.id)
         }
-        model.sidebarSelection = .collection(collection.id)
         dismiss()
     }
 }

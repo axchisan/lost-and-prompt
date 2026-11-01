@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MessageSquareText, Search, SquareTerminal, Star } from "lucide-react";
 import { api, tints, type Hit, type Session } from "../api";
 import { grouped, relativeDay, shortDate, usd } from "../format";
-import { useApp } from "../state";
+import { inCollection, useApp } from "../state";
 import { plain } from "./Text";
 
 /** Lanzador: buscar y reanudar sin tocar el ratón. */
@@ -26,7 +26,7 @@ export function QuickOpen({ onClose }: { onClose: () => void }) {
     () =>
       library.sessions
         .filter((s) => s.userMessages > 0 && !s.isArchived)
-        .filter((s) => (filter === null ? true : filter === "fav" ? s.isFavorite : s.collectionIds.includes(filter))),
+        .filter((s) => (filter === null ? true : filter === "fav" ? s.isFavorite : inCollection(s, filter))),
     [library.sessions, filter],
   );
   const q = query.trim().toLowerCase();

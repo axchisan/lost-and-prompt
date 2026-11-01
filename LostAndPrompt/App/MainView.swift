@@ -54,8 +54,11 @@ struct MainView: View {
         .sheet(isPresented: $model.isNewSessionPresented) {
             NewSessionSheet()
         }
-        .sheet(isPresented: $model.isCreatingCollection) {
-            NewCollectionSheet()
+        .sheet(isPresented: $model.isCreatingCollection, onDismiss: { model.newCollectionTarget = nil }) {
+            CollectionSheet()
+        }
+        .sheet(item: $model.editingCollection) { collection in
+            CollectionSheet(editing: collection)
         }
         .sheet(item: $model.editingNoteFor) { session in
             NoteSheet(session: session)

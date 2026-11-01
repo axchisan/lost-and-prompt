@@ -12,6 +12,13 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
   system tray) opens a folder picker with your folders, most recently used first, a search field
   and "Choose Another Folder…" for any folder, even one without sessions. "New session in this
   folder" moves to ⌥⌘N / Ctrl+Alt+N.
+- Folders in collections: add a whole folder ("environment") to a collection from its context menu
+  and every session in it and its subfolders joins, future ones too. On Windows and Linux you can
+  also drag the folder onto the collection.
+- Drag sessions from the list onto a collection in the sidebar.
+- Collections can be renamed and recoloured ("Edit Collection…"), their folders listed and removed
+  from the collection's context menu, and "New Collection…" from a session or folder menu creates
+  it with that session or folder already inside.
 
 ### Changed
 - The update notice lists what every version brought since the one you have, not only the latest:
@@ -22,6 +29,13 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
   de menús y la bandeja) abre un selector con tus carpetas, las usadas más recientemente primero, un
   buscador y «Elegir otra carpeta…» para cualquier carpeta, aunque no tenga sesiones. «Nueva sesión
   en esta carpeta» pasa a ⌥⌘N / Ctrl+Alt+N.
+- Carpetas en colecciones: añade una carpeta entera («entorno») a una colección desde su menú
+  contextual y entran todas sus sesiones y las de sus subcarpetas, también las futuras. En Windows y
+  Linux también se puede arrastrar la carpeta a la colección.
+- Arrastra sesiones de la lista a una colección de la barra lateral.
+- Las colecciones se pueden renombrar y cambiar de color («Editar colección…»), su menú contextual
+  lista y quita sus carpetas, y «Nueva colección…» desde el menú de una sesión o carpeta la crea con
+  esa sesión o carpeta dentro.
 
 ### Cambiado
 - El aviso de actualización enseña lo que trajo cada versión desde la que tienes, no solo la última:

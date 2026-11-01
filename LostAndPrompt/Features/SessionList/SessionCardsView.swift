@@ -22,6 +22,7 @@ struct SessionCardsView: View {
                                 SessionCard(session: session, isSelected: model.selectedSessionID == session.id)
                                     .onTapGesture { model.selectedSessionID = session.id }
                                     .contextMenu { SessionContextMenu(session: session) }
+                                    .onDrag { NSItemProvider(object: session.id.uuidString as NSString) }
                             }
                         }
                     }
@@ -61,7 +62,7 @@ struct SessionCard: View {
 
             HStack(spacing: 6) {
                 if session.isFavorite { Image(systemName: "star.fill").foregroundStyle(.yellow) }
-                ForEach(session.collectionIDs, id: \.self) { id in
+                ForEach(session.allCollectionIDs, id: \.self) { id in
                     if let collection = model.collection(id) {
                         HStack(spacing: 4) { TintDot(tint: collection.tint, size: 7); Text(collection.name) }
                     }

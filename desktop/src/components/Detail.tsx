@@ -296,18 +296,21 @@ function CollectionsMenu({ session }: { session: Session }) {
     <Dropdown icon={<Layers />} title={t("addToCollection")}>
       {(close) => (
         <>
-          {library.collections.map((c) => (
-            <button key={c.id} role="menuitemcheckbox" aria-checked={session.collectionIds.includes(c.id)} onClick={() => actions.toggleMembership(session, c.id)}>
-              <span className="check">{session.collectionIds.includes(c.id) && <Check size={14} />}</span>
-              {c.name}
-            </button>
-          ))}
+          {library.collections.map((c) => {
+            const byFolder = session.folderCollectionIds.includes(c.id) && !session.collectionIds.includes(c.id);
+            return (
+              <button key={c.id} role="menuitemcheckbox" aria-checked={session.collectionIds.includes(c.id) || byFolder} disabled={byFolder} onClick={() => actions.toggleMembership(session, c.id)}>
+                <span className="check">{(session.collectionIds.includes(c.id) || byFolder) && <Check size={14} />}</span>
+                {byFolder ? t("collectionByFolder", { name: c.name }) : c.name}
+              </button>
+            );
+          })}
           {library.collections.length > 0 && <hr />}
           <button
             role="menuitem"
             onClick={() => {
               close();
-              open.newCollection();
+              open.newCollection({ session });
             }}
           >
             <span className="check" />

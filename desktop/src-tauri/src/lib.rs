@@ -61,6 +61,8 @@ struct SessionDto {
     is_favorite: bool,
     is_archived: bool,
     collection_ids: Vec<String>,
+    /// Colecciones que la incluyen por su carpeta.
+    folder_collection_ids: Vec<String>,
     first_prompt: String,
     last_reply: Option<String>,
     folder_exists: bool,
@@ -72,6 +74,8 @@ struct SessionDto {
 struct Library {
     sessions: Vec<SessionDto>,
     collections: Vec<Collection>,
+    /// Carpetas de cada colección (colección → carpetas).
+    collection_folders: std::collections::BTreeMap<String, Vec<String>>,
     retention_days: Option<u32>,
     claude_folder_exists: bool,
     platform: &'static str,
@@ -108,6 +112,7 @@ fn to_dto(summary: &SessionSummary, org: &Organization, root: &Root) -> Option<S
     let home = root.home.as_str();
     let is_home = cwd.trim_end_matches(['/', '\\']) == home.trim_end_matches(['/', '\\']);
     let folder_name = cwd.rsplit(['/', '\\']).find(|p| !p.is_empty()).unwrap_or(&cwd).to_owned();
+    let folder_collection_ids = org.folder_collections_of(&cwd).into_iter().map(str::to_owned).collect();
     let abbreviated_path = match cwd.strip_prefix(home) {
         Some(rest) if !home.is_empty() => format!("~{rest}"),
         _ => cwd.clone(),
@@ -133,6 +138,7 @@ fn to_dto(summary: &SessionSummary, org: &Organization, root: &Root) -> Option<S
         is_favorite: org.favorites.contains(&summary.id),
         is_archived: org.archived.contains(&summary.id),
         collection_ids: org.collections_of(summary.id).into_iter().map(str::to_owned).collect(),
+        folder_collection_ids,
         first_prompt: summary.first_prompt.clone().unwrap_or_default(),
         last_reply: summary.last_reply.clone(),
         note: org.notes.get(&summary.id).cloned(),
@@ -165,6 +171,7 @@ fn load_library(include_wsl: Option<bool>, app: AppHandle, state: State<'_, AppS
     let library = Library {
         sessions,
         collections: organization.collections.clone(),
+        collection_folders: organization.collection_folders.clone(),
         retention_days: settings::retention_days(&paths::settings_file()),
         claude_folder_exists: paths::projects_dir().is_dir(),
         platform: std::env::consts::OS,
@@ -254,6 +261,16 @@ fn create_collection(name: String, tint: Tint, state: State<'_, AppState>) -> Re
 #[tauri::command]
 fn delete_collection(id: String, state: State<'_, AppState>) -> Result<(), String> {
     with_organization(&state, |org| org.delete_collection(&id))
+}
+
+#[tauri::command]
+fn toggle_folder_membership(collection: String, folder: String, state: State<'_, AppState>) -> Result<bool, String> {
+    with_organization(&state, |org| org.toggle_folder(&collection, &folder))
+}
+
+#[tauri::command]
+fn update_collection(id: String, name: String, tint: Tint, state: State<'_, AppState>) -> Result<(), String> {
+    with_organization(&state, |org| org.update_collection(&id, &name, tint))
 }
 
 #[tauri::command]
@@ -512,6 +529,8 @@ pub fn run() {
             create_collection,
             delete_collection,
             toggle_membership,
+            toggle_folder_membership,
+            update_collection,
             set_retention,
             terminals,
             resume,

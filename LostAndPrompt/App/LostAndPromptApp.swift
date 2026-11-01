@@ -46,6 +46,12 @@ struct LostAndPromptApp: App {
         case "activity": model.sidebarSelection = .activity
         case "quickopen": model.isQuickOpenPresented = true
         case "newsession": model.isNewSessionPresented = true
+        case "collectionfolder":
+            if let collection = model.collections.first(where: { model.count(in: $0.id) > 0 && $0.tint == .teal }) ?? model.collections.first,
+               let folder = model.sessions.first(where: { $0.cwd.hasSuffix("/blog") })?.cwd {
+                model.toggleFolder(folder, in: collection.id)
+                model.sidebarSelection = .collection(collection.id)
+            }
         case "empty":
             model.sidebarSelection = .favorites
             for index in model.sessions.indices { model.sessions[index].isFavorite = false }

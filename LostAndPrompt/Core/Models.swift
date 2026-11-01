@@ -16,7 +16,17 @@ struct Session: Identifiable, Hashable {
     var model: String
     var isFavorite: Bool = false
     var isArchived: Bool = false
+    /// Colecciones a las que se añadió la sesión.
     var collectionIDs: [SessionCollection.ID] = []
+    /// Colecciones que incluyen la carpeta de la sesión (o una carpeta que la contiene).
+    var folderCollectionIDs: [SessionCollection.ID] = []
+
+    /// Todas sus colecciones, por sí misma o por su carpeta.
+    var allCollectionIDs: [SessionCollection.ID] { collectionIDs + folderCollectionIDs.filter { !collectionIDs.contains($0) } }
+
+    func isIn(_ collection: SessionCollection.ID) -> Bool {
+        collectionIDs.contains(collection) || folderCollectionIDs.contains(collection)
+    }
     var firstPrompt: String
     var lastReply: String?
     var folderExists: Bool = true
