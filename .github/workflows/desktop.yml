@@ -40,6 +40,43 @@ jobs:
           cache-dependency-path: desktop/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm tauri build
+      # Prueba de arranque: la app abre de verdad con las sesiones de prueba del núcleo, sigue viva a
+      # los 15 s y deja una captura de lo que dibujó (artefacto «arranque-*»).
+      - name: Prueba de arranque (Linux)
+        if: matrix.name == 'linux'
+        run: |
+          sudo apt-get install -y xvfb imagemagick dbus-x11
+          mkdir -p "$HOME/.claude/projects"
+          cp -R ../core/tests/fixtures/. "$HOME/.claude/projects/"
+          export WEBKIT_DISABLE_COMPOSITING_MODE=1
+          xvfb-run -a -s "-screen 0 1280x800x24" dbus-run-session -- bash -c '
+            ../target/release/lost-and-prompt & pid=$!
+            sleep 15
+            import -window root ../arranque-linux.png
+            kill -0 $pid || { echo "La app se cerró sola"; exit 1; }
+            kill $pid'
+      - name: Prueba de arranque (Windows)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:USERPROFILE ".claude\projects"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Copy-Item -Recurse -Force ..\core\tests\fixtures\* $dir
+          $app = Start-Process ..\target\release\lost-and-prompt.exe -PassThru
+          Start-Sleep 15
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $image = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          [System.Drawing.Graphics]::FromImage($image).CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+          $image.Save((Join-Path (Resolve-Path ..) "arranque-windows.png"))
+          if ($app.HasExited) { throw "La app se cerró sola" }
+          Stop-Process $app
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: arranque-${{ matrix.name }}
+          path: arranque-*.png
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v7
         with:
           name: lost-and-prompt-${{ matrix.name }}
