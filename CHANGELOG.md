@@ -15,6 +15,10 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - The Mac app passes Xcode's accessibility audit and the Windows/Linux app passes axe-core, both
   checked automatically.
 
+### Fixed
+- Windows and Linux: the icon in the welcome and About windows showed a grey square around it (the
+  system icon's built-in shadow). The website icon had the same problem.
+
 ### Cambiado
 - Accesibilidad: todos los botones de solo icono y los menús tienen nombre para VoiceOver, Narrador
   y Orca; los menús dicen qué opciones están activas (filtros, razonamiento, colecciones); la lista
@@ -22,6 +26,10 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 - Más contraste en los textos secundarios, en tema claro y oscuro (al menos 4,5:1 en Windows y Linux).
 - La app de Mac pasa la auditoría de accesibilidad de Xcode y la de Windows/Linux pasa axe-core,
   las dos comprobadas automáticamente.
+
+### Corregido
+- Windows y Linux: el icono de la bienvenida y de «Acerca de» tenía un cuadrado gris alrededor (la
+  sombra incrustada del icono del sistema). Al icono de la web le pasaba lo mismo.
 
 ## [0.4.1] - 2026-10-31
 

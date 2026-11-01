@@ -5,7 +5,8 @@ import { Archive, ArchiveRestore, Check, CodeXml, Copy, Folder, Layers, Lock, Me
 import { links, tints, type Session, type Tint } from "../api";
 import { useApp, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
-import icon from "../../src-tauri/icons/128x128@2x.png";
+// Sin la sombra incrustada del icono del sistema, que dentro de un diálogo se veía como un cuadrado.
+import icon from "../assets/app-icon.png";
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
