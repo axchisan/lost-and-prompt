@@ -7,6 +7,30 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-31
+
+### Added
+- Archive sessions (⌃⌘A on the Mac, Ctrl+Shift+A on Windows and Linux, or from the menus): they
+  leave Recents, folders, collections and search, and stay under "Archived" in the sidebar.
+- Filters in the session list: a date range, favorites only and git branch.
+- Session duration in the details, from the first to the last message.
+- "Show → Thinking" displays Claude's reasoning when the session saved it.
+
+### Changed
+- macOS: the app also checks for updates when it opens. Before, Sparkle checked at most once a day,
+  so a new version could take up to 24 hours to show up.
+
+### Añadido
+- Archivar sesiones (⌃⌘A en Mac, Ctrl+Mayús+A en Windows y Linux, o desde los menús): salen de
+  Recientes, carpetas, colecciones y búsquedas, y quedan en «Archivadas» en la barra lateral.
+- Filtros en la lista de sesiones: periodo, solo favoritos y rama de git.
+- Duración de la sesión en el detalle, del primer al último mensaje.
+- «Mostrar → Razonamiento» enseña el razonamiento de Claude cuando la sesión lo guardó.
+
+### Cambiado
+- macOS: la app también busca actualizaciones al abrirse. Antes Sparkle miraba como mucho una vez
+  al día y una versión nueva podía tardar hasta 24 horas en aparecer.
+
 ## [0.3.0] - 2026-10-31
 
 ### Added
@@ -152,7 +176,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.1...v0.2.2

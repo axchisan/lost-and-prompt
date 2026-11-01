@@ -46,7 +46,7 @@ Linux**.
 | **Resume in one click** | Opens the session in its original folder in your terminal: Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, GNOME Terminal, Konsole, Kitty, WezTerm… or anything else with a custom command. |
 | **From any app** | A global shortcut (⌥⌘K on the Mac, Ctrl+Alt+K on Windows and Linux) opens quick search, and the menu bar / system tray icon lists your recent sessions. |
 | **New session or your editor** | Start Claude Code in any session's folder (⌘N / Ctrl+N) or open it in VS Code, Cursor, Zed and more. |
-| **Organize your way** | Favorites, custom names, collections and notes. None of it touches Claude Code's files. |
+| **Organize your way** | Favorites, custom names, collections, notes and an archive. Filter by date, favorites or git branch. None of it touches Claude Code's files. |
 | **Read before you resume** | The conversation without the technical noise: your messages and Claude's replies. |
 | **Activity** | Estimated cost, sessions and the folders you work in most. |
 | **Keep your history** | Claude Code deletes sessions older than 30 days by default. Choose how long to keep them in Settings. |

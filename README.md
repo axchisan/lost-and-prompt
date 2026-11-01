@@ -46,7 +46,7 @@ abierto y funciona en **macOS, Windows y Linux**.
 | **Reanuda con un clic** | Abre la sesión en su carpeta original con tu terminal: Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, GNOME Terminal, Konsole, Kitty, WezTerm… o cualquier otra con un comando personalizado. |
 | **Desde cualquier app** | Un atajo global (⌥⌘K en Mac, Ctrl+Alt+K en Windows y Linux) abre el buscador, y el ícono de la barra de menús o de la bandeja muestra tus sesiones recientes. |
 | **Nueva sesión o tu editor** | Abre Claude Code en la carpeta de cualquier sesión (⌘N / Ctrl+N) o ábrela en VS Code, Cursor, Zed y otros. |
-| **Organiza a tu manera** | Favoritos, nombres propios, colecciones y notas. Nada de esto toca los archivos de Claude Code. |
+| **Organiza a tu manera** | Favoritos, nombres propios, colecciones, notas y archivo. Filtra por fecha, favoritos o rama de git. Nada de esto toca los archivos de Claude Code. |
 | **Lee antes de reanudar** | La conversación sin ruido técnico: tus mensajes y las respuestas de Claude. |
 | **Actividad** | Costo estimado, sesiones y las carpetas en las que más trabajas. |
 | **No pierdas tu historial** | Claude Code borra por defecto las sesiones de más de 30 días. Desde Ajustes eliges cuánto tiempo guardarlas. |

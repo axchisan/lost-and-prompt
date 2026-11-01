@@ -1,6 +1,6 @@
 # 9. Pendientes
 
-Estado al 2026-10-31, con la **0.3.0** publicada. Revisado contra el código, no solo contra los
+Estado al 2026-10-31, con la **0.4.0** publicada. Revisado contra el código, no solo contra los
 documentos: lo que aparece aquí no está hecho, o está a medias.
 
 ## Funciones que faltan
@@ -10,15 +10,11 @@ lo que más se nota al usarla.
 
 | ID | Qué falta | Mac | Win/Linux | Notas |
 |---|---|---|---|---|
-| E6 | Filtros: rango de fechas, rama git, solo favoritos | No | No | La rama ya se lee del JSONL |
-| O6 | Archivar u ocultar sesiones sin borrarlas | No | No | Campo nuevo en la organización, compatible con el formato actual |
 | O4 | Etiquetas de color por sesión, al estilo de Finder | No | No | Las colecciones ya tienen color |
-| S1 | Duración de la sesión en el detalle | No | No | Primer y último mensaje ya están en el índice |
-| L2 | Mostrar u ocultar razonamiento y mensajes del sistema | Herramientas sí | Herramientas sí | Falta el razonamiento (`thinking`) |
 | Q6 | Accesibilidad: etiquetas de VoiceOver/lectores de pantalla en todos los botones, contraste aumentado | A medias | A medias | Revisar con VoiceOver y con Narrador |
 
 Hechos en la **0.3.0**: L4 (buscar en la conversación), L3 (Markdown completo), R7 (nueva sesión en
-la carpeta) y R6 (abrir en el editor). Propuesta para la **0.4.0**: E6, O6, O4, S1, L2 y Q6.
+la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 (archivar), S1 (duración) y L2 (razonamiento; solo ~14 % de los bloques guardan texto). O4 queda en espera: las colecciones ya tienen color y se solaparían.
 
 ## Ideas para después
 
