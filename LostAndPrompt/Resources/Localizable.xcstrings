@@ -234,6 +234,26 @@
         }
       }
     },
+    "Abrir sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Session"
+          }
+        }
+      }
+    },
+    "Abrir sesión aquí": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Session Here"
+          }
+        }
+      }
+    },
     "Aceptar": {
       "localizations": {
         "en": {
@@ -490,6 +510,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Check Now"
+          }
+        }
+      }
+    },
+    "Buscar carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search folders"
           }
         }
       }
@@ -914,12 +944,42 @@
         }
       }
     },
+    "Elegir otra carpeta…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Another Folder…"
+          }
+        }
+      }
+    },
     "Elige dónde reanudar esta sesión. Claude Code la buscará en la carpeta nueva.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Choose where to resume this session. Claude Code will look for it in the new folder."
+          }
+        }
+      }
+    },
+    "Elige la carpeta donde abrir una sesión nueva de Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder where a new Claude Code session should open."
+          }
+        }
+      }
+    },
+    "Elige la carpeta donde abrirla con %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder to open it in with %@."
           }
         }
       }
@@ -1440,6 +1500,16 @@
         }
       }
     },
+    "Ninguna carpeta coincide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Matching Folders"
+          }
+        }
+      }
+    },
     "Ninguna sesión con estos filtros": {
       "localizations": {
         "en": {
@@ -1540,6 +1610,36 @@
         }
       }
     },
+    "Nueva sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Session"
+          }
+        }
+      }
+    },
+    "Nueva sesión de Claude Code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Claude Code session"
+          }
+        }
+      }
+    },
+    "Nueva sesión de Claude Code (⌘N)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Claude Code session (⌘N)"
+          }
+        }
+      }
+    },
     "Nueva sesión en %@": {
       "localizations": {
         "en": {
@@ -1556,6 +1656,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New Session in This Folder"
+          }
+        }
+      }
+    },
+    "Nueva sesión…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Session…"
           }
         }
       }
@@ -2046,6 +2156,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "One click opens the session in Warp, Terminal, iTerm2 or Ghostty, in its original folder."
+          }
+        }
+      }
+    },
+    "Usa «Elegir otra carpeta…» para abrirla igualmente.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use “Choose Another Folder…” to open it anyway."
           }
         }
       }

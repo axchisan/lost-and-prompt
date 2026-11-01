@@ -7,9 +7,21 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- New session anywhere: ⌘N / Ctrl+N (or the new button in the list toolbar, the menu bar and the
+  system tray) opens a folder picker with your folders, most recently used first, a search field
+  and "Choose Another Folder…" for any folder, even one without sessions. "New session in this
+  folder" moves to ⌥⌘N / Ctrl+Alt+N.
+
 ### Changed
 - The update notice lists what every version brought since the one you have, not only the latest:
   if you skipped a few, you see them all, newest first and in the app's language.
+
+### Añadido
+- Sesión nueva en cualquier carpeta: ⌘N / Ctrl+N (o el botón nuevo de la barra de la lista, la barra
+  de menús y la bandeja) abre un selector con tus carpetas, las usadas más recientemente primero, un
+  buscador y «Elegir otra carpeta…» para cualquier carpeta, aunque no tenga sesiones. «Nueva sesión
+  en esta carpeta» pasa a ⌥⌘N / Ctrl+Alt+N.
 
 ### Cambiado
 - El aviso de actualización enseña lo que trajo cada versión desde la que tienes, no solo la última:

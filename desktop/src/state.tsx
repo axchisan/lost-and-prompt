@@ -24,6 +24,8 @@ export interface Prefs {
   showInTray: boolean;
   includeWsl: boolean;
   autoUpdate: boolean;
+  /** Carpetas donde se abrió una sesión nueva desde la app (para Ctrl+N), la más reciente primero. */
+  recentFolders: { cwd: string; environment: string | null; at: string }[];
 }
 
 export const defaultPrefs: Prefs = {
@@ -39,6 +41,7 @@ export const defaultPrefs: Prefs = {
   showInTray: true,
   includeWsl: true,
   autoUpdate: true,
+  recentFolders: [],
 };
 
 /** Una carpeta donde abrir algo: la de una sesión o una de la barra lateral. */
@@ -127,6 +130,7 @@ export interface AppContext {
     newCollection: () => void;
     settings: (pane?: "general" | "history" | "appearance") => void;
     quick: () => void;
+    newSession: () => void;
     menu: (state: MenuState) => void;
     confirm: (message: string, confirmLabel: string, action: () => void) => void;
     about: () => void;

@@ -13,7 +13,7 @@ import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
-import { About, ConfirmSheet, ContextMenu, NewCollectionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, ConfirmSheet, ContextMenu, NewCollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
@@ -21,6 +21,7 @@ type Dialog =
   | { kind: "newCollection" }
   | { kind: "settings"; pane: "general" | "history" | "appearance" }
   | { kind: "quick" }
+  | { kind: "newSession" }
   | { kind: "error"; message: string }
   | { kind: "confirm"; message: string; confirmLabel: string; action: () => void }
   | { kind: "about" }
@@ -101,6 +102,7 @@ export default function App() {
       ),
       listen("index-finished", () => setIndexProgress(null)),
       listen("quick-open", () => setDialog({ kind: "quick" })),
+      listen("new-session", () => setDialog({ kind: "newSession" })),
       listen<string>("tray-resume", (e) => resumeRef.current(e.payload)),
     ];
     const media = matchMedia("(prefers-color-scheme: dark)");
@@ -209,6 +211,8 @@ export default function App() {
     reveal: (session) => api.reveal(session.id).catch(showError),
     newSession: (place) => {
       if (!terminal) return showError(t("noTerminal"));
+      const others = prefs.recentFolders.filter((f) => f.cwd !== place.cwd || f.environment !== place.environment);
+      setPrefs({ recentFolders: [{ cwd: place.cwd, environment: place.environment, at: new Date().toISOString() }, ...others].slice(0, 12) });
       api.newSession(place.cwd, place.environment, terminal.id, prefs.extraArguments, prefs.customTerminal).catch(showError);
     },
     openInEditor: (place) => {
@@ -294,7 +298,7 @@ export default function App() {
       .slice(0, 8)
       .map((s) => ({ id: s.id, title: s.title }));
     api
-      .updateTray({ enabled: prefs.showInTray, recentTitle: t("recents"), search: t("searchEllipsis"), open: t("openApp"), quit: t("quit"), recent })
+      .updateTray({ enabled: prefs.showInTray, recentTitle: t("recents"), search: t("searchEllipsis"), newSession: t("newSessionEllipsis"), open: t("openApp"), quit: t("quit"), recent })
       .catch(() => {});
   }, [library, prefs.showInTray, t]);
 
@@ -363,9 +367,12 @@ export default function App() {
         const input = document.querySelector<HTMLInputElement>(".find-bar input");
         input?.focus();
         input?.select();
-      } else if (!dialog && selected && mod && event.key.toLowerCase() === "n" && selected.folderExists) {
+      } else if (!dialog && selected && mod && event.altKey && event.key.toLowerCase() === "n" && selected.folderExists) {
         event.preventDefault();
         actions.newSession(selected);
+      } else if (!dialog && mod && !event.shiftKey && event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        setDialog({ kind: "newSession" });
       } else if (!dialog && selected && mod && event.shiftKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
         actions.toggleArchive(selected);
@@ -434,6 +441,7 @@ export default function App() {
       newCollection: () => setDialog({ kind: "newCollection" }),
       settings: (pane = "general") => setDialog({ kind: "settings", pane }),
       quick: () => setDialog({ kind: "quick" }),
+      newSession: () => setDialog({ kind: "newSession" }),
       menu: setMenu,
       confirm: (message, confirmLabel, action) => setDialog({ kind: "confirm", message, confirmLabel, action }),
       about: () => setDialog({ kind: "about" }),
@@ -467,6 +475,7 @@ export default function App() {
       {dialog?.kind === "newCollection" && <NewCollectionSheet onClose={() => setDialog(null)} />}
       {dialog?.kind === "settings" && <Settings initialPane={dialog.pane} onClose={() => setDialog(null)} />}
       {dialog?.kind === "quick" && <QuickOpen onClose={() => setDialog(null)} />}
+      {dialog?.kind === "newSession" && <NewSessionSheet onClose={() => setDialog(null)} />}
       {dialog?.kind === "error" && <ErrorSheet message={dialog.message} onClose={() => setDialog(null)} />}
       {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
       {dialog?.kind === "update" && <UpdateSheet update={dialog.update} onClose={() => setDialog(null)} />}

@@ -45,6 +45,7 @@ struct LostAndPromptApp: App {
         case "favorites": model.sidebarSelection = .favorites
         case "activity": model.sidebarSelection = .activity
         case "quickopen": model.isQuickOpenPresented = true
+        case "newsession": model.isNewSessionPresented = true
         case "empty":
             model.sidebarSelection = .favorites
             for index in model.sessions.indices { model.sessions[index].isFavorite = false }
@@ -127,8 +128,10 @@ struct AppCommands: Commands {
                 .disabled(!model.isFindPresented || model.findTotal == 0)
         }
         CommandGroup(after: .newItem) {
-            Button("Nueva sesión en esta carpeta") { if let s = model.selectedSession { model.startNewSession(in: s.cwd) } }
+            Button("Nueva sesión…") { model.isNewSessionPresented = true }
                 .keyboardShortcut("n")
+            Button("Nueva sesión en esta carpeta") { if let s = model.selectedSession { model.startNewSession(in: s.cwd) } }
+                .keyboardShortcut("n", modifiers: [.command, .option])
                 .disabled(model.selectedSession?.folderExists != true)
             Button("Nueva colección…") { model.isCreatingCollection = true }
                 .keyboardShortcut("n", modifiers: [.command, .shift])

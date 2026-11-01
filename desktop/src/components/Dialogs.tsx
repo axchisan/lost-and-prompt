@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Archive, ArchiveRestore, Check, CodeXml, Copy, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { Archive, ArchiveRestore, Check, CodeXml, Copy, House, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
 import { links, tints, type Session, type Tint } from "../api";
 import { useApp, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
@@ -93,6 +94,114 @@ export function NewCollectionSheet({ onClose }: { onClose: () => void }) {
         </button>
       </div>
     </Sheet>
+  );
+}
+
+/**
+ * Ctrl+N: abre una sesión nueva de Claude Code en cualquier carpeta. Primero las carpetas con sesiones
+ * y las usadas antes, la más reciente arriba; «Elegir otra carpeta…» abre cualquiera.
+ */
+export function NewSessionSheet({ onClose }: { onClose: () => void }) {
+  const { t, library, prefs, actions, terminalName } = useApp();
+  const [query, setQuery] = useState("");
+  const [index, setIndex] = useState(0);
+  const folders = useMemo(() => {
+    const byKey = new Map<string, { cwd: string; environment: string | null; name: string; path: string; count: number; last: string }>();
+    for (const s of library.sessions) {
+      if (s.isArchived || !s.folderExists) continue;
+      const key = `${s.environment ?? ""}|${s.cwd}`;
+      const entry = byKey.get(key);
+      if (entry) {
+        entry.count++;
+        if (s.lastActivity > entry.last) entry.last = s.lastActivity;
+      } else {
+        byKey.set(key, { cwd: s.cwd, environment: s.environment, name: s.isHome ? t("home") : s.folderName, path: s.abbreviatedPath, count: 1, last: s.lastActivity });
+      }
+    }
+    for (const f of prefs.recentFolders) {
+      const key = `${f.environment ?? ""}|${f.cwd}`;
+      const entry = byKey.get(key);
+      if (entry) {
+        if (f.at > entry.last) entry.last = f.at;
+      } else {
+        const name = f.cwd.split(/[\\/]/).filter(Boolean).pop() ?? f.cwd;
+        byKey.set(key, { cwd: f.cwd, environment: f.environment, name, path: f.cwd, count: 0, last: f.at });
+      }
+    }
+    const text = query.trim().toLowerCase();
+    return [...byKey.values()]
+      .filter((f) => !text || f.cwd.toLowerCase().includes(text) || f.name.toLowerCase().includes(text))
+      .sort((a, b) => b.last.localeCompare(a.last));
+  }, [library.sessions, prefs.recentFolders, query, t]);
+  const current = folders[Math.min(index, folders.length - 1)];
+  const open = (folder: { cwd: string; environment: string | null } | undefined) => {
+    if (!folder) return;
+    actions.newSession(folder);
+    onClose();
+  };
+  const choose = async () => {
+    const folder = await openDialog({ directory: true, title: t("chooseNewSessionFolder") });
+    if (typeof folder === "string") open({ cwd: folder, environment: null });
+  };
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="sheet new-session" role="dialog" aria-label={t("newSessionTitle")} onClick={(e) => e.stopPropagation()}>
+        <div>
+          <h2>{t("newSessionTitle")}</h2>
+          <p>{t("newSessionHint", { terminal: terminalName })}</p>
+        </div>
+        <input
+          className="field"
+          autoFocus
+          value={query}
+          placeholder={t("searchFolder")}
+          aria-label={t("searchFolder")}
+          aria-controls="new-session-folders"
+          aria-activedescendant={current ? `folder-${folders.indexOf(current)}` : undefined}
+          onChange={(e) => (setQuery(e.target.value), setIndex(0))}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") (e.preventDefault(), setIndex((i) => Math.min(i + 1, folders.length - 1)));
+            else if (e.key === "ArrowUp") (e.preventDefault(), setIndex((i) => Math.max(i - 1, 0)));
+            else if (e.key === "Enter") open(current);
+          }}
+        />
+        <div className="ns-list" id="new-session-folders" role="listbox" aria-label={t("folders")}>
+          {folders.length === 0 && <p className="ns-empty">{t("noFolderMatch")}</p>}
+          {folders.map((f, i) => (
+            <div
+              key={`${f.environment ?? ""}|${f.cwd}`}
+              id={`folder-${i}`}
+              role="option"
+              aria-selected={f === current}
+              className={`ns-folder${f === current ? " on" : ""}`}
+              onMouseEnter={() => setIndex(i)}
+              onClick={() => open(f)}
+            >
+              {f.path === "~" ? <House size={16} /> : <Folder size={16} />}
+              <span className="ns-text">
+                <b>{f.name}</b>
+                <small>
+                  {f.path}
+                  {f.environment && <span className="env">WSL · {f.environment}</span>}
+                </small>
+              </span>
+              {f.count > 0 && <small className="ns-count">{f.count === 1 ? t("oneSession") : t("sessions", { n: f.count })}</small>}
+            </div>
+          ))}
+        </div>
+        <div className="buttons">
+          <button className="btn left" onClick={choose}>
+            {t("chooseOtherFolder")}
+          </button>
+          <button className="btn" onClick={onClose}>
+            {t("cancel")}
+          </button>
+          <button className="btn primary" onClick={() => open(current)} disabled={!current}>
+            {t("openSession")}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

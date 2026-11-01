@@ -101,6 +101,7 @@ export interface TrayContent {
   enabled: boolean;
   recentTitle: string;
   search: string;
+  newSession: string;
   open: string;
   quit: string;
   recent: { id: string; title: string }[];

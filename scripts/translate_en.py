@@ -15,6 +15,18 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "Abrir sesión": "Open Session",
+    "Abrir sesión aquí": "Open Session Here",
+    "Buscar carpeta": "Search folders",
+    "Elegir otra carpeta…": "Choose Another Folder…",
+    "Elige la carpeta donde abrir una sesión nueva de Claude Code.": "Choose the folder where a new Claude Code session should open.",
+    "Elige la carpeta donde abrirla con %@.": "Choose the folder to open it in with %@.",
+    "Ninguna carpeta coincide": "No Matching Folders",
+    "Nueva sesión": "New Session",
+    "Nueva sesión de Claude Code": "New Claude Code session",
+    "Nueva sesión de Claude Code (⌘N)": "New Claude Code session (⌘N)",
+    "Nueva sesión…": "New Session…",
+    "Usa «Elegir otra carpeta…» para abrirla igualmente.": "Use “Choose Another Folder…” to open it anyway.",
     "%lld versiones nuevas desde la %@:": "%1$lld new versions since %2$@:",
     "Barra lateral": "Sidebar",
     "Más acciones": "More Actions",

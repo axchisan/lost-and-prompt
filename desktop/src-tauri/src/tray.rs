@@ -13,6 +13,9 @@ pub struct TrayContent {
     pub enabled: bool,
     pub recent_title: String,
     pub search: String,
+    /// «Nueva sesión…»; opcional para que una interfaz antigua no rompa la bandeja.
+    #[serde(default)]
+    pub new_session: Option<String>,
     pub open: String,
     pub quit: String,
     pub recent: Vec<TrayItem>,
@@ -36,6 +39,10 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
                 "search" => {
                     show_main(app);
                     let _ = app.emit("quick-open", ());
+                }
+                "new-session" => {
+                    show_main(app);
+                    let _ = app.emit("new-session", ());
                 }
                 "quit" => app.exit(0),
                 _ => {
@@ -76,6 +83,9 @@ fn menu(app: &AppHandle, content: &TrayContent) -> tauri::Result<Menu<Wry>> {
         menu.append(&PredefinedMenuItem::separator(app)?)?;
     }
     menu.append(&MenuItem::with_id(app, "search", &content.search, true, Some("CmdOrCtrl+Alt+K"))?)?;
+    if let Some(label) = &content.new_session {
+        menu.append(&MenuItem::with_id(app, "new-session", label, true, None::<&str>)?)?;
+    }
     menu.append(&MenuItem::with_id(app, "open", &content.open, true, None::<&str>)?)?;
     menu.append(&PredefinedMenuItem::separator(app)?)?;
     menu.append(&MenuItem::with_id(app, "quit", &content.quit, true, None::<&str>)?)?;

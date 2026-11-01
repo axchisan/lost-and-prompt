@@ -25,14 +25,14 @@ struct MainView: View {
                                     .inspectorColumnWidth(min: 400, ideal: 480, max: 600)
                             }
                         }
-                        .toolbar { listStylePicker; filterMenu }
+                        .toolbar { listStylePicker; filterMenu; newSessionButton }
                 }
             } else {
                 NavigationSplitView {
                     SidebarView()
                 } content: {
                     SessionListView()
-                        .toolbar { listStylePicker; filterMenu }
+                        .toolbar { listStylePicker; filterMenu; newSessionButton }
                 } detail: {
                     if let session = model.selectedSession {
                         SessionDetailView(session: session)
@@ -50,6 +50,9 @@ struct MainView: View {
         }
         .sheet(item: $model.renamingSession) { session in
             RenameSheet(session: session)
+        }
+        .sheet(isPresented: $model.isNewSessionPresented) {
+            NewSessionSheet()
         }
         .sheet(isPresented: $model.isCreatingCollection) {
             NewCollectionSheet()
@@ -75,6 +78,13 @@ struct MainView: View {
                 }
                 .onKeyPress(.escape) { model.isQuickOpenPresented = false; return .handled }
             }
+        }
+    }
+
+    private var newSessionButton: some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            Button("Nueva sesión", systemImage: "plus.bubble") { model.isNewSessionPresented = true }
+                .help("Nueva sesión de Claude Code (⌘N)")
         }
     }
 

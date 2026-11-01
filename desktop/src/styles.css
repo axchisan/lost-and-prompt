@@ -219,6 +219,19 @@ mark.find.current { background: #ff9500; color: #000; }
 .filter-menu.active .icon-btn { color: var(--accent); background: var(--field); }
 .mono-label { font-family: var(--mono); font-size: 12px; }
 
+/* Ctrl+N: sesión nueva */
+.sheet.new-session { width: 520px; }
+.ns-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--sep); border-radius: 8px; padding: 4px; display: grid; gap: 1px; }
+.ns-folder { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border-radius: 6px; cursor: default; }
+.ns-folder svg { color: var(--accent); flex: none; }
+.ns-folder.on { background: var(--accent); color: var(--accent-fg); }
+.ns-folder.on svg, .ns-folder.on small { color: var(--accent-fg); }
+.ns-text { display: grid; min-width: 0; flex: 1; }
+.ns-text b { font-weight: 600; }
+.ns-text small, .ns-count { color: var(--fg-2); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ns-text .env { margin-left: 6px; }
+.ns-empty { padding: 10px; font-size: 13px; }
+
 /* Barra de Ctrl+F */
 .find-bar { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-bottom: 1px solid var(--sep); color: var(--fg-2); flex: none; }
 .find-bar input { all: unset; flex: 1; color: var(--fg); min-width: 0; }

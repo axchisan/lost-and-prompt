@@ -34,6 +34,7 @@ final class AppModel {
         return counts.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }.prefix(15).map(\.key)
     }
     var isQuickOpenPresented = false
+    var isNewSessionPresented = false
     /// Coincidencias dentro de las conversaciones para la búsqueda actual: sesión → fragmento.
     var contentHits: [Session.ID: String] = [:]
     /// Progreso de la primera indexación de mensajes (nil cuando no hay nada pendiente).
@@ -388,9 +389,57 @@ final class AppModel {
         Launcher.revealInFinder(session)
     }
 
+    // MARK: Sesión nueva (⌘N)
+
+    struct NewSessionFolder: Identifiable {
+        var id: String { path }
+        var path: String
+        var sessionCount: Int
+        var lastUsed: Date
+
+        var name: String {
+            path == Session.homePath ? String(localized: "Inicio") : (path as NSString).lastPathComponent
+        }
+    }
+
+    /// Carpetas donde se abrió una sesión nueva desde la app: ruta → última vez.
+    private var newSessionHistory: [String: Date] {
+        get { UserDefaults.standard.dictionary(forKey: "newSessionFolders") as? [String: Date] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "newSessionFolders") }
+    }
+
+    /// Para ⌘N: las carpetas con sesiones y las elegidas antes, las usadas más recientemente primero.
+    var newSessionFolders: [NewSessionFolder] {
+        let history = newSessionHistory
+        var folders = Dictionary(grouping: activeSessions, by: \.cwd).compactMap { path, list -> NewSessionFolder? in
+            guard list.contains(where: \.folderExists) else { return nil }
+            let last = max(list.map(\.lastActivity).max() ?? .distantPast, history[path] ?? .distantPast)
+            return NewSessionFolder(path: path, sessionCount: list.count, lastUsed: last)
+        }
+        let known = Set(folders.map(\.path))
+        for (path, date) in history where !known.contains(path) && FileManager.default.fileExists(atPath: path) {
+            folders.append(NewSessionFolder(path: path, sessionCount: 0, lastUsed: date))
+        }
+        return folders.sorted { $0.lastUsed > $1.lastUsed }
+    }
+
+    /// «Elegir otra carpeta…»: cualquier carpeta, tenga o no sesiones. Devuelve si se abrió.
+    @discardableResult
+    func chooseFolderForNewSession() -> Bool {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.prompt = String(localized: "Abrir sesión aquí")
+        panel.message = String(localized: "Elige la carpeta donde abrir una sesión nueva de Claude Code.")
+        guard panel.runModal() == .OK, let folder = panel.url else { return false }
+        startNewSession(in: folder.path)
+        return true
+    }
+
     /// Abre Claude Code en la carpeta, sin reanudar nada.
     func startNewSession(in cwd: String) {
         guard usesRealData else { return }
+        newSessionHistory[cwd] = .now
         do {
             let title = String(localized: "Nueva sesión en \((cwd as NSString).lastPathComponent)")
             try Launcher.newSession(in: cwd, title: title, terminal: terminal, extraArguments: extraArguments, customTemplate: customTerminal)

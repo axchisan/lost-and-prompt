@@ -38,6 +38,16 @@ struct MenuBarView: View {
 
             Divider().padding(.vertical, 4)
 
+            Button {
+                openWindow(id: "main")
+                NSApp.activate()
+                model.isNewSessionPresented = true
+            } label: {
+                Label("Nueva sesión…", systemImage: "plus.bubble")
+            }
+            .buttonStyle(.borderless)
+            .padding(.horizontal, 6)
+
             HStack {
                 Button("Abrir Lost & Prompt") { openWindow(id: "main") }
                 Spacer()

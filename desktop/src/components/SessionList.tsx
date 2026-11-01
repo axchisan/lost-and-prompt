@@ -1,4 +1,4 @@
-import { Check, ClockAlert, Folder, ListFilter, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
+import { Check, ClockAlert, Folder, ListFilter, MessageSquarePlus, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
 import { tints, type Session } from "../api";
 import { dayGroups, grouped, shortDate } from "../format";
 import { noFilter, useApp } from "../state";
@@ -95,6 +95,9 @@ function Head() {
         </button>
       </div>
       <FilterMenu />
+      <button className="icon-btn" title={`${t("newSessionEllipsis")} (${app.modKey}N)`} aria-label={t("newSessionEllipsis")} onClick={app.open.newSession}>
+        <MessageSquarePlus />
+      </button>
       <div>
         <h2>{sectionTitle(app)}</h2>
         <small>{subtitle}</small>
