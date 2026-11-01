@@ -70,7 +70,7 @@ struct SessionCard: View {
                 Text(session.userMessages == 1 ? "1 mensaje" : "\(session.userMessages.grouped) mensajes")
             }
             .font(.caption)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.secondary)
         }
         .padding(14)
         .background(.background.secondary, in: .rect(cornerRadius: 12))

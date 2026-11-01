@@ -39,6 +39,16 @@ brew install xcodegen && xcodegen generate && open LostAndPrompt.xcodeproj
 
 Para probar la app de Mac con datos ficticios: `-LPMock YES` como argumento de arranque.
 
+### Accesibilidad
+
+- **Mac:** `xcodebuild test -project LostAndPrompt.xcodeproj -scheme LostAndPrompt` pasa la
+  auditoría de accesibilidad de Xcode (VoiceOver, nombres, roles, acciones) por cinco vistas con los
+  datos de ejemplo (`LostAndPromptUITests`). Los falsos positivos conocidos de SwiftUI están
+  explicados en la propia prueba; cualquier otro aviso la hace fallar.
+- **Windows y Linux:** se revisó con [axe-core](https://github.com/dequelabs/axe-core) en tema claro
+  y oscuro, con los menús y diálogos abiertos. Al tocar la interfaz, mantén los grises con contraste
+  de al menos 4,5:1, los `aria-label` de los botones que solo tienen icono y los roles de menú.
+
 ## Pautas
 
 - **Mismo comportamiento en todas las plataformas.** Si cambias cómo se leen las sesiones, cambia

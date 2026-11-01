@@ -408,6 +408,16 @@
         }
       }
     },
+    "Barra lateral": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sidebar"
+          }
+        }
+      }
+    },
     "Borrar nota": {
       "localizations": {
         "en": {
@@ -1374,12 +1384,32 @@
         }
       }
     },
+    "Mostrar en la conversación": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Conversation"
+          }
+        }
+      }
+    },
     "Más": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "More"
+          }
+        }
+      }
+    },
+    "Más acciones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Actions"
           }
         }
       }

@@ -53,6 +53,7 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
+        .accessibilityLabel("Barra lateral")
         .navigationSplitViewColumnWidth(min: 200, ideal: 230, max: 300)
     }
 }

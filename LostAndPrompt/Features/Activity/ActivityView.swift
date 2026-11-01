@@ -34,11 +34,13 @@ struct ActivityView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Costo por día").font(.headline)
+                    Text("Costo por día").font(.headline).accessibilityAddTraits(.isHeader)
                     Chart(dailyCost, id: \.day) { item in
                         BarMark(x: .value("Día", item.day, unit: .day), y: .value("Costo", item.cost))
                             .foregroundStyle(Color.accentColor.gradient)
                             .cornerRadius(3)
+                            .accessibilityLabel(item.day.formatted(date: .complete, time: .omitted))
+                            .accessibilityValue(item.cost.usd)
                     }
                     .chartYAxis {
                         AxisMarks(position: .leading) { value in
@@ -47,10 +49,11 @@ struct ActivityView: View {
                         }
                     }
                     .frame(height: 180)
+                    .accessibilityLabel("Costo por día")
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Carpetas con más uso").font(.headline)
+                    Text("Carpetas con más uso").font(.headline).accessibilityAddTraits(.isHeader)
                     let top = topFolders
                     let maxCost = top.first?.cost ?? 1
                     ForEach(top, id: \.path) { item in
@@ -64,16 +67,21 @@ struct ActivityView: View {
                                     .frame(width: max(4, proxy.size.width * item.cost / maxCost))
                             }
                             .frame(height: 8)
+                            .accessibilityHidden(true)
                             Text(item.cost.usd).monospacedDigit().foregroundStyle(.secondary)
                                 .frame(width: 90, alignment: .trailing)
                         }
+                        .accessibilityElement(children: .combine)
                     }
                 }
             }
             .padding(32)
             .frame(maxWidth: 900, alignment: .leading)
         }
-        .navigationTitle("")
+        // Sin título en la barra: el encabezado «Actividad» ya está en la vista, y un título vacío
+        // dejaba un texto en blanco que VoiceOver anunciaba.
+        .navigationTitle("Actividad")
+        .toolbar(removing: .title)
     }
 
     private var sessions: [Session] {

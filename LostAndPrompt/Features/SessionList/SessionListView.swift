@@ -26,6 +26,7 @@ struct SessionListView: View {
                     }
                 }
                 .listStyle(.inset)
+                .accessibilityLabel(model.sectionTitle)
                 .scrollContentBackground(.hidden)
                 .onKeyPress(.return) {
                     guard let session = model.selectedSession else { return .ignored }

@@ -11,10 +11,9 @@ lo que más se nota al usarla.
 | ID | Qué falta | Mac | Win/Linux | Notas |
 |---|---|---|---|---|
 | O4 | Etiquetas de color por sesión, al estilo de Finder | No | No | Las colecciones ya tienen color |
-| Q6 | Accesibilidad: etiquetas de VoiceOver/lectores de pantalla en todos los botones, contraste aumentado | A medias | A medias | Revisar con VoiceOver y con Narrador |
 
 Hechos en la **0.3.0**: L4 (buscar en la conversación), L3 (Markdown completo), R7 (nueva sesión en
-la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 (archivar), S1 (duración) y L2 (razonamiento; solo ~14 % de los bloques guardan texto). O4 queda en espera: las colecciones ya tienen color y se solaparían.
+la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 (archivar), S1 (duración) y L2 (razonamiento; solo ~14 % de los bloques guardan texto). O4 queda en espera: las colecciones ya tienen color y se solaparían. Q6 (accesibilidad) hecho tras la 0.4.1: auditoría de Xcode en Mac y axe-core en Windows/Linux sin avisos (ver CONTRIBUTING).
 
 ## Ideas para después
 

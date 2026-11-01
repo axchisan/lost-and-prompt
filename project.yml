@@ -63,3 +63,29 @@ targets:
         ENABLE_PREVIEWS: YES
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
+
+  LostAndPromptUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: LostAndPromptUITests
+    dependencies:
+      - target: LostAndPrompt
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.axchisan.LostAndPromptUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: LostAndPrompt
+        # XCTestCase no admite el aislamiento en el hilo principal que usa la app por defecto.
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+
+schemes:
+  LostAndPrompt:
+    build:
+      targets:
+        LostAndPrompt: all
+    test:
+      targets:
+        - LostAndPromptUITests

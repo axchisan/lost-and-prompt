@@ -101,6 +101,7 @@ struct MainView: View {
                       ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
             }
             .help(model.isFiltering ? "Filtros activos" : "Filtrar la lista")
+            .accessibilityLabel(model.isFiltering ? "Filtros activos" : "Filtrar la lista")
         }
     }
 

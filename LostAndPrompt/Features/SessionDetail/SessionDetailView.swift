@@ -160,6 +160,7 @@ struct SessionDetailView: View {
                 Label("Colecciones", systemImage: "square.stack")
             }
             .help("Añadir a una colección")
+            .accessibilityLabel("Colecciones")
 
             Menu {
                 Button("Renombrar…", systemImage: "pencil") { model.renamingSession = session }
@@ -180,6 +181,7 @@ struct SessionDetailView: View {
             } label: {
                 Label("Más", systemImage: "ellipsis.circle")
             }
+            .accessibilityLabel("Más acciones")
         }
     }
 }
@@ -226,6 +228,7 @@ struct ConversationView: View {
         LazyVStack(alignment: .leading, spacing: 18) {
             HStack {
                 Text("Conversación").font(.title3.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Menu {
                     Toggle("Herramientas", isOn: $model.showToolCalls)
@@ -233,6 +236,7 @@ struct ConversationView: View {
                 } label: {
                     Label("Mostrar", systemImage: "line.3.horizontal.decrease.circle")
                 }
+                .accessibilityLabel("Mostrar en la conversación")
                 .menuStyle(.borderlessButton)
                 .fixedSize()
             }
@@ -354,7 +358,7 @@ struct MessageView: View {
                         Label("Razonamiento", systemImage: "brain").labelStyle(.titleAndIcon).foregroundStyle(.secondary)
                     }
                     Text(message.date.formatted(date: .omitted, time: .shortened))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
                 .font(.callout)
                 if !message.text.isEmpty {
