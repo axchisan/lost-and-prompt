@@ -7,6 +7,22 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Changed
+- Accessibility: every icon-only button and menu has a name for VoiceOver, Narrator and Orca;
+  menus announce which options are on (filters, thinking, collections); the session list can be
+  reached with Tab and announces the selected session; the Ctrl+F counter is read aloud.
+- Higher contrast for secondary text in light and dark themes (at least 4.5:1 on Windows and Linux).
+- The Mac app passes Xcode's accessibility audit and the Windows/Linux app passes axe-core, both
+  checked automatically.
+
+### Cambiado
+- Accesibilidad: todos los botones de solo icono y los menús tienen nombre para VoiceOver, Narrador
+  y Orca; los menús dicen qué opciones están activas (filtros, razonamiento, colecciones); la lista
+  de sesiones se alcanza con Tab y anuncia la sesión elegida; el contador de Ctrl+F se lee en voz alta.
+- Más contraste en los textos secundarios, en tema claro y oscuro (al menos 4,5:1 en Windows y Linux).
+- La app de Mac pasa la auditoría de accesibilidad de Xcode y la de Windows/Linux pasa axe-core,
+  las dos comprobadas automáticamente.
+
 ## [0.4.1] - 2026-10-31
 
 ### Fixed
