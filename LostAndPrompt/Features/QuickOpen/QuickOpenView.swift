@@ -219,7 +219,8 @@ struct QuickOpenRow: View {
                 .background(.quaternary.opacity(0.6), in: .rect(cornerRadius: 8))
             VStack(alignment: .leading, spacing: 2) {
                 Text(highlight(session.title)).fontWeight(.semibold).lineLimit(1)
-                Text(snippet.map { "\(session.folderName) · " + $0 } ?? "\(session.folderName) · \(session.userMessages.grouped) mensajes")
+                Text(snippet.map { "\(session.folderName) · " + $0 }
+                     ?? (session.userMessages == 1 ? "\(session.folderName) · 1 mensaje" : "\(session.folderName) · \(session.userMessages.grouped) mensajes"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

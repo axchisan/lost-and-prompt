@@ -7,6 +7,22 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-01
+
+### Added
+- Session details show when the session started ("Started:") next to its last activity, which was
+  the only date shown before.
+
+### Fixed
+- "1 messages" now reads "1 message" in the details and in quick search.
+
+### Añadido
+- El detalle de la sesión muestra cuándo empezó («Inició:») junto a su última actividad, que era la
+  única fecha que se veía.
+
+### Corregido
+- «1 mensajes» ahora dice «1 mensaje» en el detalle y en el buscador rápido.
+
 ## [0.5.0] - 2026-11-01
 
 ### Added
@@ -256,7 +272,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...v0.4.1

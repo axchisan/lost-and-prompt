@@ -56,10 +56,13 @@ struct SessionDetailView: View {
                 .font(.largeTitle.weight(.bold))
                 .textSelection(.enabled)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 20) { facts }
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(model.relativeDay(session.lastActivity))
+            VStack(alignment: .leading, spacing: 6) {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 16) { dates }
+                    VStack(alignment: .leading, spacing: 4) { dates }
+                }
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 20) { facts }
                     HStack(spacing: 16) { factsWithoutDate }
                 }
             }
@@ -124,8 +127,25 @@ struct SessionDetailView: View {
         }
     }
 
+    /// Cuándo empezó la sesión y, si siguió después, su última actividad.
+    @ViewBuilder private var dates: some View {
+        dated("Inició:", session.startedAt)
+        if session.lastActivity.timeIntervalSince(session.startedAt) >= 60 {
+            dated("Última actividad:", session.lastActivity)
+        }
+    }
+
+    private func dated(_ label: LocalizedStringKey, _ date: Date) -> some View {
+        HStack(spacing: 4) {
+            Text(label)
+            Text(model.relativeDay(date)).foregroundStyle(.primary)
+        }
+        .fixedSize()
+        .accessibilityElement(children: .combine)
+    }
+
     @ViewBuilder private var factsWithoutDate: some View {
-        Fact(value: session.userMessages.grouped, label: "mensajes").fixedSize()
+        Fact(value: session.userMessages.grouped, label: session.userMessages == 1 ? "mensaje" : "mensajes").fixedSize()
         if let duration = session.durationText {
             Fact(value: duration).fixedSize().help("Del primer al último mensaje")
         }
@@ -134,7 +154,6 @@ struct SessionDetailView: View {
     }
 
     @ViewBuilder private var facts: some View {
-        Text(model.relativeDay(session.lastActivity)).fixedSize()
         factsWithoutDate
         if let branch = session.gitBranch { Fact(value: branch).fixedSize().help("Rama de git") }
     }

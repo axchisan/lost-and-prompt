@@ -1380,6 +1380,16 @@
         }
       }
     },
+    "Inició:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Started:"
+          }
+        }
+      }
+    },
     "La carpeta ya no existe": {
       "localizations": {
         "en": {
@@ -2350,6 +2360,16 @@
         }
       }
     },
+    "mensaje": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "message"
+          }
+        }
+      }
+    },
     "mensajes": {
       "localizations": {
         "en": {
@@ -2396,6 +2416,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep sessions for %lld days?"
+          }
+        }
+      }
+    },
+    "Última actividad:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last activity:"
           }
         }
       }

@@ -76,10 +76,21 @@ export function Detail({ session }: { session: Session }) {
             {session.environment && <span className="env">WSL · {session.environment}</span>}
           </div>
           <h1 className="selectable">{session.title}</h1>
+          {/* Cuándo empezó y, si siguió después, su última actividad; debajo, el resto de datos. */}
+          <div className="fact-rows">
           <div className="facts">
-            <span>{relativeDay(session.lastActivity, language, t)}</span>
             <span>
-              <b>{grouped(session.userMessages, language)}</b> {t("messages")}
+              {t("started")} <b>{relativeDay(session.startedAt, language, t)}</b>
+            </span>
+            {new Date(session.lastActivity).getTime() - new Date(session.startedAt).getTime() >= 60000 && (
+              <span>
+                {t("lastActivity")} <b>{relativeDay(session.lastActivity, language, t)}</b>
+              </span>
+            )}
+          </div>
+          <div className="facts">
+            <span>
+              <b>{grouped(session.userMessages, language)}</b> {session.userMessages === 1 ? t("message") : t("messages")}
             </span>
             {length && (
               <span title={t("durationHint")}>
@@ -97,6 +108,7 @@ export function Detail({ session }: { session: Session }) {
                 <b>{session.gitBranch}</b>
               </span>
             )}
+          </div>
           </div>
           {session.note && (
             <button className="note" style={{ all: "unset" }} onClick={() => open.note(session)}>
