@@ -39,25 +39,25 @@ function FilterMenu() {
         {(close) => (
           <>
             {periods.map(([value, label]) => (
-              <button key={value} onClick={() => setFilter({ period: value })}>
+              <button key={value} role="menuitemradio" aria-checked={filter.period === value} onClick={() => setFilter({ period: value })}>
                 {check(filter.period === value)}
                 {label}
               </button>
             ))}
             <hr />
-            <button onClick={() => setFilter({ favoritesOnly: !filter.favoritesOnly })}>
+            <button role="menuitemcheckbox" aria-checked={filter.favoritesOnly} onClick={() => setFilter({ favoritesOnly: !filter.favoritesOnly })}>
               {check(filter.favoritesOnly)}
               {t("favoritesOnly")}
             </button>
             {branches.length > 0 && (
               <>
                 <hr />
-                <button onClick={() => setFilter({ branch: null })}>
+                <button role="menuitemradio" aria-checked={filter.branch === null} onClick={() => setFilter({ branch: null })}>
                   {check(filter.branch === null)}
                   {t("anyBranch")}
                 </button>
                 {branches.map((b) => (
-                  <button key={b} onClick={() => setFilter({ branch: b })}>
+                  <button key={b} role="menuitemradio" aria-checked={filter.branch === b} onClick={() => setFilter({ branch: b })}>
                     {check(filter.branch === b)}
                     <span className="mono-label">{b}</span>
                   </button>
@@ -65,7 +65,7 @@ function FilterMenu() {
               </>
             )}
             <hr />
-            <button disabled={!active} onClick={() => (setFilter(noFilter), close())}>
+            <button role="menuitem" disabled={!active} onClick={() => (setFilter(noFilter), close())}>
               {check(false)}
               {t("clearFilters")}
             </button>
@@ -87,10 +87,10 @@ function Head() {
   return (
     <div className="column-head">
       <div className="segmented" role="group" aria-label={t("listView")}>
-        <button className={prefs.listStyle === "rows" ? "on" : ""} onClick={() => setPrefs({ listStyle: "rows" })} title={t("rows")}>
+        <button className={prefs.listStyle === "rows" ? "on" : ""} onClick={() => setPrefs({ listStyle: "rows" })} title={t("rows")} aria-label={t("rows")} aria-pressed={prefs.listStyle === "rows"}>
           <List size={16} />
         </button>
-        <button className={prefs.listStyle === "cards" ? "on" : ""} onClick={() => setPrefs({ listStyle: "cards" })} title={t("cards")}>
+        <button className={prefs.listStyle === "cards" ? "on" : ""} onClick={() => setPrefs({ listStyle: "cards" })} title={t("cards")} aria-label={t("cards")} aria-pressed={prefs.listStyle === "cards"}>
           <LayoutGrid size={16} />
         </button>
       </div>
@@ -194,7 +194,7 @@ export function SessionList() {
   const { t, visible, selected, select, language, search, contentHits, library } = app;
   const showBanner = library.retentionDays === null && library.claudeFolderExists && !search;
   return (
-    <section className="column">
+    <section className="column" aria-label={sectionTitle(app)}>
       <Head />
       {visible.length === 0 ? (
         library.sessions.length === 0 && library.claudeFolderExists && !search ? (
@@ -206,14 +206,16 @@ export function SessionList() {
           <EmptyState />
         )
       ) : (
-        <div className="list" role="listbox" aria-label={sectionTitle(app)}>
+        <div className="list">
           {showBanner && <RetentionBanner />}
-          {dayGroups(visible, t).map((group) => (
-            <div key={group.title}>
-              <div className="group-title">{group.title}</div>
+          <div role="listbox" aria-label={sectionTitle(app)} tabIndex={0} aria-activedescendant={selected ? `session-${selected.id}` : undefined}>
+          {dayGroups(visible, t).map((group, index) => (
+            <div key={group.title} role="group" aria-labelledby={`day-${index}`}>
+              <div className="group-title" id={`day-${index}`}>{group.title}</div>
               {group.sessions.map((session) => (
                 <div
                   key={session.id}
+                  id={`session-${session.id}`}
                   role="option"
                   aria-selected={selected?.id === session.id}
                   className={`row${selected?.id === session.id ? " on" : ""}`}
@@ -235,6 +237,7 @@ export function SessionList() {
               ))}
             </div>
           ))}
+          </div>
         </div>
       )}
     </section>
@@ -245,7 +248,7 @@ export function SessionCards() {
   const app = useApp();
   const { t, visible, selected, select, language } = app;
   return (
-    <section className="column">
+    <section className="column" aria-label={sectionTitle(app)}>
       <Head />
       {visible.length === 0 ? (
         <EmptyState />

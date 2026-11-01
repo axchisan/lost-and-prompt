@@ -49,7 +49,7 @@ function General() {
   const example = examples[library.platform] ?? examples.linux;
   return (
     <div className="form-group">
-      <h5>{t("terminal")}</h5>
+      <h2>{t("terminal")}</h2>
       <div className="form-box">
         <div className="form-row">
           <label htmlFor="terminal">{t("resumeWith")}</label>
@@ -92,7 +92,7 @@ function General() {
           <code className="selectable">claude --resume &lt;id&gt; {prefs.extraArguments}</code>
         </div>
       </div>
-      <h5>{t("editor")}</h5>
+      <h2>{t("editor")}</h2>
       <div className="form-box">
         <div className="form-row">
           <label htmlFor="editor">{t("openFoldersIn")}</label>
@@ -123,7 +123,7 @@ function Launcher() {
   }, []);
   return (
     <>
-      <h5 style={{ margin: "10px 0 2px" }}>{t("launcher")}</h5>
+      <h2 style={{ margin: "10px 0 2px" }}>{t("launcher")}</h2>
       <div className="form-box">
         <div className="form-row">
           <label htmlFor="tray">{t("showInTray")}</label>
@@ -164,7 +164,7 @@ function Updates() {
   const { t, prefs, setPrefs, actions } = useApp();
   return (
     <>
-      <h5 style={{ margin: "10px 0 2px" }}>{t("updates")}</h5>
+      <h2 style={{ margin: "10px 0 2px" }}>{t("updates")}</h2>
       <div className="form-box">
         <div className="form-row">
           <label htmlFor="auto-update">{t("autoUpdate")}</label>
@@ -190,7 +190,7 @@ function HistoryPane() {
   return (
     <>
       <div className="form-group">
-        <h5>{t("claudeHistory")}</h5>
+        <h2>{t("claudeHistory")}</h2>
         <div className="form-box">
           <div className="form-row">
             <label htmlFor="retention">{t("keepSessions")}</label>
@@ -225,7 +225,7 @@ function HistoryPane() {
         </div>
       </div>
       <div className="form-group">
-        <h5>{t("list")}</h5>
+        <h2>{t("list")}</h2>
         <div className="form-box">
           <div className="form-row">
             <label htmlFor="hide-empty">{t("hideEmpty")}</label>

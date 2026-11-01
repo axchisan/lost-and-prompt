@@ -93,7 +93,7 @@ export function QuickOpen({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="quick" onClick={(e) => e.stopPropagation()} onKeyDown={onKey}>
+      <div className="quick" role="dialog" aria-modal="true" aria-label={t("quickSearch")} onClick={(e) => e.stopPropagation()} onKeyDown={onKey}>
         <div className="query">
           <Search />
           <input
@@ -133,7 +133,7 @@ export function QuickOpen({ onClose }: { onClose: () => void }) {
             {current ? (
               <>
                 <div className="path">{current.abbreviatedPath}</div>
-                <h4>{current.title}</h4>
+                <h2>{current.title}</h2>
                 <div className="facts">
                   <span>{relativeDay(current.lastActivity, language, t)}</span>
                   {current.costUsd !== null && current.costUsd > 0 && <b>{usd(current.costUsd, language)}</b>}

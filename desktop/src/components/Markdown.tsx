@@ -274,7 +274,7 @@ export function Markdown({ text, query, current }: { text: string; query: string
           case "paragraph":
             return <p key={key}>{renderInline(block.text, h, key)}</p>;
           case "heading": {
-            const Tag = (block.level <= 1 ? "h4" : block.level === 2 ? "h5" : "h6") as "h4";
+            const Tag = (block.level <= 1 ? "h3" : block.level === 2 ? "h4" : "h5") as "h3";
             return <Tag key={key}>{renderInline(block.text, h, key)}</Tag>;
           }
           case "code":

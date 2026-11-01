@@ -45,7 +45,7 @@ export function UpdateSheet({ update, onClose }: { update: Update; onClose: () =
   return (
     <div className="overlay" onClick={progress === null ? onClose : undefined}>
       <div className="sheet" role="dialog" aria-label={t("updateAvailable")} onClick={(e) => e.stopPropagation()} style={{ width: 460 }}>
-        <h4>{t("updateAvailable")}</h4>
+        <h2>{t("updateAvailable")}</h2>
         <p>{t("updateVersion", { new: update.version, current })}</p>
         {update.body && <div className="update-notes selectable">{update.body}</div>}
         {!canInstall && <p>{kind === "scoop" ? t("updateScoopHint") : t("updatePackageHint")}</p>}

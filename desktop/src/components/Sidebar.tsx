@@ -173,6 +173,7 @@ function SidebarFooter() {
   }, [menu]);
   const item = (icon: React.ReactNode, label: string, action: () => void, shortcut?: string) => (
     <button
+      role="menuitem"
       onClick={() => {
         setMenu(false);
         action();
@@ -188,7 +189,9 @@ function SidebarFooter() {
       <button
         className="icon-btn"
         title={t("settings")}
+        aria-label={t("settings")}
         aria-haspopup="menu"
+        aria-expanded={menu}
         onClick={(e) => {
           e.stopPropagation();
           setMenu(!menu);

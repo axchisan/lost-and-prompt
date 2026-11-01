@@ -35,7 +35,7 @@ export function Activity() {
   const dateLabel = (d: Date) => d.toLocaleDateString(language === "en" ? "en-US" : "es", { day: "numeric", month: "short" });
 
   return (
-    <section className="column activity">
+    <main className="column activity" aria-label={t("activity")}>
       <div className="activity-inner">
         <header>
           <div>
@@ -75,7 +75,7 @@ export function Activity() {
         </div>
 
         <div className="chart">
-          <h3>{t("costPerDay")}</h3>
+          <h2>{t("costPerDay")}</h2>
           <div className="bars" role="img" aria-label={t("costPerDay")}>
             {daily.map((value, i) => (
               <div key={i} style={{ height: `${(value / maxDay) * 100}%` }} title={usd(value, language)} />
@@ -88,7 +88,7 @@ export function Activity() {
         </div>
 
         <div className="top-folders">
-          <h3>{t("topFolders")}</h3>
+          <h2>{t("topFolders")}</h2>
           {top.map(([path, cost]) => (
             <div key={path} className="folder-row" title={path}>
               <span>
@@ -101,6 +101,6 @@ export function Activity() {
           ))}
         </div>
       </div>
-    </section>
+    </main>
   );
 }

@@ -11,7 +11,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   return (
     <div className="overlay" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()}>
-        <h4>{title}</h4>
+        <h2>{title}</h2>
         {children}
       </div>
     </div>
@@ -171,13 +171,13 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
   if (state.folder) {
     const folder = state.folder;
     return (
-      <div className="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
-        <button onClick={run(() => actions.newSession(folder))}>
+      <div className="menu" role="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
+        <button role="menuitem" onClick={run(() => actions.newSession(folder))}>
           <MessageSquarePlus size={14} />
           {t("newSessionHere")}
         </button>
         {editor && (
-          <button onClick={run(() => actions.openInEditor(folder))}>
+          <button role="menuitem" onClick={run(() => actions.openInEditor(folder))}>
             <CodeXml size={14} />
             {t("openIn", { editor: shortEditorName(editor.name) })}
           </button>
@@ -187,50 +187,50 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
   }
   const session = library.sessions.find((s) => s.id === state.session.id) ?? state.session;
   return (
-    <div className="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
-      <button onClick={run(() => actions.resume(session))}>
+    <div className="menu" role="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
+      <button role="menuitem" onClick={run(() => actions.resume(session))}>
         <SquareTerminal size={14} />
         {t("resumeIn", { terminal: terminalName })}
       </button>
-      <button onClick={run(() => actions.copyCommand(session))}>
+      <button role="menuitem" onClick={run(() => actions.copyCommand(session))}>
         <Copy size={14} />
         {t("copyCommand")}
       </button>
       <hr />
-      <button onClick={run(() => actions.toggleFavorite(session))}>
+      <button role="menuitem" onClick={run(() => actions.toggleFavorite(session))}>
         <Star size={14} />
         {session.isFavorite ? t("removeFavorite") : t("addFavorite")}
       </button>
       {library.collections.map((c) => (
-        <button key={c.id} onClick={run(() => actions.toggleMembership(session, c.id))}>
+        <button key={c.id} role="menuitemcheckbox" aria-checked={session.collectionIds.includes(c.id)} onClick={run(() => actions.toggleMembership(session, c.id))}>
           <span className="check">{session.collectionIds.includes(c.id) ? <Check size={14} /> : <span className="dot sm" style={{ background: tints[c.tint] }} />}</span>
           {c.name}
         </button>
       ))}
-      <button onClick={run(() => open.rename(session))}>
+      <button role="menuitem" onClick={run(() => open.rename(session))}>
         <Pencil size={14} />
         {t("rename")}
       </button>
-      <button onClick={run(() => open.note(session))}>
+      <button role="menuitem" onClick={run(() => open.note(session))}>
         <StickyNote size={14} />
         {session.note ? t("editNote") : t("addNote")}
       </button>
-      <button onClick={run(() => actions.toggleArchive(session))}>
+      <button role="menuitem" onClick={run(() => actions.toggleArchive(session))}>
         {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
         {session.isArchived ? t("unarchive") : t("archive")}
       </button>
       <hr />
-      <button disabled={!session.folderExists} onClick={run(() => actions.newSession(session))}>
+      <button role="menuitem" disabled={!session.folderExists} onClick={run(() => actions.newSession(session))}>
         <MessageSquarePlus size={14} />
         {t("newSessionHere")}
       </button>
       {editor && (
-        <button disabled={!session.folderExists} onClick={run(() => actions.openInEditor(session))}>
+        <button role="menuitem" disabled={!session.folderExists} onClick={run(() => actions.openInEditor(session))}>
           <CodeXml size={14} />
           {t("openIn", { editor: shortEditorName(editor.name) })}
         </button>
       )}
-      <button onClick={run(() => actions.reveal(session))}>
+      <button role="menuitem" onClick={run(() => actions.reveal(session))}>
         <Folder size={14} />
         {t("showInFolder")}
       </button>

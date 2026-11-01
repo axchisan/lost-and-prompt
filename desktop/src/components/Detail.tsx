@@ -12,13 +12,13 @@ import { Markdown, countMatches } from "./Markdown";
 export function NoSelection() {
   const { t, modKey } = useApp();
   return (
-    <section className="column">
+    <main className="column" aria-label={t("conversation")}>
       <div className="empty">
         <MessagesSquare />
         <b>{t("chooseSession")}</b>
         <p>{t("chooseSessionHint", { shortcut: `${modKey}K` })}</p>
       </div>
-    </section>
+    </main>
   );
 }
 
@@ -53,9 +53,15 @@ export function Detail({ session }: { session: Session }) {
   }, [query, find.index, total]);
 
   return (
-    <section className="column">
+    <main className="column" aria-label={t("conversation")}>
       <div className="detail-toolbar">
-        <button className="icon-btn" title={session.isFavorite ? t("removeFavorite") : t("addFavorite")} onClick={() => actions.toggleFavorite(session)}>
+        <button
+          className="icon-btn"
+          title={session.isFavorite ? t("removeFavorite") : t("addFavorite")}
+          aria-label={t("favorites")}
+          aria-pressed={session.isFavorite}
+          onClick={() => actions.toggleFavorite(session)}
+        >
           <Star className={session.isFavorite ? "star" : ""} />
         </button>
         <CollectionsMenu session={session} />
@@ -138,10 +144,10 @@ export function Detail({ session }: { session: Session }) {
         </div>
         <div className="conversation">
           <div className="conversation-head">
-            <h3>{t("conversation")}</h3>
+            <h2>{t("conversation")}</h2>
             <Dropdown icon={<ListFilter />} title={t("show")}>
               {() => (
-                <button onClick={() => setShowThinking(!showThinking)}>
+                <button role="menuitemcheckbox" aria-checked={showThinking} onClick={() => setShowThinking(!showThinking)}>
                   <span className="check">{showThinking && <Check size={14} />}</span>
                   <Brain size={14} />
                   {t("thinking")}
@@ -159,7 +165,7 @@ export function Detail({ session }: { session: Session }) {
           )}
         </div>
       </div>
-    </section>
+    </main>
   );
 }
 
@@ -178,6 +184,7 @@ function FindBar() {
       <Search size={14} />
       <input
         ref={input}
+        aria-label={t("findInConversation")}
         value={find.query}
         placeholder={t("findInConversation")}
         spellCheck={false}
@@ -189,11 +196,11 @@ function FindBar() {
           }
         }}
       />
-      {find.query.trim() && <span className="count">{find.total === 0 ? t("noMatches") : t("matchOf", { n: find.index + 1, total: find.total })}</span>}
-      <button className="icon-btn" title={t("previousMatch")} disabled={find.total === 0} onClick={() => moveFind(-1)}>
+      {find.query.trim() && <span className="count" aria-live="polite">{find.total === 0 ? t("noMatches") : t("matchOf", { n: find.index + 1, total: find.total })}</span>}
+      <button className="icon-btn" title={t("previousMatch")} aria-label={t("previousMatch")} disabled={find.total === 0} onClick={() => moveFind(-1)}>
         <ChevronUp />
       </button>
-      <button className="icon-btn" title={t("nextMatch")} disabled={find.total === 0} onClick={() => moveFind(1)}>
+      <button className="icon-btn" title={t("nextMatch")} aria-label={t("nextMatch")} disabled={find.total === 0} onClick={() => moveFind(1)}>
         <ChevronDown />
       </button>
       <button className="btn small" onClick={() => setFind({ open: false })}>
@@ -258,6 +265,9 @@ export function Dropdown({ icon, title, children, align = "right" }: {
         ref={button}
         className="icon-btn"
         title={title}
+        aria-label={title}
+        aria-haspopup="menu"
+        aria-expanded={rect !== null}
         onClick={(e) => {
           e.stopPropagation();
           setRect(rect ? null : button.current!.getBoundingClientRect());
@@ -268,6 +278,8 @@ export function Dropdown({ icon, title, children, align = "right" }: {
       {rect && (
         <div
           className="menu"
+          role="menu"
+          aria-label={title}
           style={align === "left" ? { top: rect.bottom + 4, left: rect.left } : { top: rect.bottom + 4, right: window.innerWidth - rect.right }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -285,13 +297,14 @@ function CollectionsMenu({ session }: { session: Session }) {
       {(close) => (
         <>
           {library.collections.map((c) => (
-            <button key={c.id} onClick={() => actions.toggleMembership(session, c.id)}>
+            <button key={c.id} role="menuitemcheckbox" aria-checked={session.collectionIds.includes(c.id)} onClick={() => actions.toggleMembership(session, c.id)}>
               <span className="check">{session.collectionIds.includes(c.id) && <Check size={14} />}</span>
               {c.name}
             </button>
           ))}
           {library.collections.length > 0 && <hr />}
           <button
+            role="menuitem"
             onClick={() => {
               close();
               open.newCollection();
@@ -312,39 +325,39 @@ function MoreMenu({ session }: { session: Session }) {
     <Dropdown icon={<Ellipsis />} title={t("more")}>
       {(close) => (
         <>
-          <button onClick={() => (close(), open.rename(session))}>
+          <button role="menuitem" onClick={() => (close(), open.rename(session))}>
             <Pencil size={14} />
             {t("rename")}
           </button>
-          <button onClick={() => (close(), open.note(session))}>
+          <button role="menuitem" onClick={() => (close(), open.note(session))}>
             <StickyNote size={14} />
             {session.note ? t("editNote") : t("addNote")}
           </button>
-          <button onClick={() => (close(), actions.toggleArchive(session))}>
+          <button role="menuitem" onClick={() => (close(), actions.toggleArchive(session))}>
             {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
             {session.isArchived ? t("unarchive") : t("archive")}
           </button>
           <hr />
-          <button disabled={!session.folderExists} onClick={() => (close(), actions.newSession(session))}>
+          <button role="menuitem" disabled={!session.folderExists} onClick={() => (close(), actions.newSession(session))}>
             <MessageSquarePlus size={14} />
             {t("newSessionHere")}
           </button>
-          <button onClick={() => (close(), setFind({ open: true }))}>
+          <button role="menuitem" onClick={() => (close(), setFind({ open: true }))}>
             <TextSearch size={14} />
             {t("findInConversation")}
           </button>
           <hr />
           {editor && (
-            <button disabled={!session.folderExists} onClick={() => (close(), actions.openInEditor(session))}>
+            <button role="menuitem" disabled={!session.folderExists} onClick={() => (close(), actions.openInEditor(session))}>
               <CodeXml size={14} />
               {t("openIn", { editor: shortEditorName(editor.name) })}
             </button>
           )}
-          <button onClick={() => (close(), actions.reveal(session))}>
+          <button role="menuitem" onClick={() => (close(), actions.reveal(session))}>
             <Folder size={14} />
             {t("showInFolder")}
           </button>
-          <button onClick={() => (close(), actions.copyId(session))}>
+          <button role="menuitem" onClick={() => (close(), actions.copyId(session))}>
             <Hash size={14} />
             {t("copySessionId")}
           </button>
