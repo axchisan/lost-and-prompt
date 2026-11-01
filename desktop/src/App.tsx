@@ -275,7 +275,8 @@ export default function App() {
         if (update) setDialog({ kind: "update", update });
         else if (manual) setToast(t("upToDate"));
       } catch (error) {
-        if (manual) showError(`${t("updateCheckFailed")}\n${error}`);
+        // Sin conexión con GitHub (DNS, antivirus, proxy…), el error técnico no ayuda: se explica.
+        if (manual) showError(`${t("updateCheckFailed")} ${isConnectionError(error) ? t("updateConnectionHint") : ""}\n\n${error}`);
       }
     },
   };
@@ -476,6 +477,11 @@ export default function App() {
       {toast && <Toast text={toast} onDone={() => setToast(null)} />}
     </Ctx.Provider>
   );
+}
+
+/** Errores de red del actualizador: no se llegó a hablar con GitHub. */
+export function isConnectionError(error: unknown) {
+  return /error sending request|dns|timed out|connection|network|certificate|proxy/i.test(String(error));
 }
 
 /** Fecha desde la que se muestran sesiones con el filtro de periodo (null = todas). */

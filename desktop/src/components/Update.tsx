@@ -5,6 +5,7 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { api, links } from "../api";
 import { useApp } from "../state";
+import { isConnectionError } from "../App";
 
 /** Aviso de versión nueva: se instala y reinicia sola (Windows y AppImage) o enlaza la descarga. */
 export function UpdateSheet({ update, onClose }: { update: Update; onClose: () => void }) {
@@ -38,7 +39,7 @@ export function UpdateSheet({ update, onClose }: { update: Update; onClose: () =
       await relaunch();
     } catch (e) {
       setProgress(null);
-      setError(String(e));
+      setError(isConnectionError(e) ? `${t("updateConnectionHint")}\n\n${e}` : String(e));
     }
   };
 

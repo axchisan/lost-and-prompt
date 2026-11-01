@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-31
+
 ### Changed
 - Accessibility: every icon-only button and menu has a name for VoiceOver, Narrator and Orca;
   menus announce which options are on (filters, thinking, collections); the session list can be
@@ -18,6 +20,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 ### Fixed
 - Windows and Linux: the icon in the welcome and About windows showed a grey square around it (the
   system icon's built-in shadow). The website icon had the same problem.
+- Windows and Linux: when the computer can't reach GitHub (DNS, antivirus, firewall, proxy), the
+  update check explains it and points to the website, instead of only "error sending request".
 
 ### Cambiado
 - Accesibilidad: todos los botones de solo icono y los menús tienen nombre para VoiceOver, Narrador
@@ -30,6 +34,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 ### Corregido
 - Windows y Linux: el icono de la bienvenida y de «Acerca de» tenía un cuadrado gris alrededor (la
   sombra incrustada del icono del sistema). Al icono de la web le pasaba lo mismo.
+- Windows y Linux: si el equipo no puede conectar con GitHub (DNS, antivirus, firewall, proxy), la
+  búsqueda de actualizaciones lo explica y remite a la web, en vez de solo «error sending request».
 
 ## [0.4.1] - 2026-10-31
 
@@ -214,7 +220,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...v0.3.0
