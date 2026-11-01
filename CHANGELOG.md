@@ -7,6 +7,20 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-31
+
+### Fixed
+- macOS: the update alert now really shows up. Sparkle found new versions but postponed the alert
+  until it considered it a good moment, which in practice never came. The app now shows it right
+  away, or as soon as you switch back to it. If you're on 0.3.0 or 0.4.0, use "Check for Updates…"
+  once; from 0.4.1 on, new versions are offered when the app opens.
+
+### Corregido
+- macOS: el aviso de versión nueva por fin aparece. Sparkle encontraba la versión pero aplazaba el
+  aviso hasta un momento que, en la práctica, no llegaba. Ahora la app lo muestra al momento, o en
+  cuanto vuelves a ella. Si tienes la 0.3.0 o la 0.4.0, usa «Buscar actualizaciones…» una vez; desde
+  la 0.4.1 las versiones nuevas se ofrecen al abrir la app.
+
 ## [0.4.0] - 2026-10-31
 
 ### Added
@@ -176,7 +190,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/axchisan/lost-and-prompt/compare/v0.2.2...v0.2.3
