@@ -25,7 +25,7 @@ atajo global configurable desde Ajustes.
 
 | Pendiente | Detalle |
 |---|---|
-| **Probar en un Linux real** | La CI la compila e instala en Ubuntu y Arch, pero nadie la ha abierto en un escritorio. Lista en [`QA.md`](QA.md): bandeja (GNOME necesita la extensión AppIndicator), atajo global en Wayland, terminales detectadas |
+| Probar en un Linux real | La CI ya la abre en Ubuntu (Xvfb) y en Windows 11 con sesiones de prueba, comprueba que sigue viva y guarda una captura (artefactos `arranque-*` de `desktop.yml`). Falta lo que solo se ve en un escritorio: bandeja (GNOME necesita la extensión AppIndicator), atajo global en Wayland y terminales detectadas. Lista en [`QA.md`](QA.md) |
 | Builds arm64 | Windows on ARM y Linux aarch64. Los runners de GitHub ya los tienen (`windows-11-arm`, `ubuntu-24.04-arm`) |
 | Nombre del paquete `.deb` | Sale como `lost-prompt` por el `&`; conviene `lost-and-prompt` (y lo mismo en el `.desktop`). Cuidado: cambiarlo rompe `apt upgrade` para quien ya lo instaló, hay que declarar `Replaces`/`Conflicts` |
 | Ícono por capas en macOS 26 | Rehacerlo con Icon Composer para que se adapte a los modos claro, oscuro y tintado |
