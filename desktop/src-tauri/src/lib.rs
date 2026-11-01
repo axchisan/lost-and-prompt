@@ -59,6 +59,7 @@ struct SessionDto {
     cost_usd: Option<f64>,
     model: String,
     is_favorite: bool,
+    is_archived: bool,
     collection_ids: Vec<String>,
     first_prompt: String,
     last_reply: Option<String>,
@@ -130,6 +131,7 @@ fn to_dto(summary: &SessionSummary, org: &Organization, root: &Root) -> Option<S
         cost_usd: summary.cost_usd,
         model: model_name(summary.model.as_deref()),
         is_favorite: org.favorites.contains(&summary.id),
+        is_archived: org.archived.contains(&summary.id),
         collection_ids: org.collections_of(summary.id).into_iter().map(str::to_owned).collect(),
         first_prompt: summary.first_prompt.clone().unwrap_or_default(),
         last_reply: summary.last_reply.clone(),
@@ -227,6 +229,11 @@ fn with_organization<T>(state: &State<'_, AppState>, change: impl FnOnce(&mut Or
 #[tauri::command]
 fn toggle_favorite(id: Uuid, state: State<'_, AppState>) -> Result<bool, String> {
     with_organization(&state, |org| org.toggle_favorite(id))
+}
+
+#[tauri::command]
+fn toggle_archive(id: Uuid, state: State<'_, AppState>) -> Result<bool, String> {
+    with_organization(&state, |org| org.toggle_archive(id))
 }
 
 #[tauri::command]
@@ -499,6 +506,7 @@ pub fn run() {
             get_messages,
             search,
             toggle_favorite,
+            toggle_archive,
             rename_session,
             set_note,
             create_collection,

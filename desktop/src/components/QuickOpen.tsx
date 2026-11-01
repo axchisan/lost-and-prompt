@@ -25,7 +25,7 @@ export function QuickOpen({ onClose }: { onClose: () => void }) {
   const base = useMemo(
     () =>
       library.sessions
-        .filter((s) => s.userMessages > 0)
+        .filter((s) => s.userMessages > 0 && !s.isArchived)
         .filter((s) => (filter === null ? true : filter === "fav" ? s.isFavorite : s.collectionIds.includes(filter))),
     [library.sessions, filter],
   );

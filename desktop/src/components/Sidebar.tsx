@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
+import { Archive, ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
@@ -32,7 +32,8 @@ function folderTree(sessions: Session[], home: string, homeName: string): Folder
 export function Sidebar() {
   const app = useApp();
   const { t, library, sidebar, setSidebar, search, setSearch } = app;
-  const sessions = library.sessions;
+  const sessions = useMemo(() => library.sessions.filter((s) => !s.isArchived), [library.sessions]);
+  const archived = library.sessions.filter((s) => s.isArchived && (!app.prefs.hideEmpty || s.userMessages > 0)).length;
   const tree = useMemo(() => folderTree(sessions, library.home, t("home")), [sessions, library.home, t]);
   const nonEmpty = sessions.filter((s) => s.userMessages > 0).length;
   const favorites = sessions.filter((s) => s.isFavorite).length;
@@ -63,6 +64,9 @@ export function Sidebar() {
         <Item item={{ kind: "recents" }} icon={<Clock />} label={t("recents")} count={nonEmpty} on={is({ kind: "recents" })} onSelect={setSidebar} />
         <Item item={{ kind: "favorites" }} icon={<Star />} label={t("favorites")} count={favorites} on={is({ kind: "favorites" })} onSelect={setSidebar} />
         <Item item={{ kind: "activity" }} icon={<ChartColumn />} label={t("activity")} on={is({ kind: "activity" })} onSelect={setSidebar} />
+        {archived > 0 && (
+          <Item item={{ kind: "archived" }} icon={<Archive />} label={t("archived")} count={archived} on={is({ kind: "archived" })} onSelect={setSidebar} />
+        )}
 
         <h6>{t("collections")}</h6>
         {library.collections.map((c) => (

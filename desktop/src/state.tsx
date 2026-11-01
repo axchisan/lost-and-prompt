@@ -6,6 +6,7 @@ export type SidebarItem =
   | { kind: "recents" }
   | { kind: "favorites" }
   | { kind: "activity" }
+  | { kind: "archived" }
   | { kind: "collection"; id: string }
   | { kind: "folder"; path: string };
 
@@ -50,6 +51,15 @@ export interface Place {
 /** Menú contextual de una sesión o de una carpeta de la barra lateral. */
 export type MenuState = { x: number; y: number } & ({ session: Session; folder?: undefined } | { folder: Place; session?: undefined });
 
+/** Filtros de la lista; no se guardan, al abrir la app se ve todo. */
+export interface ListFilter {
+  period: "all" | "today" | "week" | "month" | "quarter";
+  favoritesOnly: boolean;
+  branch: string | null;
+}
+
+export const noFilter: ListFilter = { period: "all", favoritesOnly: false, branch: null };
+
 /** Buscar dentro de la conversación abierta (Ctrl+F). */
 export interface FindState {
   open: boolean;
@@ -71,6 +81,12 @@ export interface AppContext {
   /** Editor elegido, o null si no hay ninguno conocido instalado. */
   editor: EditorInfo | null;
   find: FindState;
+  filter: ListFilter;
+  setFilter: (change: Partial<ListFilter>) => void;
+  /** Ramas de git de las sesiones, de la más usada a la menos. */
+  branches: string[];
+  showThinking: boolean;
+  setShowThinking: (value: boolean) => void;
   setFind: (change: Partial<FindState>) => void;
   moveFind: (step: number) => void;
   modKey: string;
@@ -94,6 +110,7 @@ export interface AppContext {
     newSession: (place: Place) => void;
     openInEditor: (place: Place) => void;
     toggleFavorite: (session: Session) => void;
+    toggleArchive: (session: Session) => void;
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;

@@ -56,6 +56,9 @@ pub struct Message {
     pub text: String,
     /// Herramientas que Claude usó después de este mensaje.
     pub tool_count: u32,
+    /// Razonamiento de Claude (bloque `thinking`); la app lo muestra solo si se pide.
+    #[serde(default)]
+    pub thinking: bool,
 }
 
 /// `claude-opus-5-5` → «Opus 5.5».

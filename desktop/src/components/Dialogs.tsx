@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Check, CodeXml, Copy, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { Archive, ArchiveRestore, Check, CodeXml, Copy, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
 import { links, tints, type Session, type Tint } from "../api";
 import { useApp, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
@@ -214,6 +214,10 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
       <button onClick={run(() => open.note(session))}>
         <StickyNote size={14} />
         {session.note ? t("editNote") : t("addNote")}
+      </button>
+      <button onClick={run(() => actions.toggleArchive(session))}>
+        {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+        {session.isArchived ? t("unarchive") : t("archive")}
       </button>
       <hr />
       <button disabled={!session.folderExists} onClick={run(() => actions.newSession(session))}>

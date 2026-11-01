@@ -1394,6 +1394,16 @@
         }
       }
     },
+    "Ninguna sesión con estos filtros": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No sessions match these filters"
+          }
+        }
+      }
+    },
     "Ningún editor instalado": {
       "localizations": {
         "en": {

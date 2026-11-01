@@ -56,6 +56,18 @@ export function usd(value: number, language: Language) {
   return value.toLocaleString(locale(language), { style: "currency", currency: "USD" });
 }
 
+/** Del primer al último mensaje: «1 h 20 min», «3 d 4 h»; null si duró menos de un minuto. */
+export function duration(start: string, end: string): string | null {
+  const minutes = Math.floor((new Date(end).getTime() - new Date(start).getTime()) / 60000);
+  if (!(minutes >= 1)) return null;
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  if (days > 0) return hours > 0 ? `${days} d ${hours} h` : `${days} d`;
+  const rest = minutes % 60;
+  if (hours > 0) return rest > 0 ? `${hours} h ${rest} min` : `${hours} h`;
+  return `${rest} min`;
+}
+
 export function grouped(value: number, language: Language) {
   return value.toLocaleString(locale(language));
 }

@@ -191,13 +191,21 @@ pub fn messages(path: &Path) -> Vec<Message> {
                     Some("text") => {
                         if let Some(text) = block.get("text").and_then(Value::as_str) {
                             if !text.trim().is_empty() {
-                                result.push(Message { role: Role::Assistant, date: when, text: text.to_owned(), tool_count: 0 });
+                                result.push(Message { role: Role::Assistant, date: when, text: text.to_owned(), tool_count: 0, thinking: false });
+                            }
+                        }
+                    }
+                    // Muchas veces viene vacío (solo la firma): esos no se muestran.
+                    Some("thinking") => {
+                        if let Some(text) = block.get("thinking").and_then(Value::as_str) {
+                            if !text.trim().is_empty() {
+                                result.push(Message { role: Role::Assistant, date: when, text: text.to_owned(), tool_count: 0, thinking: true });
                             }
                         }
                     }
                     Some("tool_use") => match result.last_mut() {
-                        Some(last) if last.role == Role::Assistant => last.tool_count += 1,
-                        _ => result.push(Message { role: Role::Assistant, date: when, text: String::new(), tool_count: 1 }),
+                        Some(last) if last.role == Role::Assistant && !last.thinking => last.tool_count += 1,
+                        _ => result.push(Message { role: Role::Assistant, date: when, text: String::new(), tool_count: 1, thinking: false }),
                     },
                     _ => {}
                 }
@@ -205,7 +213,7 @@ pub fn messages(path: &Path) -> Vec<Message> {
         } else if contains(line, USER) && !contains(line, TOOL_RESULT) {
             let Some(object) = json(line) else { continue };
             if let Some(text) = human_text(&object) {
-                result.push(Message { role: Role::User, date: date(object.get("timestamp")), text, tool_count: 0 });
+                result.push(Message { role: Role::User, date: date(object.get("timestamp")), text, tool_count: 0, thinking: false });
             }
         }
     }

@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy, Ellipsis, Folder, FolderOpen, House, Layers, LoaderCircle, MessagesSquare, Pencil, Hash,
   SquareTerminal, Star, StickyNote, TriangleAlert, User, Sparkle, Wrench, Check, CodeXml, MessageSquarePlus,
-  Search, ChevronUp, ChevronDown, TextSearch,
+  Search, ChevronUp, ChevronDown, TextSearch, Archive, ArchiveRestore, Brain, ListFilter,
 } from "lucide-react";
 import type { Message, Session } from "../api";
-import { grouped, relativeDay, timeOnly, usd } from "../format";
+import { duration, grouped, relativeDay, timeOnly, usd } from "../format";
 import { useApp } from "../state";
 import { Markdown, countMatches } from "./Markdown";
 
@@ -24,12 +24,16 @@ export function NoSelection() {
 
 export function Detail({ session }: { session: Session }) {
   const app = useApp();
-  const { t, language, terminalName, actions, open, messages, loadMessages, editor, find, setFind } = app;
+  const { t, language, terminalName, actions, open, messages, loadMessages, editor, find, setFind, showThinking, setShowThinking } = app;
+  const length = duration(session.startedAt, session.lastActivity);
 
   useEffect(() => loadMessages(session), [session.id, session.lastActivity, loadMessages]);
 
   // Coincidencias de Ctrl+F, mensaje a mensaje, para saber dónde empieza cada uno.
-  const list = messages[session.id];
+  const list = useMemo(() => {
+    const all = messages[session.id];
+    return all && !showThinking ? all.filter((m) => !m.thinking) : all;
+  }, [messages, session.id, showThinking]);
   const query = find.open ? find.query.trim() : "";
   const { starts, total } = useMemo(() => {
     const starts: number[] = [];
@@ -71,6 +75,11 @@ export function Detail({ session }: { session: Session }) {
             <span>
               <b>{grouped(session.userMessages, language)}</b> {t("messages")}
             </span>
+            {length && (
+              <span title={t("durationHint")}>
+                <b>{length}</b>
+              </span>
+            )}
             {session.costUsd !== null && session.costUsd > 0 && (
               <span>
                 <b>{usd(session.costUsd, language)}</b>
@@ -130,6 +139,15 @@ export function Detail({ session }: { session: Session }) {
         <div className="conversation">
           <div className="conversation-head">
             <h3>{t("conversation")}</h3>
+            <Dropdown icon={<ListFilter />} title={t("show")}>
+              {() => (
+                <button onClick={() => setShowThinking(!showThinking)}>
+                  <span className="check">{showThinking && <Check size={14} />}</span>
+                  <Brain size={14} />
+                  {t("thinking")}
+                </button>
+              )}
+            </Dropdown>
           </div>
           {list ? (
             list.map((m, i) => <MessageView key={i} message={m} query={query} current={find.index - starts[i]} />)
@@ -194,10 +212,16 @@ function MessageView({ message, query, current }: { message: Message; query: str
       <div>
         <div className="who">
           {user ? t("you") : t("claude")}
+          {message.thinking && (
+            <span className="thinking-label">
+              <Brain size={12} />
+              {t("thinking")}
+            </span>
+          )}
           <time>{timeOnly(message.date, language)}</time>
         </div>
         {message.text && (
-          <div className="text selectable">
+          <div className={`text selectable${message.thinking ? " thinking" : ""}`}>
             <Markdown text={message.text} query={query} current={current} />
           </div>
         )}
@@ -213,7 +237,13 @@ function MessageView({ message, query, current }: { message: Message; query: str
 }
 
 /** Menú desplegable anclado a un botón; se cierra al hacer clic fuera. */
-function Dropdown({ icon, title, children }: { icon: React.ReactNode; title: string; children: (close: () => void) => React.ReactNode }) {
+export function Dropdown({ icon, title, children, align = "right" }: {
+  icon: React.ReactNode;
+  title: string;
+  children: (close: () => void) => React.ReactNode;
+  /** Lado del botón con el que se alinea el menú. */
+  align?: "left" | "right";
+}) {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const button = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -236,7 +266,11 @@ function Dropdown({ icon, title, children }: { icon: React.ReactNode; title: str
         {icon}
       </button>
       {rect && (
-        <div className="menu" style={{ top: rect.bottom + 4, right: window.innerWidth - rect.right }} onClick={(e) => e.stopPropagation()}>
+        <div
+          className="menu"
+          style={align === "left" ? { top: rect.bottom + 4, left: rect.left } : { top: rect.bottom + 4, right: window.innerWidth - rect.right }}
+          onClick={(e) => e.stopPropagation()}
+        >
           {children(() => setRect(null))}
         </div>
       )}
@@ -285,6 +319,10 @@ function MoreMenu({ session }: { session: Session }) {
           <button onClick={() => (close(), open.note(session))}>
             <StickyNote size={14} />
             {session.note ? t("editNote") : t("addNote")}
+          </button>
+          <button onClick={() => (close(), actions.toggleArchive(session))}>
+            {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+            {session.isArchived ? t("unarchive") : t("archive")}
           </button>
           <hr />
           <button disabled={!session.folderExists} onClick={() => (close(), actions.newSession(session))}>

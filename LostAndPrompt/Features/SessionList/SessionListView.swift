@@ -54,6 +54,12 @@ struct SessionListView: View {
         } else if model.usesRealData && !model.claudeFolderExists {
             ContentUnavailableView("No encontramos Claude Code", systemImage: "questionmark.folder",
                                    description: Text("Lost & Prompt lee las sesiones de ~/.claude/projects. Usa Claude Code al menos una vez y aparecerán aquí."))
+        } else if model.isFiltering {
+            ContentUnavailableView {
+                Label("Ninguna sesión con estos filtros", systemImage: "line.3.horizontal.decrease.circle")
+            } actions: {
+                Button("Quitar filtros") { model.clearFilters() }
+            }
         } else if model.sidebarSelection == .favorites {
             ContentUnavailableView("Aún no hay favoritos", systemImage: "star",
                                    description: Text("Marca una sesión con ⌘D para tenerla siempre a mano."))

@@ -212,6 +212,12 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 mark.find { background: rgba(255, 204, 0, 0.45); }
 mark.find.current { background: #ff9500; color: #000; }
 
+/* Razonamiento y filtros */
+.msg .text.thinking { color: var(--fg-2); background: var(--field); border-radius: 8px; padding: 8px 10px; }
+.thinking-label { display: inline-flex; align-items: center; gap: 4px; color: var(--fg-2); font-weight: 400; }
+.filter-menu.active .icon-btn { color: var(--accent); background: var(--field); }
+.mono-label { font-family: var(--mono); font-size: 12px; }
+
 /* Barra de Ctrl+F */
 .find-bar { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-bottom: 1px solid var(--sep); color: var(--fg-2); flex: none; }
 .find-bar input { all: unset; flex: 1; color: var(--fg); min-width: 0; }

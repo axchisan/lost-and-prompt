@@ -5,7 +5,7 @@ import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
-import { Ctx, defaultPrefs, resumeCommand, type AppContext, type FindState, type MenuState, type Prefs, type SidebarItem } from "./state";
+import { Ctx, defaultPrefs, noFilter, resumeCommand, type AppContext, type FindState, type ListFilter, type MenuState, type Prefs, type SidebarItem } from "./state";
 import { Sidebar } from "./components/Sidebar";
 import { SessionList, SessionCards } from "./components/SessionList";
 import { Detail, NoSelection } from "./components/Detail";
@@ -41,6 +41,8 @@ export default function App() {
   const [terminals, setTerminals] = useState<TerminalInfo[]>([]);
   const [editors, setEditors] = useState<EditorInfo[]>([]);
   const [find, setFindState] = useState<FindState>({ open: false, query: "", index: 0, total: 0 });
+  const [filter, setFilterState] = useState<ListFilter>(noFilter);
+  const [showThinking, setShowThinking] = useState(false);
   const [sidebar, setSidebar] = useState<SidebarItem>({ kind: "recents" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -148,12 +150,22 @@ export default function App() {
   }, [search, indexProgress === null]);
 
   const sessions = library?.sessions ?? [];
+  const active = useMemo(() => sessions.filter((s) => !s.isArchived), [sessions]);
+  const branches = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of active) if (s.gitBranch && s.gitBranch !== "HEAD") counts.set(s.gitBranch, (counts.get(s.gitBranch) ?? 0) + 1);
+    return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 15).map(([name]) => name);
+  }, [active]);
   const visible = useMemo(() => {
-    let list = sessions;
+    let list = sidebar.kind === "archived" ? sessions.filter((s) => s.isArchived) : active;
     if (sidebar.kind === "favorites") list = list.filter((s) => s.isFavorite);
     else if (sidebar.kind === "collection") list = list.filter((s) => s.collectionIds.includes(sidebar.id));
     else if (sidebar.kind === "folder") list = list.filter((s) => s.cwd === sidebar.path || isInside(s.cwd, sidebar.path));
     if (prefs.hideEmpty) list = list.filter((s) => s.userMessages > 0);
+    const start = periodStart(filter.period);
+    if (start) list = list.filter((s) => new Date(s.lastActivity) >= start);
+    if (filter.favoritesOnly) list = list.filter((s) => s.isFavorite);
+    if (filter.branch) list = list.filter((s) => s.gitBranch === filter.branch);
     const query = search.trim().toLowerCase();
     if (query) {
       list = list.filter(
@@ -165,7 +177,7 @@ export default function App() {
       );
     }
     return [...list].sort((a, b) => b.lastActivity.localeCompare(a.lastActivity));
-  }, [sessions, sidebar, prefs.hideEmpty, search, contentHits]);
+  }, [sessions, active, sidebar, prefs.hideEmpty, search, contentHits, filter]);
 
   const selected = sessions.find((s) => s.id === selectedId) ?? null;
   const setFind = useCallback((change: Partial<FindState>) => setFindState((f) => ({ ...f, ...change })), []);
@@ -204,6 +216,16 @@ export default function App() {
     },
     toggleFavorite: (session) =>
       api.toggleFavorite(session.id).then((isFavorite) => updateSession(session.id, { isFavorite }), showError),
+    toggleArchive: (session) =>
+      api.toggleArchive(session.id).then((isArchived) => {
+        // Al archivar la elegida, pasa a la siguiente de la lista.
+        if (session.id === selectedId) {
+          const position = visible.findIndex((s) => s.id === session.id);
+          const rest = visible.filter((s) => s.id !== session.id);
+          setSelectedId(rest.length ? rest[Math.min(position, rest.length - 1)].id : null);
+        }
+        updateSession(session.id, { isArchived });
+      }, showError),
     toggleMembership: (session, collection) =>
       api.toggleMembership(session.id, collection).then((inside) => {
         const ids = inside ? [...session.collectionIds, collection] : session.collectionIds.filter((c) => c !== collection);
@@ -266,7 +288,7 @@ export default function App() {
   useEffect(() => {
     if (!library) return;
     const recent = [...library.sessions]
-      .filter((s) => s.userMessages > 0)
+      .filter((s) => s.userMessages > 0 && !s.isArchived)
       .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity))
       .slice(0, 8)
       .map((s) => ({ id: s.id, title: s.title }));
@@ -343,6 +365,9 @@ export default function App() {
       } else if (!dialog && selected && mod && event.key.toLowerCase() === "n" && selected.folderExists) {
         event.preventDefault();
         actions.newSession(selected);
+      } else if (!dialog && selected && mod && event.shiftKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        actions.toggleArchive(selected);
       } else if (!dialog && selected && mod && event.key.toLowerCase() === "d") {
         event.preventDefault();
         actions.toggleFavorite(selected);
@@ -377,6 +402,11 @@ export default function App() {
     terminalName: terminal?.id === "custom" ? t("yourTerminal") : (terminal?.name ?? "—"),
     editors,
     editor,
+    filter,
+    setFilter: (change) => setFilterState((f) => ({ ...f, ...change })),
+    branches,
+    showThinking,
+    setShowThinking,
     find,
     setFind,
     moveFind,
@@ -446,6 +476,20 @@ export default function App() {
       {toast && <Toast text={toast} onDone={() => setToast(null)} />}
     </Ctx.Provider>
   );
+}
+
+/** Fecha desde la que se muestran sesiones con el filtro de periodo (null = todas). */
+function periodStart(period: ListFilter["period"]): Date | null {
+  if (period === "all") return null;
+  const day = new Date();
+  day.setHours(0, 0, 0, 0);
+  if (period === "today") return day;
+  if (period === "quarter") {
+    day.setMonth(day.getMonth() - 3);
+    return day;
+  }
+  day.setDate(day.getDate() - (period === "week" ? 6 : 29));
+  return day;
 }
 
 /** `true` si `path` está dentro de `folder` (con `/` o `\`). */

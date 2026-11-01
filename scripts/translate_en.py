@@ -15,6 +15,7 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "Ninguna sesión con estos filtros": "No sessions match these filters",
     "Archivadas": "Archived",
     "Archivar": "Archive",
     "Cualquier fecha": "Any date",

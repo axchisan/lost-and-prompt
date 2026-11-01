@@ -1,7 +1,8 @@
-import { ClockAlert, Folder, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
+import { Check, ClockAlert, Folder, ListFilter, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
 import { tints, type Session } from "../api";
 import { dayGroups, grouped, shortDate } from "../format";
-import { useApp } from "../state";
+import { noFilter, useApp } from "../state";
+import { Dropdown } from "./Detail";
 import { plain, Snippet } from "./Text";
 
 function sectionTitle(app: ReturnType<typeof useApp>) {
@@ -9,6 +10,8 @@ function sectionTitle(app: ReturnType<typeof useApp>) {
   switch (sidebar.kind) {
     case "favorites":
       return t("favorites");
+    case "archived":
+      return t("archived");
     case "collection":
       return app.collection(sidebar.id)?.name ?? "";
     case "folder":
@@ -16,6 +19,61 @@ function sectionTitle(app: ReturnType<typeof useApp>) {
     default:
       return t("recents");
   }
+}
+
+/** Periodo, solo favoritos y rama de git; el icono se rellena con algún filtro activo. */
+function FilterMenu() {
+  const { t, filter, setFilter, branches } = useApp();
+  const active = filter.period !== "all" || filter.favoritesOnly || filter.branch !== null;
+  const periods = [
+    ["all", t("anyDate")],
+    ["today", t("today")],
+    ["week", t("last7Days")],
+    ["month", t("last30Days")],
+    ["quarter", t("last3Months")],
+  ] as const;
+  const check = (on: boolean) => <span className="check">{on && <Check size={14} />}</span>;
+  return (
+    <span className={`filter-menu${active ? " active" : ""}`}>
+      <Dropdown icon={<ListFilter />} title={active ? t("filtersOn") : t("filterList")} align="left">
+        {(close) => (
+          <>
+            {periods.map(([value, label]) => (
+              <button key={value} onClick={() => setFilter({ period: value })}>
+                {check(filter.period === value)}
+                {label}
+              </button>
+            ))}
+            <hr />
+            <button onClick={() => setFilter({ favoritesOnly: !filter.favoritesOnly })}>
+              {check(filter.favoritesOnly)}
+              {t("favoritesOnly")}
+            </button>
+            {branches.length > 0 && (
+              <>
+                <hr />
+                <button onClick={() => setFilter({ branch: null })}>
+                  {check(filter.branch === null)}
+                  {t("anyBranch")}
+                </button>
+                {branches.map((b) => (
+                  <button key={b} onClick={() => setFilter({ branch: b })}>
+                    {check(filter.branch === b)}
+                    <span className="mono-label">{b}</span>
+                  </button>
+                ))}
+              </>
+            )}
+            <hr />
+            <button disabled={!active} onClick={() => (setFilter(noFilter), close())}>
+              {check(false)}
+              {t("clearFilters")}
+            </button>
+          </>
+        )}
+      </Dropdown>
+    </span>
+  );
 }
 
 function Head() {
@@ -36,6 +94,7 @@ function Head() {
           <LayoutGrid size={16} />
         </button>
       </div>
+      <FilterMenu />
       <div>
         <h2>{sectionTitle(app)}</h2>
         <small>{subtitle}</small>
@@ -45,7 +104,7 @@ function Head() {
 }
 
 export function EmptyState() {
-  const { t, search, sidebar, library, modKey } = useApp();
+  const { t, search, sidebar, library, modKey, filter, setFilter } = useApp();
   if (!library.claudeFolderExists) {
     return (
       <div className="empty">
@@ -61,6 +120,17 @@ export function EmptyState() {
         <SearchX />
         <b>{t("noResults", { query: search })}</b>
         <p>{t("noResultsHint")}</p>
+      </div>
+    );
+  }
+  if (filter.period !== "all" || filter.favoritesOnly || filter.branch !== null) {
+    return (
+      <div className="empty">
+        <ListFilter />
+        <b>{t("noFilterResults")}</b>
+        <button className="btn small" onClick={() => setFilter(noFilter)}>
+          {t("clearFilters")}
+        </button>
       </div>
     );
   }

@@ -42,6 +42,8 @@ pub struct Organization {
     /// Sesiones reanudadas en otra carpeta porque la original ya no existía: sesión → carpeta nueva.
     /// Vale hasta que Claude Code escriba en la sesión con la carpeta nueva.
     pub relocations: BTreeMap<Uuid, String>,
+    /// Sesiones archivadas: no salen en Recientes, carpetas ni colecciones.
+    pub archived: BTreeSet<Uuid>,
 }
 
 impl Organization {
@@ -60,6 +62,15 @@ impl Organization {
     pub fn toggle_favorite(&mut self, id: Uuid) -> bool {
         if !self.favorites.remove(&id) {
             self.favorites.insert(id);
+            return true;
+        }
+        false
+    }
+
+    /// Archiva o recupera la sesión. Devuelve si quedó archivada.
+    pub fn toggle_archive(&mut self, id: Uuid) -> bool {
+        if !self.archived.remove(&id) {
+            self.archived.insert(id);
             return true;
         }
         false

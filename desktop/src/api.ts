@@ -21,6 +21,7 @@ export interface Session {
   costUsd: number | null;
   model: string;
   isFavorite: boolean;
+  isArchived: boolean;
   collectionIds: string[];
   firstPrompt: string;
   lastReply: string | null;
@@ -48,6 +49,8 @@ export interface Message {
   date: string | null;
   text: string;
   toolCount: number;
+  /** Razonamiento de Claude; solo se muestra si se pide. */
+  thinking: boolean;
 }
 
 export interface Hit {
@@ -71,6 +74,7 @@ export const api = {
   messages: (id: string) => invoke<Message[]>("get_messages", { id }),
   search: (query: string, limit?: number) => invoke<Hit[]>("search", { query, limit }),
   toggleFavorite: (id: string) => invoke<boolean>("toggle_favorite", { id }),
+  toggleArchive: (id: string) => invoke<boolean>("toggle_archive", { id }),
   rename: (id: string, title: string, original: string) => invoke<void>("rename_session", { id, title, original }),
   setNote: (id: string, text: string) => invoke<void>("set_note", { id, text }),
   createCollection: (name: string, tint: Tint) => invoke<Collection>("create_collection", { name, tint }),

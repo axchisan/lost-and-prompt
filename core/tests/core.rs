@@ -150,3 +150,35 @@ fn ajusta_la_retencion_con_copia() {
     assert!(settings::set_retention_days(&file, 30).is_err());
     assert_eq!(std::fs::read_to_string(&file).unwrap(), "[1, 2]");
 }
+
+#[test]
+fn archiva_y_lee_organizaciones_antiguas() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("organization.json");
+    let id = uuid::Uuid::parse_str(ID).unwrap();
+    // Archivo de una versión anterior, sin el campo `archived`: no debe perder los favoritos.
+    std::fs::write(&path, format!(r#"{{"favorites":["{ID}"],"collections":[]}}"#)).unwrap();
+    let mut org = Organization::load(&path);
+    assert!(org.favorites.contains(&id));
+    assert!(org.archived.is_empty());
+
+    assert!(org.toggle_archive(id));
+    org.save(&path).unwrap();
+    assert!(Organization::load(&path).archived.contains(&id));
+    assert!(!org.toggle_archive(id), "la segunda vez la recupera");
+}
+
+#[test]
+fn lee_el_razonamiento_con_texto() {
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("razonamiento.jsonl");
+    let lines = [
+        r#"{"type":"user","timestamp":"2026-10-29T14:02:00Z","message":{"role":"user","content":"¿Qué motor usa?"}}"#,
+        r#"{"type":"assistant","timestamp":"2026-10-29T14:03:00Z","message":{"content":[{"type":"thinking","thinking":"","signature":"abc"},{"type":"thinking","thinking":"Trae UnityPlayer.dll: es Unity."},{"type":"text","text":"Es Unity."},{"type":"tool_use","name":"Bash"}]}}"#,
+    ];
+    std::fs::write(&file, lines.join("\n")).unwrap();
+    let list = messages(&file);
+    let roles: Vec<(bool, &str)> = list.iter().map(|m| (m.thinking, m.text.as_str())).collect();
+    assert_eq!(roles, vec![(false, "¿Qué motor usa?"), (true, "Trae UnityPlayer.dll: es Unity."), (false, "Es Unity.")]);
+    assert_eq!(list[2].tool_count, 1, "la herramienta cuenta en la respuesta, no en el razonamiento");
+}
