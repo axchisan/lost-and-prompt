@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-01
+
 ### Added
 - New session anywhere: ⌘N / Ctrl+N (or the new button in the list toolbar, the menu bar and the
   system tray) opens a folder picker with your folders, most recently used first, a search field
@@ -254,7 +256,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.3.0...v0.4.0
