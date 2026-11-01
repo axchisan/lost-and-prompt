@@ -375,6 +375,9 @@ kbd { font: 500 11px var(--font); background: var(--field); border-radius: 4px; 
 /* Distintivo de WSL y aviso de actualización */
 .env { font: 600 10.5px var(--font); padding: 1px 6px; border-radius: 99px; background: var(--field); color: var(--fg-2); margin-left: 4px; }
 .row.on .env { background: rgba(255,255,255,.22); color: inherit; }
-.update-notes { max-height: 220px; overflow-y: auto; background: var(--card); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; font-size: 12.5px; color: var(--fg-2); }
+.update-notes { max-height: 280px; overflow-y: auto; background: var(--card); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--fg-2); display: grid; gap: 12px; }
+.update-notes h3 { margin: 0 0 4px; font-size: 13.5px; color: var(--fg); }
+.update-notes .markdown h5 { font-size: 12.5px; margin-top: 2px; color: var(--fg); }
+.update-notes .update-count { margin: 0; font-weight: 600; color: var(--fg); }
 .progress { height: 6px; border-radius: 99px; background: var(--field); overflow: hidden; }
 .progress div { height: 100%; background: var(--accent); transition: width .2s; }

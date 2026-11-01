@@ -88,6 +88,14 @@ private final class UpdateReporter: NSObject, SPUUpdaterDelegate, SPUStandardUse
         }
     }
 
+    /// Notas de todas las versiones desde la instalada, no solo de la última (ver `ReleaseNotes`).
+    /// Selector explícito: es un método opcional y un nombre de Swift distinto no daría error, solo no se llamaría.
+    @objc(standardUserDriverWillShowReleaseNotesText:forUpdate:withBundleDisplayVersion:bundleVersion:)
+    func standardUserDriverWillShowReleaseNotesText(_ releaseNotes: NSAttributedString, for update: SUAppcastItem,
+                                                    withBundleDisplayVersion bundleDisplayVersion: String, bundleVersion: String) -> NSAttributedString? {
+        ReleaseNotes.text(from: releaseNotes.string, since: bundleDisplayVersion)
+    }
+
     func standardUserDriverWillFinishUpdateSession() {
         if let token = waitingForActivation { NotificationCenter.default.removeObserver(token) }
         waitingForActivation = nil

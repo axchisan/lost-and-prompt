@@ -15,6 +15,7 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "%lld versiones nuevas desde la %@:": "%1$lld new versions since %2$@:",
     "Barra lateral": "Sidebar",
     "Más acciones": "More Actions",
     "Mostrar en la conversación": "Show in Conversation",

@@ -7,6 +7,14 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Changed
+- The update notice lists what every version brought since the one you have, not only the latest:
+  if you skipped a few, you see them all, newest first and in the app's language.
+
+### Cambiado
+- El aviso de actualización enseña lo que trajo cada versión desde la que tienes, no solo la última:
+  si te saltaste varias, las ves todas, de la más nueva a la más antigua y en el idioma de la app.
+
 ## [0.4.2] - 2026-10-31
 
 ### Changed

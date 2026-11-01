@@ -6,10 +6,12 @@ import type { Update } from "@tauri-apps/plugin-updater";
 import { api, links } from "../api";
 import { useApp } from "../state";
 import { isConnectionError } from "../App";
+import { releasesSince, type Release } from "../releaseNotes";
+import { Markdown } from "./Markdown";
 
 /** Aviso de versión nueva: se instala y reinicia sola (Windows y AppImage) o enlaza la descarga. */
 export function UpdateSheet({ update, onClose }: { update: Update; onClose: () => void }) {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const [current, setCurrent] = useState("");
   const [kind, setKind] = useState<string>("nsis");
   const [progress, setProgress] = useState<number | null>(null);
@@ -21,6 +23,11 @@ export function UpdateSheet({ update, onClose }: { update: Update; onClose: () =
   }, []);
 
   const canInstall = kind === "nsis" || kind === "appimage";
+
+  // Lo que trajo cada versión desde la instalada: quien se salta varias ve también las intermedias.
+  // `history` lo publican las versiones desde la 0.4.3; antes solo estaban las notas de la última.
+  const history = (update.rawJson as { history?: Release[] }).history ?? [{ version: update.version, date: "", notes: update.body ?? "" }];
+  const releases = current ? releasesSince(history, current, language) : [];
 
   const install = async () => {
     setError(null);
@@ -48,7 +55,17 @@ export function UpdateSheet({ update, onClose }: { update: Update; onClose: () =
       <div className="sheet" role="dialog" aria-label={t("updateAvailable")} onClick={(e) => e.stopPropagation()} style={{ width: 460 }}>
         <h2>{t("updateAvailable")}</h2>
         <p>{t("updateVersion", { new: update.version, current })}</p>
-        {update.body && <div className="update-notes selectable">{update.body}</div>}
+        {releases.length > 0 && (
+          <div className="update-notes selectable">
+            {releases.length > 1 && <p className="update-count">{t("updateVersionsSince", { n: releases.length, current })}</p>}
+            {releases.map((release) => (
+              <section key={release.version}>
+                <h3>Lost &amp; Prompt {release.version}</h3>
+                <Markdown text={release.notes} query="" current={0} />
+              </section>
+            ))}
+          </div>
+        )}
         {!canInstall && <p>{kind === "scoop" ? t("updateScoopHint") : t("updatePackageHint")}</p>}
         {progress !== null && (
           <>

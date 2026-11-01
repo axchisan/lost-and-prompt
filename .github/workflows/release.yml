@@ -34,11 +34,17 @@ jobs:
           [ "v$version" = "$TAG" ] || { echo "::error::La etiqueta $TAG no coincide con VERSION ($version)"; exit 1; }
           awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {found=1; next} found && /^## \[/ {exit} found {print}' CHANGELOG.md > notes.md
           [ -s notes.md ] || { echo "::error::Falta la sección ## [$version] en CHANGELOG.md"; exit 1; }
+          # Las últimas versiones, para que el aviso enseñe también las que se saltó quien actualiza tarde.
+          python3 .github/scripts/changelog_history.py CHANGELOG.md text 10 > history.txt
+          python3 .github/scripts/changelog_history.py CHANGELOG.md json 10 > history.json
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         with:
           name: notes
-          path: notes.md
+          path: |
+            notes.md
+            history.txt
+            history.json
 
   macos:
     needs: verify
@@ -69,7 +75,9 @@ jobs:
           curl -sL -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz
           mkdir sparkle && tar xf sparkle.tar.xz -C sparkle
           sig=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | sparkle/bin/sign_update --ed-key-file - "$archive")
-          notes=$(python3 .github/scripts/notes_to_html.py notes.md)
+          # Texto plano con las últimas versiones: desde la 0.4.3 la app enseña solo las posteriores a la
+          # instalada y en su idioma; las anteriores lo muestran tal cual.
+          notes=$(cat history.txt)
           cat > appcast.xml <<XML
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -81,7 +89,8 @@ jobs:
                 <sparkle:version>$build</sparkle:version>
                 <sparkle:shortVersionString>$v</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-                <description><![CDATA[$notes]]></description>
+                <description sparkle:format="plain-text"><![CDATA[$notes]]></description>
+                <sparkle:fullReleaseNotesLink>https://github.com/$GITHUB_REPOSITORY/blob/main/CHANGELOG.md</sparkle:fullReleaseNotesLink>
                 <enclosure url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$archive" $sig type="application/octet-stream"/>
               </item>
             </channel>
@@ -181,10 +190,10 @@ jobs:
           win="LostAndPrompt-$v-windows-x64-setup.exe"
           linux="LostAndPrompt-$v-linux-x86_64.AppImage"
           if [ -f "$win.sig" ] && [ -f "$linux.sig" ]; then
-            jq -n --arg v "$v" --arg notes "$(cat notes.md)" --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            jq -n --arg v "$v" --arg notes "$(cat notes.md)" --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --slurpfile history history.json \
               --arg wsig "$(cat "$win.sig")" --arg wurl "$base/$win" \
               --arg lsig "$(cat "$linux.sig")" --arg lurl "$base/$linux" \
-              '{version: $v, notes: $notes, pub_date: $date, platforms: {
+              '{version: $v, notes: $notes, pub_date: $date, history: $history[0], platforms: {
                  "windows-x86_64": {signature: $wsig, url: $wurl},
                  "linux-x86_64": {signature: $lsig, url: $lurl}}}' > latest.json
             cat latest.json

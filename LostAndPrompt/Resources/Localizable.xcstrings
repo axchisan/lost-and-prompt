@@ -58,6 +58,22 @@
         }
       }
     },
+    "%lld versiones nuevas desde la %@:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld new versions since %2$@:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld versiones nuevas desde la %2$@:"
+          }
+        }
+      }
+    },
     "1 año": {
       "localizations": {
         "en": {
