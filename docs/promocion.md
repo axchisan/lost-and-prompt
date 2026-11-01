@@ -20,13 +20,15 @@ Textos listos para copiar y pegar. Enlaces que se repiten:
 
 ## Orden sugerido
 
-1. r/ClaudeAI (la comunidad más grande y la del público exacto)
-2. awesome-claude-code (formulario de issue, desde el 2026-11-14)
-3. Show HN
-4. r/ClaudeCode, r/macapps, r/opensource
-5. X / Bluesky / LinkedIn
-6. Comunidades en español
-7. Product Hunt (cuando haya un par de estrellas y algún comentario que citar)
+Reddit queda descartado por ahora (2026-10-31): la cuenta no tiene karma, r/ClaudeAI exige más de 50
+para salir en el feed y el autor no usa Reddit. Los textos se conservan abajo por si cambia.
+
+1. LinkedIn y comunidades en español (hoy mismo; textos listos)
+2. X / Bluesky con `docs/screenshots/en/demo.mp4`
+3. awesome-claude-code (formulario de issue, desde el 2026-11-14)
+4. Show HN (un martes a jueves por la mañana, hora de EE. UU.)
+5. Artículo técnico en dev.to
+6. Product Hunt (cuando haya un par de estrellas y algún comentario que citar)
 
 ---
 
