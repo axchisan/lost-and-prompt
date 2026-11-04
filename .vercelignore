@@ -4,7 +4,13 @@
 !/docs
 /docs/*
 !/docs/screenshots
+!/docs/guia
 !/docs/diseno
 /docs/diseno/*
 !/docs/diseno/icono
 !/vercel.json
+# /aprende y /novedades se generan desde la guía y el CHANGELOG.
+!/CHANGELOG.md
+!/scripts
+/scripts/*
+!/scripts/build_guide.py

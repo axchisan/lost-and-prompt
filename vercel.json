@@ -4,7 +4,7 @@
   "installCommand": "",
   "buildCommand": "rm -rf _site && mkdir _site && cp -R site/. _site/ && cp -R docs/screenshots _site/screenshots && cp docs/diseno/icono/icono-caja-sin-sombra-1024.png _site/icon.png && python3 scripts/build_guide.py _site",
   "outputDirectory": "_site",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site docs/screenshots docs/diseno/icono docs/guia CHANGELOG.md scripts/build_guide.py vercel.json 2>/dev/null; [ $? -eq 0 ]",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- site docs/screenshots docs/diseno/icono docs/guia CHANGELOG.md scripts/build_guide.py vercel.json .vercelignore 2>/dev/null; [ $? -eq 0 ]",
   "cleanUrls": true,
   "headers": [
     { "source": "/screenshots/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
