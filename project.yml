@@ -9,8 +9,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.6.1"
-    CURRENT_PROJECT_VERSION: "14"
+    MARKETING_VERSION: "0.7.0"
+    CURRENT_PROJECT_VERSION: "15"
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
@@ -27,6 +27,11 @@ targets:
     platform: macOS
     sources:
       - path: LostAndPrompt
+      # Guía «Aprende a usarla» y notas de versión: la misma fuente que la app de Windows/Linux y la web.
+      - path: docs/guia/guia.json
+        buildPhase: resources
+      - path: CHANGELOG.md
+        buildPhase: resources
     dependencies:
       - package: Sparkle
     info:

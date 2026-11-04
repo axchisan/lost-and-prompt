@@ -2,10 +2,11 @@ import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
-    enum Pane: Hashable { case general, history, appearance }
+    enum Pane: String, Hashable { case general, history, appearance }
 
-    /// `-LPSettingsPane history|appearance` abre esa pestaña (para capturas).
-    @State private var pane: Pane = Self.initialPane
+    /// `-LPSettingsPane history|appearance` abre esa pestaña (para capturas). La guía elige la
+    /// pestaña de lo que explica guardando `settingsPane` antes de abrir los ajustes.
+    @AppStorage("settingsPane") private var pane: Pane = Self.initialPane
 
     private static var initialPane: Pane {
         switch UserDefaults.standard.string(forKey: "LPSettingsPane") {

@@ -36,6 +36,8 @@ final class AppModel {
     }
     var isQuickOpenPresented = false
     var isNewSessionPresented = false
+    /// Pestaña de la ventana «Aprende a usar Lost & Prompt».
+    var guideTab: GuideTab = .guide
     /// Coincidencias dentro de las conversaciones para la búsqueda actual: sesión → fragmento.
     var contentHits: [Session.ID: String] = [:]
     /// Progreso de la primera indexación de mensajes (nil cuando no hay nada pendiente).

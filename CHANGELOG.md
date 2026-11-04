@@ -7,6 +7,30 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-04
+
+### Added
+- "Learn Lost & Prompt": a guide to everything the app does, with its shortcuts. It has a search
+  field, "Try It Now" buttons that open each feature and a "New" tag on what arrived in your
+  version. Open it from Help → Learn Lost & Prompt (⌘?) on the Mac, from the settings menu in the
+  sidebar (F1) on Windows and Linux, and from the welcome window.
+- "Shortcuts" tab: every keyboard shortcut for your system, searchable.
+- "What's New" tab: what every version brought, since 0.1.0, in the app's language. On the Mac it's
+  also in Help → What's New in Each Version; on Windows and Linux, in the settings menu.
+- Website: the same guide at lostandprompt.axchisan.com/aprende and the version history at
+  /novedades.
+
+### Añadido
+- «Aprende a usar Lost & Prompt»: una guía de todo lo que hace la app, con sus atajos. Tiene
+  buscador, botones «Probar ahora» que abren cada función y la marca «Nuevo» en lo que llegó con tu
+  versión. Se abre desde Ayuda → Aprende a usar Lost & Prompt (⌘?) en Mac, desde el menú de ajustes
+  de la barra lateral (F1) en Windows y Linux, y desde la ventana de bienvenida.
+- Pestaña «Atajos»: todos los atajos de teclado de tu sistema, con buscador.
+- Pestaña «Novedades»: lo que trajo cada versión desde la 0.1.0, en el idioma de la app. En Mac
+  también está en Ayuda → Novedades de cada versión; en Windows y Linux, en el menú de ajustes.
+- Web: la misma guía en lostandprompt.axchisan.com/aprende y el historial de versiones en
+  /novedades.
+
 ## [0.6.1] - 2026-11-04
 
 ### Fixed
@@ -317,7 +341,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...v0.5.1

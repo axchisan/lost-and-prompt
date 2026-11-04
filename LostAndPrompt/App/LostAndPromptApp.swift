@@ -25,6 +25,11 @@ struct LostAndPromptApp: App {
             }
         }
 
+        Window("Aprende a usar Lost & Prompt", id: "guide") {
+            GuideView().environment(model)
+        }
+        .defaultSize(width: 960, height: 640)
+
         Settings {
             SettingsView().environment(model).environment(updater)
         }
@@ -89,8 +94,20 @@ struct LostAndPromptApp: App {
 
 struct AppCommands: Commands {
     var model: AppModel
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
+        CommandGroup(replacing: .help) {
+            Button("Aprende a usar Lost & Prompt") {
+                model.guideTab = .guide
+                openWindow(id: "guide")
+            }
+            .keyboardShortcut("?", modifiers: .command)
+            Button("Novedades de cada versión") {
+                model.guideTab = .news
+                openWindow(id: "guide")
+            }
+        }
         CommandMenu("Sesión") {
             Button("Buscar rápido…") { model.isQuickOpenPresented.toggle() }
                 .keyboardShortcut("k")

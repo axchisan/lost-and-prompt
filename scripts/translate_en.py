@@ -15,6 +15,23 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    "Aprende a usar Lost & Prompt": "Learn Lost & Prompt",
+    "Novedades de cada versión": "What’s New in Each Version",
+    "Ver la guía de todo lo que puede hacer": "See the guide to everything it can do",
+    "Sección": "Section",
+    "Guía": "Guide",
+    "Atajos": "Shortcuts",
+    "Novedades": "What’s New",
+    "Nuevo": "New",
+    "Nuevo en %@": "New in %@",
+    "Probar ahora": "Try It Now",
+    "Buscar en la guía": "Search the guide",
+    "Buscar un atajo o una acción": "Search for a shortcut or action",
+    "Nada coincide con «%@»": "Nothing matches “%@”",
+    "la que tienes": "your version",
+    "Atajo: %@": "Shortcut: %@",
+    "Lost & Prompt %@": "Lost & Prompt %@",
+    "%lld. %@": "%lld. %@",
     "%lld mensajes": "%lld messages",
     "Carpeta: `%@`": "Folder: `%@`",
     "Compartir conversación…": "Share Conversation…",

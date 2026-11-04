@@ -3,6 +3,7 @@ import SwiftUI
 struct MainView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow) private var openWindow
     @AppStorage("didShowWelcome") private var didShowWelcome = false
 
     var body: some View {
@@ -47,6 +48,11 @@ struct MainView: View {
         .onAppear {
             // Solo para capturas: `-LPScreen settings` abre Ajustes al arrancar.
             if UserDefaults.standard.string(forKey: "LPScreen") == "settings" { openSettings() }
+            // `-LPGuide guide|shortcuts|news` abre la guía en esa pestaña (para capturas).
+            if let tab = UserDefaults.standard.string(forKey: "LPGuide").flatMap(GuideTab.init(rawValue:)) {
+                model.guideTab = tab
+                openWindow(id: "guide")
+            }
         }
         .sheet(item: $model.renamingSession) { session in
             RenameSheet(session: session)

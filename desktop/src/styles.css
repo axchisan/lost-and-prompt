@@ -406,3 +406,52 @@ kbd { font: 500 11px var(--font); background: var(--field); border-radius: 4px; 
 .update-notes .update-count { margin: 0; font-weight: 600; color: var(--fg); }
 .progress { height: 6px; border-radius: 99px; background: var(--field); overflow: hidden; }
 .progress div { height: 100%; background: var(--accent); transition: width .2s; }
+
+/* Aprende a usar Lost & Prompt: guía, atajos y novedades */
+.guide { width: min(960px, calc(100vw - 32px)); height: min(640px, calc(100vh - 32px)); background: var(--panel); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+.guide header { display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 20px; border-bottom: 1px solid var(--sep); flex-wrap: wrap; }
+.guide header h2 { margin: 0; font-size: 15px; font-weight: 600; flex: 1; min-width: 180px; }
+.guide .segmented { display: flex; gap: 2px; background: var(--field); border-radius: 8px; padding: 3px; }
+.guide .segmented button { all: unset; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 6px; font-size: 12.5px; color: var(--fg-2); }
+.guide .segmented button svg { width: 14px; height: 14px; }
+.guide .segmented button.on { background: var(--panel); color: var(--fg); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.14); }
+.guide .segmented button:focus-visible { outline: 2px solid var(--accent); }
+.guide-body { display: flex; flex: 1; min-height: 0; }
+.guide-body nav { width: 230px; flex-shrink: 0; border-right: 1px solid var(--sep); padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.guide-body nav.versions { width: 170px; }
+.guide-body nav button { all: unset; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 6px; font-size: 13px; }
+.guide-body nav button:hover { background: var(--hover); }
+.guide-body nav button:focus-visible { outline: 2px solid var(--accent); }
+.guide-body nav button.on { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.guide-body nav button .hint { font-size: 11.5px; font-weight: 400; }
+.guide-body .guide-main { flex: 1; min-width: 0; overflow-y: auto; padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 22px; }
+.guide-search { display: flex; align-items: center; gap: 8px; background: var(--field); border-radius: 6px; padding: 6px 10px; color: var(--fg-2); margin-bottom: 8px; }
+.guide-search input { all: unset; flex: 1; min-width: 0; font-size: 12.5px; color: var(--fg); }
+.guide .badge { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--fg); white-space: nowrap; }
+.guide-body nav button.on .badge { background: var(--accent-fg); color: var(--accent); }
+.guide-topic { display: flex; flex-direction: column; gap: 12px; }
+.guide-topic h3 { margin: 0; font-size: 21px; font-weight: 600; }
+.guide-topic .intro { margin: -6px 0 2px; color: var(--fg-2); }
+.guide-item { border: 1px solid var(--sep); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; justify-items: start; }
+.guide-item-head { display: flex; align-items: center; gap: 10px; width: 100%; flex-wrap: wrap; }
+.guide-item h4 { margin: 0; font-size: 14px; font-weight: 600; flex: 1; min-width: 160px; }
+.guide-item p { margin: 0; color: var(--fg-2); line-height: 1.55; }
+.guide kbd { font: 600 11.5px var(--font); background: var(--card); border: 1px solid var(--sep); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; white-space: nowrap; color: var(--fg); }
+.guide-empty { color: var(--fg-2); }
+.guide-shortcuts { flex: 1; overflow-y: auto; padding: 16px 24px 24px; }
+.guide-shortcuts .guide-search { max-width: 320px; }
+.guide-shortcuts .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px 32px; margin-top: 8px; }
+.guide-shortcuts h3 { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
+.guide-shortcuts dl { margin: 0; }
+.guide-shortcuts dl div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--sep); }
+.guide-shortcuts dl div:last-child { border-bottom: 0; }
+.guide-shortcuts dd { margin: 0; }
+.guide .news article { display: grid; gap: 6px; padding-bottom: 18px; border-bottom: 1px solid var(--sep); scroll-margin-top: 16px; }
+.guide .news article:last-child { border-bottom: 0; }
+.guide .news h3 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.guide .news .date { font-size: 12.5px; font-weight: 400; color: var(--fg-2); }
+.guide .news .markdown h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-2); }
+@media (max-width: 640px) { .guide-body { flex-direction: column; } .guide-body nav, .guide-body nav.versions { width: auto; border-right: 0; border-bottom: 1px solid var(--sep); max-height: 160px; } }
+.welcome .link-btn { all: unset; color: var(--accent); font-size: 13px; margin-top: -10px; cursor: pointer; }
+.welcome .link-btn:hover { text-decoration: underline; }
+.welcome .link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }

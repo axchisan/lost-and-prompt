@@ -66,6 +66,13 @@ Un amigo del usuario abrió la app en Windows y **no le salió el aviso** de la 
 
 ## 1. Apartado «Aprende a usarla» (guía de funciones + atajos)
 
+> **Hecho (sale en la 0.7.0)** junto con el punto 2: una ventana con pestañas Guía · Atajos ·
+> Novedades. Fuente única `docs/guia/guia.json` (+ `CHANGELOG.md`), empaquetada en Mac
+> (`project.yml`, `Features/Guide/GuideView.swift`), importada en Tauri (`components/Guide.tsx`) y
+> convertida en `/aprende` y `/novedades` por `scripts/build_guide.py` en el build de Vercel.
+> Se abre con ⌘? / F1, desde Ayuda o el engranaje y desde la bienvenida. Capturas de Mac:
+> `-LPGuide guide|shortcuts|news`.
+
 Una sección para que cualquiera sepa **cada cosa** que hace la app y cómo se usa, con los atajos y
 comandos dentro. Sustituye la idea de una lista de atajos suelta.
 
@@ -114,6 +121,8 @@ regla en `CONTRIBUTING.md` (ya hecho) y en `docs/QA.md` (ya hecho).
   - Si la guía es un archivo de datos, este trae los dos idiomas.
 
 ## 2. Apartado «Historial de versiones»
+
+> **Hecho:** pestaña «Novedades» de la guía y página `/novedades` (ver punto 1).
 
 Ver el trayecto completo del proyecto: qué trajo cada versión, desde la 0.1.0.
 

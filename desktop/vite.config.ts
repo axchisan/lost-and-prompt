@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   clearScreen: false,
-  server: { port: 1420, strictPort: true, watch: { ignored: ["**/src-tauri/**"] } },
+  // La guía (docs/guia/guia.json) y el CHANGELOG viven fuera de desktop/: se importan en el build.
+  server: { port: 1420, strictPort: true, watch: { ignored: ["**/src-tauri/**"] }, fs: { allow: [".."] } },
   build: { target: "es2022" },
 });

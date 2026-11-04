@@ -46,3 +46,27 @@ export function releasesSince(history: Release[], current: string, language: Lan
     .filter((release) => !current || isNewer(release.version, current))
     .map((release) => ({ ...release, notes: inLanguage(release.notes, language) }));
 }
+
+/** Todas las versiones del CHANGELOG, de la más nueva a la más antigua (sin «Unreleased»). */
+export function parseChangelog(text: string): Release[] {
+  const releases: Release[] = [];
+  let current: Release | null = null;
+  const lines: string[] = [];
+  const flush = () => {
+    if (current) releases.push({ ...current, notes: lines.join("\n").trim() });
+    lines.length = 0;
+  };
+  for (const line of text.split("\n")) {
+    const heading = /^## \[(\d+\.\d+\.\d+)\](?:\s*-\s*(\S+))?/.exec(line);
+    if (heading || line.startsWith("## [")) {
+      flush();
+      current = heading ? { version: heading[1], date: heading[2] ?? "", notes: "" } : null;
+    } else if (/^\[[^\]]+\]:\s*http/.test(line)) {
+      continue;
+    } else if (current) {
+      lines.push(line);
+    }
+  }
+  flush();
+  return releases;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, CircleArrowDown, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
+import { Archive, CircleArrowDown, Sparkles, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
@@ -245,7 +245,8 @@ function SidebarFooter() {
           {item(<RefreshCw size={14} />, t("checkUpdates"), () => actions.checkForUpdates(true))}
           {item(<MessageSquareWarning size={14} />, t("reportProblem"), () => openUrl(links.issues))}
           {item(<FileText size={14} />, t("openLogs"), () => api.openLogs())}
-          {item(<CircleHelp size={14} />, t("help"), () => openUrl(links.repository))}
+          {item(<CircleHelp size={14} />, t("learnAppEllipsis"), () => open.guide(), "F1")}
+          {item(<Sparkles size={14} />, t("whatsNew"), () => open.guide("news"))}
           <hr />
           {item(<Info size={14} />, t("aboutApp"), open.about)}
         </div>

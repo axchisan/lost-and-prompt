@@ -162,6 +162,8 @@ export interface AppContext {
     about: () => void;
     /** Vuelve a abrir el aviso de la versión nueva que ya se encontró. */
     update: () => void;
+    /** «Aprende a usar Lost & Prompt», en la pestaña pedida. */
+    guide: (tab?: "guide" | "shortcuts" | "news") => void;
   };
   /** Versión nueva encontrada, aunque se haya cerrado su aviso: deja un indicador fijo. */
   pendingUpdate: string | null;

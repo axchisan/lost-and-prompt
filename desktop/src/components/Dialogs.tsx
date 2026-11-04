@@ -240,7 +240,7 @@ export function ConfirmSheet(props: { message: string; confirmLabel: string; onC
   );
 }
 
-export function Welcome({ onClose }: { onClose: () => void }) {
+export function Welcome({ onClose, onGuide }: { onClose: () => void; onGuide: () => void }) {
   const { t, modKey } = useApp();
   const features: [React.ReactNode, string, string][] = [
     [<Search key="s" />, t("welcomeFind"), t("welcomeFindHint", { shortcut: `${modKey}K` })],
@@ -267,6 +267,9 @@ export function Welcome({ onClose }: { onClose: () => void }) {
         </div>
         <button className="btn primary large" autoFocus onClick={onClose} style={{ minWidth: 200, justifyContent: "center" }}>
           {t("getStarted")}
+        </button>
+        <button className="link-btn" onClick={onGuide}>
+          {t("seeGuide")}
         </button>
       </div>
     </div>

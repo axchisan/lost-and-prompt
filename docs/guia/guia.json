@@ -1,0 +1,408 @@
+{
+  "$comment": "Guía «Aprende a usarla»: fuente única para la app de Mac, la de Windows/Linux y la web (/aprende). Cada función nueva entra aquí, en español e inglés, en el mismo commit. 'since' marca «Nuevo» en las dos últimas versiones menores. 'only' limita una entrada a 'mac' o 'win' (Windows y Linux). 'keys' es el atajo por plataforma. 'try' es la acción del botón «Probar ahora».",
+  "topics": [
+    {
+      "id": "start",
+      "title": { "es": "Empezar", "en": "Getting started" },
+      "intro": {
+        "es": "Lost & Prompt reúne en una ventana todas las sesiones de Claude Code de todas tus carpetas, para encontrarlas y volver a ellas.",
+        "en": "Lost & Prompt brings every Claude Code session from every folder into one window, so you can find them and get back to them."
+      },
+      "items": [
+        {
+          "id": "guide",
+          "since": "0.7.0",
+          "keys": { "mac": "⌘?", "win": "F1" },
+          "title": { "es": "Esta guía y las novedades", "en": "This guide and what's new" },
+          "body": {
+            "es": "Ábrela cuando quieras desde el menú Ayuda en Mac o el menú de ajustes de la barra lateral en Windows y Linux. «Atajos» reúne todos los atajos de teclado y «Novedades» lo que trajo cada versión. También está en la web: lostandprompt.axchisan.com/aprende.",
+            "en": "Open it any time from the Help menu on the Mac or the settings menu in the sidebar on Windows and Linux. \"Shortcuts\" lists every keyboard shortcut and \"What's New\" what each version brought. It's on the web too: lostandprompt.axchisan.com/aprende."
+          }
+        },
+        {
+          "id": "what",
+          "since": "0.1.0",
+          "title": { "es": "De dónde salen las sesiones", "en": "Where sessions come from" },
+          "body": {
+            "es": "La app lee la carpeta donde Claude Code guarda sus conversaciones (~/.claude/projects) y se actualiza sola cuando empiezas o continúas una. No cambia esos archivos ni envía nada a ningún servidor: favoritos, nombres, colecciones y notas se guardan aparte, solo en tu equipo.",
+            "en": "The app reads the folder where Claude Code keeps its conversations (~/.claude/projects) and refreshes on its own when you start or continue one. It never changes those files or sends anything to a server: favorites, names, collections and notes are stored separately, only on your computer."
+          }
+        },
+        {
+          "id": "wsl",
+          "since": "0.2.0",
+          "only": "win",
+          "title": { "es": "Sesiones de WSL", "en": "WSL sessions" },
+          "body": {
+            "es": "En Windows también aparecen las sesiones de Claude Code dentro de WSL (de las distribuciones en marcha), con una etiqueta con el nombre de la distribución. Se reanudan en WSL.",
+            "en": "On Windows, sessions from Claude Code inside WSL (running distributions) show up too, tagged with the distribution's name. They resume in WSL."
+          }
+        },
+        {
+          "id": "retention",
+          "since": "0.1.0",
+          "try": "settings:history",
+          "title": { "es": "Que Claude Code no borre tus sesiones", "en": "Keep Claude Code from deleting your sessions" },
+          "body": {
+            "es": "Claude Code borra por defecto las sesiones de más de 30 días. En Ajustes › Historial puedes conservarlas más tiempo: la app cambia el ajuste cleanupPeriodDays de Claude Code y guarda antes una copia de tu settings.json.",
+            "en": "By default Claude Code deletes sessions older than 30 days. In Settings › History you can keep them longer: the app changes Claude Code's cleanupPeriodDays setting and saves a copy of your settings.json first."
+          }
+        }
+      ]
+    },
+    {
+      "id": "find",
+      "title": { "es": "Encontrar una sesión", "en": "Finding a session" },
+      "intro": {
+        "es": "Busca por título, carpeta o cualquier cosa que se dijo en la conversación.",
+        "en": "Search by title, folder or anything said in the conversation."
+      },
+      "items": [
+        {
+          "id": "quick",
+          "since": "0.1.0",
+          "try": "quick",
+          "keys": { "mac": "⌘K", "win": "Ctrl+K" },
+          "title": { "es": "Buscador rápido", "en": "Quick search" },
+          "body": {
+            "es": "Abre un buscador sobre todas tus sesiones y sus mensajes. Elige un resultado con las flechas y pulsa Intro para reanudarlo.",
+            "en": "Opens a search over all your sessions and their messages. Pick a result with the arrow keys and press Return to resume it."
+          }
+        },
+        {
+          "id": "global",
+          "since": "0.2.0",
+          "keys": { "mac": "⌥⌘K", "win": "Ctrl+Alt+K" },
+          "title": { "es": "Buscar desde cualquier app", "en": "Search from any app" },
+          "body": {
+            "es": "El atajo global trae la app al frente con el buscador abierto, aunque estés en otra aplicación.",
+            "en": "The global shortcut brings the app to the front with search open, even while you're in another application."
+          }
+        },
+        {
+          "id": "search",
+          "since": "0.1.0",
+          "keys": { "win": "Ctrl+Shift+F" },
+          "title": { "es": "Buscar en la lista", "en": "Search the list" },
+          "body": {
+            "es": "El campo de búsqueda de la barra lateral filtra la lista por título y por el texto de los mensajes.",
+            "en": "The search field in the sidebar filters the list by title and by the text of the messages."
+          }
+        },
+        {
+          "id": "filters",
+          "since": "0.4.0",
+          "title": { "es": "Filtros", "en": "Filters" },
+          "body": {
+            "es": "El botón de filtros de la lista la limita a un periodo (hoy, esta semana, este mes, tres meses), a tus favoritos o a una rama de git.",
+            "en": "The filter button above the list narrows it to a period (today, this week, this month, three months), your favorites or a git branch."
+          }
+        },
+        {
+          "id": "findInConversation",
+          "since": "0.3.0",
+          "keys": { "mac": "⌘F", "win": "Ctrl+F" },
+          "title": { "es": "Buscar en la conversación", "en": "Find in the conversation" },
+          "body": {
+            "es": "Busca dentro de la sesión abierta, con un contador de coincidencias. Pasa a la siguiente o a la anterior con ⌘G / ⇧⌘G en Mac y F3 / Mayús+F3 en Windows y Linux.",
+            "en": "Searches inside the open session, with a match counter. Go to the next or previous match with ⌘G / ⇧⌘G on the Mac and F3 / Shift+F3 on Windows and Linux."
+          }
+        },
+        {
+          "id": "browse",
+          "since": "0.1.0",
+          "title": { "es": "Recientes, carpetas y vistas", "en": "Recents, folders and views" },
+          "body": {
+            "es": "La barra lateral agrupa las sesiones en Recientes, Favoritos y por carpeta. La lista se ve en filas o en tarjetas (⌘1 / ⌘2, Ctrl+1 / Ctrl+2), y en el detalle puedes mostrar las herramientas y el razonamiento de Claude cuando la sesión lo guardó.",
+            "en": "The sidebar groups sessions into Recents, Favorites and by folder. The list shows as rows or cards (⌘1 / ⌘2, Ctrl+1 / Ctrl+2), and the details can show tools and Claude's thinking when the session saved it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "resume",
+      "title": { "es": "Reanudar", "en": "Resuming" },
+      "intro": {
+        "es": "Vuelve a una conversación justo donde la dejaste, en tu terminal y en su carpeta.",
+        "en": "Pick a conversation up right where you left it, in your terminal and in its folder."
+      },
+      "items": [
+        {
+          "id": "resumeTerminal",
+          "since": "0.1.0",
+          "keys": { "mac": "⌘↩", "win": "Enter" },
+          "title": { "es": "Reanudar en tu terminal", "en": "Resume in your terminal" },
+          "body": {
+            "es": "Elige la sesión y pulsa «Reanudar». Se abre tu terminal en la carpeta del proyecto con claude --resume. La terminal y los argumentos extra (por ejemplo --model opus) se eligen en Ajustes › General.",
+            "en": "Pick the session and press \"Resume\". Your terminal opens in the project folder with claude --resume. Choose the terminal and extra arguments (for example --model opus) in Settings › General."
+          }
+        },
+        {
+          "id": "copyCommand",
+          "since": "0.1.0",
+          "keys": { "mac": "⇧⌘C" },
+          "title": { "es": "Copiar el comando", "en": "Copy the command" },
+          "body": {
+            "es": "Copia el comando para reanudar la sesión y pégalo donde quieras.",
+            "en": "Copies the command that resumes the session so you can paste it wherever you like."
+          }
+        },
+        {
+          "id": "chooseFolder",
+          "since": "0.2.0",
+          "title": { "es": "Reanudar en otra carpeta", "en": "Resume in another folder" },
+          "body": {
+            "es": "Si moviste o borraste la carpeta original, «Elegir carpeta…» te deja reanudar la sesión desde otra.",
+            "en": "If you moved or deleted the original folder, \"Choose Folder…\" lets you resume the session from another one."
+          }
+        },
+        {
+          "id": "newSession",
+          "since": "0.5.0",
+          "try": "newSession",
+          "keys": { "mac": "⌘N", "win": "Ctrl+N" },
+          "title": { "es": "Sesión nueva en cualquier carpeta", "en": "New session in any folder" },
+          "body": {
+            "es": "Elige una carpeta (las más usadas primero, o «Elegir otra carpeta…») y Claude Code empieza ahí. Para la carpeta de la sesión seleccionada usa ⌥⌘N / Ctrl+Alt+N.",
+            "en": "Pick a folder (most used first, or \"Choose Another Folder…\") and Claude Code starts there. For the selected session's folder use ⌥⌘N / Ctrl+Alt+N."
+          }
+        },
+        {
+          "id": "editor",
+          "since": "0.3.0",
+          "keys": { "mac": "⇧⌘O" },
+          "title": { "es": "Abrir la carpeta en tu editor", "en": "Open the folder in your editor" },
+          "body": {
+            "es": "Abre la carpeta de la sesión en VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode o un IDE de JetBrains, el que elijas en Ajustes.",
+            "en": "Opens the session's folder in VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode or a JetBrains IDE, whichever you pick in Settings."
+          }
+        }
+      ]
+    },
+    {
+      "id": "organize",
+      "title": { "es": "Organizar", "en": "Organizing" },
+      "intro": {
+        "es": "Ordena tus sesiones a tu manera sin tocar los archivos de Claude Code.",
+        "en": "Arrange your sessions your way without touching Claude Code's files."
+      },
+      "items": [
+        {
+          "id": "favorites",
+          "since": "0.1.0",
+          "keys": { "mac": "⌘D", "win": "Ctrl+D" },
+          "title": { "es": "Favoritos", "en": "Favorites" },
+          "body": {
+            "es": "Marca las sesiones a las que vuelves a menudo y las tendrás en «Favoritos».",
+            "en": "Star the sessions you keep coming back to and find them under \"Favorites\"."
+          }
+        },
+        {
+          "id": "rename",
+          "since": "0.1.0",
+          "title": { "es": "Renombrar y añadir notas", "en": "Rename and add notes" },
+          "body": {
+            "es": "Ponle a una sesión un nombre propio o una nota (por ejemplo, qué quedó pendiente). Se guarda solo en Lost & Prompt; un nombre vacío vuelve al título original.",
+            "en": "Give a session your own name or a note (for example, what's left to do). It's stored only in Lost & Prompt; an empty name restores the original title."
+          }
+        },
+        {
+          "id": "collections",
+          "since": "0.1.0",
+          "try": "newCollection",
+          "title": { "es": "Colecciones", "en": "Collections" },
+          "body": {
+            "es": "Agrupa sesiones en colecciones con nombre y color. Añádelas desde el menú contextual o arrastrándolas desde la lista; «Editar colección…» cambia el nombre y el color.",
+            "en": "Group sessions into collections with a name and a colour. Add them from the context menu or by dragging them from the list; \"Edit Collection…\" changes the name and colour."
+          }
+        },
+        {
+          "id": "folderCollections",
+          "since": "0.5.0",
+          "title": { "es": "Carpetas en colecciones", "en": "Folders in collections" },
+          "body": {
+            "es": "Añade una carpeta entera a una colección desde su menú contextual y entrarán todas sus sesiones y las de sus subcarpetas, también las futuras.",
+            "en": "Add a whole folder to a collection from its context menu and every session in it and its subfolders joins, future ones too."
+          }
+        },
+        {
+          "id": "archive",
+          "since": "0.4.0",
+          "keys": { "mac": "⌃⌘A", "win": "Ctrl+Shift+A" },
+          "title": { "es": "Archivar", "en": "Archive" },
+          "body": {
+            "es": "Las sesiones archivadas salen de Recientes, carpetas, colecciones y búsqueda, y quedan en «Archivadas» en la barra lateral.",
+            "en": "Archived sessions leave Recents, folders, collections and search, and stay under \"Archived\" in the sidebar."
+          }
+        }
+      ]
+    },
+    {
+      "id": "share",
+      "title": { "es": "Compartir", "en": "Sharing" },
+      "intro": {
+        "es": "Saca una conversación de la app para leerla, enviarla o continuarla en otro equipo.",
+        "en": "Take a conversation out of the app to read it, send it or continue it on another computer."
+      },
+      "items": [
+        {
+          "id": "markdown",
+          "since": "0.6.0",
+          "keys": { "mac": "⌥⌘C" },
+          "title": { "es": "Copiar o exportar como Markdown", "en": "Copy or export as Markdown" },
+          "body": {
+            "es": "«Copiar como Markdown» y «Exportar como Markdown…» (en el menú «Más» de la sesión y en su menú contextual) dan una copia para leer con los datos de la sesión, tus mensajes y las respuestas de Claude. En Mac, exportar es ⇧⌘E y «Compartir conversación…» la envía por Mensajes, Mail o AirDrop.",
+            "en": "\"Copy as Markdown\" and \"Export as Markdown…\" (in the session's More menu and its context menu) give you a readable copy with the session details, your messages and Claude's replies. On the Mac, exporting is ⇧⌘E and \"Share Conversation…\" sends it through Messages, Mail or AirDrop."
+          }
+        },
+        {
+          "id": "continue",
+          "since": "0.6.0",
+          "try": "importSession",
+          "keys": { "mac": "⇧⌘I" },
+          "title": { "es": "Continuar una sesión en otro equipo", "en": "Continue a session on another computer" },
+          "body": {
+            "es": "«Exportar para continuar en Claude Code…» guarda el archivo de la sesión. Quien lo recibe usa «Importar sesión…», elige la carpeta de su proyecto y la reanuda desde ahí. Ojo: el archivo lleva todo lo que leyeron y devolvieron las herramientas.",
+            "en": "\"Export to Continue in Claude Code…\" saves the session file. Whoever receives it uses \"Import Session…\", picks their project folder and resumes it from there. Note: the file holds everything the tools read and returned."
+          }
+        }
+      ]
+    },
+    {
+      "id": "activity",
+      "title": { "es": "Actividad y costes", "en": "Activity and costs" },
+      "intro": {
+        "es": "Mira cuánto usas Claude Code y en qué carpetas.",
+        "en": "See how much you use Claude Code and in which folders."
+      },
+      "items": [
+        {
+          "id": "activity",
+          "since": "0.1.0",
+          "try": "activity",
+          "title": { "es": "La vista Actividad", "en": "The Activity view" },
+          "body": {
+            "es": "Muestra tus mensajes y el coste estimado por día, y las carpetas con más uso, en el periodo que elijas. El coste es una estimación con los precios públicos de cada modelo.",
+            "en": "Shows your messages and the estimated cost per day, and the folders you use most, for the period you choose. The cost is an estimate based on each model's public prices."
+          }
+        },
+        {
+          "id": "details",
+          "since": "0.4.0",
+          "title": { "es": "Datos de cada sesión", "en": "Session details" },
+          "body": {
+            "es": "El detalle muestra cuándo empezó la sesión y su última actividad, su duración, los mensajes, el coste estimado, el modelo y la rama de git.",
+            "en": "The details show when the session started and its last activity, its duration, the messages, the estimated cost, the model and the git branch."
+          }
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "title": { "es": "Ajustes", "en": "Settings" },
+      "intro": {
+        "es": "Adapta la app a tu forma de trabajar.",
+        "en": "Make the app fit the way you work."
+      },
+      "items": [
+        {
+          "id": "terminalSetting",
+          "since": "0.2.0",
+          "try": "settings:general",
+          "keys": { "mac": "⌘,", "win": "Ctrl+," },
+          "title": { "es": "Terminal y editor", "en": "Terminal and editor" },
+          "body": {
+            "es": "Elige dónde se reanudan las sesiones (Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, WezTerm, Kitty… o un comando propio) y en qué editor se abren las carpetas.",
+            "en": "Choose where sessions resume (Warp, Terminal, iTerm2, Ghostty, Windows Terminal, PowerShell, WezTerm, Kitty… or your own command) and which editor opens folders."
+          }
+        },
+        {
+          "id": "appearance",
+          "since": "0.2.0",
+          "try": "settings:appearance",
+          "title": { "es": "Tema e idioma", "en": "Theme and language" },
+          "body": {
+            "es": "Claro, oscuro o el del sistema, y la app en español o en inglés.",
+            "en": "Light, dark or the system's, and the app in Spanish or English."
+          }
+        },
+        {
+          "id": "tray",
+          "since": "0.2.0",
+          "only": "win",
+          "title": { "es": "Bandeja del sistema y abrir al iniciar", "en": "System tray and open at login" },
+          "body": {
+            "es": "El icono de la bandeja muestra tus sesiones recientes, el buscador y «Nueva sesión…». Con la bandeja activada, cerrar la ventana deja la app ahí, lista para el atajo global.",
+            "en": "The tray icon shows your recent sessions, search and \"New Session…\". With the tray on, closing the window keeps the app there, ready for the global shortcut."
+          }
+        },
+        {
+          "id": "menubar",
+          "since": "0.1.0",
+          "only": "mac",
+          "title": { "es": "Icono en la barra de menús", "en": "Menu bar icon" },
+          "body": {
+            "es": "El icono de la barra de menús muestra tus sesiones recientes para reanudarlas sin abrir la ventana. Actívalo o desactívalo en Ajustes.",
+            "en": "The menu bar icon lists your recent sessions so you can resume them without opening the window. Turn it on or off in Settings."
+          }
+        },
+        {
+          "id": "updates",
+          "since": "0.6.1",
+          "title": { "es": "Actualizaciones", "en": "Updates" },
+          "body": {
+            "es": "La app busca versiones nuevas al abrirse y de vez en cuando, y te enseña qué trae cada una. Si cierras el aviso, en Windows y Linux queda un botón «Versión x.y.z disponible» abajo en la barra lateral.",
+            "en": "The app looks for new versions when it opens and every so often, and shows you what each one brings. If you close the notice, on Windows and Linux a \"Version x.y.z available\" button stays at the bottom of the sidebar."
+          }
+        }
+      ]
+    }
+  ],
+  "shortcuts": [
+    {
+      "title": { "es": "Buscar", "en": "Search" },
+      "items": [
+        { "label": { "es": "Buscador rápido", "en": "Quick search" }, "mac": "⌘K", "win": "Ctrl+K" },
+        { "label": { "es": "Buscador desde cualquier app", "en": "Search from any app" }, "mac": "⌥⌘K", "win": "Ctrl+Alt+K" },
+        { "label": { "es": "Buscar en la lista", "en": "Search the list" }, "win": "Ctrl+Shift+F" },
+        { "label": { "es": "Buscar en la conversación", "en": "Find in the conversation" }, "mac": "⌘F", "win": "Ctrl+F" },
+        { "label": { "es": "Siguiente coincidencia", "en": "Next match" }, "mac": "⌘G", "win": "F3" },
+        { "label": { "es": "Coincidencia anterior", "en": "Previous match" }, "mac": "⇧⌘G", "win": "Shift+F3" }
+      ]
+    },
+    {
+      "title": { "es": "Sesión seleccionada", "en": "Selected session" },
+      "items": [
+        { "label": { "es": "Reanudar en la terminal", "en": "Resume in the terminal" }, "mac": "⌘↩", "win": "Enter" },
+        { "label": { "es": "Copiar comando", "en": "Copy command" }, "mac": "⇧⌘C" },
+        { "label": { "es": "Favorito", "en": "Favorite" }, "mac": "⌘D", "win": "Ctrl+D" },
+        { "label": { "es": "Archivar / sacar del archivo", "en": "Archive / unarchive" }, "mac": "⌃⌘A", "win": "Ctrl+Shift+A" },
+        { "label": { "es": "Sesión nueva en su carpeta", "en": "New session in its folder" }, "mac": "⌥⌘N", "win": "Ctrl+Alt+N" },
+        { "label": { "es": "Abrir en el editor", "en": "Open in editor" }, "mac": "⇧⌘O" },
+        { "label": { "es": "Mostrar en Finder", "en": "Show in Finder" }, "mac": "⌥⌘R" },
+        { "label": { "es": "Copiar como Markdown", "en": "Copy as Markdown" }, "mac": "⌥⌘C" },
+        { "label": { "es": "Exportar como Markdown…", "en": "Export as Markdown…" }, "mac": "⇧⌘E" },
+        { "label": { "es": "Moverse por la lista", "en": "Move through the list" }, "mac": "↑ ↓", "win": "↑ ↓" }
+      ]
+    },
+    {
+      "title": { "es": "Crear", "en": "Create" },
+      "items": [
+        { "label": { "es": "Sesión nueva…", "en": "New session…" }, "mac": "⌘N", "win": "Ctrl+N" },
+        { "label": { "es": "Colección nueva…", "en": "New collection…" }, "mac": "⇧⌘N" },
+        { "label": { "es": "Importar sesión…", "en": "Import session…" }, "mac": "⇧⌘I" },
+        { "label": { "es": "Volver a leer las sesiones", "en": "Reload sessions" }, "mac": "⌘R", "win": "Ctrl+R" }
+      ]
+    },
+    {
+      "title": { "es": "Vista y ajustes", "en": "View and settings" },
+      "items": [
+        { "label": { "es": "Lista en filas", "en": "List as rows" }, "mac": "⌘1", "win": "Ctrl+1" },
+        { "label": { "es": "Lista en tarjetas", "en": "List as cards" }, "mac": "⌘2", "win": "Ctrl+2" },
+        { "label": { "es": "Aprende a usar Lost & Prompt", "en": "Learn Lost & Prompt" }, "mac": "⌘?", "win": "F1" },
+        { "label": { "es": "Ajustes", "en": "Settings" }, "mac": "⌘,", "win": "Ctrl+," },
+        { "label": { "es": "Cerrar un diálogo", "en": "Close a dialog" }, "mac": "Esc", "win": "Esc" }
+      ]
+    }
+  ]
+}

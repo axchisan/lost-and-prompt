@@ -94,6 +94,22 @@
         }
       }
     },
+    "%lld. %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld. %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld. %2$@"
+          }
+        }
+      }
+    },
     "1 año": {
       "localizations": {
         "en": {
@@ -354,6 +370,16 @@
         }
       }
     },
+    "Aprende a usar Lost & Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn Lost & Prompt"
+          }
+        }
+      }
+    },
     "Archivadas": {
       "localizations": {
         "en": {
@@ -400,6 +426,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Global shortcut"
+          }
+        }
+      }
+    },
+    "Atajo: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcut: %@"
+          }
+        }
+      }
+    },
+    "Atajos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts"
           }
         }
       }
@@ -584,6 +630,16 @@
         }
       }
     },
+    "Buscar en la guía": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the guide"
+          }
+        }
+      }
+    },
     "Buscar rápido…": {
       "localizations": {
         "en": {
@@ -610,6 +666,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search sessions and messages"
+          }
+        }
+      }
+    },
+    "Buscar un atajo o una acción": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for a shortcut or action"
           }
         }
       }
@@ -1414,6 +1480,16 @@
         }
       }
     },
+    "Guía": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
     "Herramientas": {
       "localizations": {
         "en": {
@@ -1660,6 +1736,16 @@
         }
       }
     },
+    "Lost & Prompt %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost & Prompt %@"
+          }
+        }
+      }
+    },
     "Lost & Prompt lee las sesiones de ~/.claude/projects. Usa Claude Code al menos una vez y aparecerán aquí.": {
       "localizations": {
         "en": {
@@ -1770,6 +1856,16 @@
         }
       }
     },
+    "Nada coincide con «%@»": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing matches “%@”"
+          }
+        }
+      }
+    },
     "Ninguna carpeta coincide": {
       "localizations": {
         "en": {
@@ -1860,6 +1956,26 @@
         }
       }
     },
+    "Novedades": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What’s New"
+          }
+        }
+      }
+    },
+    "Novedades de cada versión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What’s New in Each Version"
+          }
+        }
+      }
+    },
     "Nueva colección": {
       "localizations": {
         "en": {
@@ -1936,6 +2052,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "New Session…"
+          }
+        }
+      }
+    },
+    "Nuevo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        }
+      }
+    },
+    "Nuevo en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New in %@"
           }
         }
       }
@@ -2036,6 +2172,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "For example: Work"
+          }
+        }
+      }
+    },
+    "Probar ahora": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try It Now"
           }
         }
       }
@@ -2236,6 +2382,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "~/.claude/settings.json will be changed. A copy of the current file will be saved."
+          }
+        }
+      }
+    },
+    "Sección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Section"
           }
         }
       }
@@ -2480,6 +2636,16 @@
         }
       }
     },
+    "Ver la guía de todo lo que puede hacer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the guide to everything it can do"
+          }
+        }
+      }
+    },
     "Versión": {
       "localizations": {
         "en": {
@@ -2546,6 +2712,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "cd '<folder>' && claude --resume <id> %@"
+          }
+        }
+      }
+    },
+    "la que tienes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your version"
           }
         }
       }

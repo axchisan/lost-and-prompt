@@ -151,6 +151,8 @@ struct NoteSheet: View {
 
 struct WelcomeSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openWindow) private var openWindow
+    @Environment(AppModel.self) private var model
 
     var body: some View {
         VStack(spacing: 22) {
@@ -182,6 +184,13 @@ struct WelcomeSheet: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .keyboardShortcut(.defaultAction)
+            Button("Ver la guía de todo lo que puede hacer") {
+                dismiss()
+                model.guideTab = .guide
+                openWindow(id: "guide")
+            }
+            .buttonStyle(.link)
+            .padding(.top, -10)
         }
         .padding(32)
         .frame(width: 520)

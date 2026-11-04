@@ -14,6 +14,7 @@ import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
+import { Guide, type GuideTab } from "./components/Guide";
 import { About, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
@@ -28,6 +29,7 @@ type Dialog =
   | { kind: "confirm"; message: string; confirmLabel: string; action: () => void }
   | { kind: "about" }
   | { kind: "update"; update: Update }
+  | { kind: "guide"; tab: GuideTab }
   | null;
 
 function loadPrefs(): Prefs {
@@ -464,6 +466,9 @@ export default function App() {
       if (mod && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setDialog((d) => (d?.kind === "quick" ? null : { kind: "quick" }));
+      } else if (event.key === "F1") {
+        event.preventDefault();
+        setDialog({ kind: "guide", tab: "guide" });
       } else if (mod && event.key === ",") {
         event.preventDefault();
         setDialog({ kind: "settings", pane: "general" });
@@ -563,6 +568,7 @@ export default function App() {
       confirm: (message, confirmLabel, action) => setDialog({ kind: "confirm", message, confirmLabel, action }),
       about: () => setDialog({ kind: "about" }),
       update: () => pendingUpdate && setDialog({ kind: "update", update: pendingUpdate }),
+      guide: (tab = "guide") => setDialog({ kind: "guide", tab }),
     },
     pendingUpdate: pendingUpdate?.version ?? null,
   };
@@ -598,11 +604,18 @@ export default function App() {
       {dialog?.kind === "newSession" && <NewSessionSheet onClose={() => setDialog(null)} />}
       {dialog?.kind === "error" && <ErrorSheet message={dialog.message} onClose={() => setDialog(null)} />}
       {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
+      {dialog?.kind === "guide" && <Guide initialTab={dialog.tab} onClose={() => setDialog(null)} />}
       {dialog?.kind === "update" && <UpdateSheet update={dialog.update} onClose={() => setDialog(null)} />}
       {dialog?.kind === "confirm" && (
         <ConfirmSheet message={dialog.message} confirmLabel={dialog.confirmLabel} onConfirm={dialog.action} onClose={() => setDialog(null)} />
       )}
-      {!prefs.didShowWelcome && !dialog && <Welcome onClose={() => setPrefs({ didShowWelcome: true })} />}
+      {!prefs.didShowWelcome && !dialog && <Welcome
+          onClose={() => setPrefs({ didShowWelcome: true })}
+          onGuide={() => {
+            setPrefs({ didShowWelcome: true });
+            setDialog({ kind: "guide", tab: "guide" });
+          }}
+        />}
       {toast && <Toast text={toast} onDone={() => setToast(null)} />}
     </Ctx.Provider>
   );
