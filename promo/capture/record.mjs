@@ -4,7 +4,7 @@
 // Uso: node capture/record.mjs [toma …] [--lang es|en]   (con `npm run dev` de desktop/ en :1420)
 //
 // Cada toma deja en public/clips/<lang>/:
-//   <toma>.mp4   vídeo a 60 fps de los fotogramas reales (2880×1620, 2× de 1440×810)
+//   <toma>.mp4   vídeo a 60 fps de los fotogramas reales (5760×3240, 4× de 1440×810)
 //   <toma>.json  lo que pasó y cuándo: movimientos del cursor, clics, teclas y zonas de interés,
 //                en segundos desde el inicio y en coordenadas 0–1. Remotion lo usa para el cursor
 //                animado, los zooms de cámara y los sonidos.
@@ -16,7 +16,7 @@ import path from "node:path";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const W = 1440;
 const H = 810;
-const SCALE = 2;
+const SCALE = Number(process.env.LP_SCALE || 4); // 4×: la cámara puede acercarse sin perder nitidez
 const FPS = 60;
 const args = process.argv.slice(2);
 const lang = args.includes("--lang") ? args[args.indexOf("--lang") + 1] : "es";
@@ -100,124 +100,133 @@ const speedrun = L("Bot de speedrun para un juego de plataformas", "Speedrun bot
 
 /** Guion de cada toma. Tiempos pensados para cortarse a ritmo de la música. */
 const shots = {
+  // Guion v3: cada acción con su zona de interés (la cámara la encuadra) y tiempo para leerla.
   async reveal(d) {
-    await d.wait(900);
+    await d.wait(500);
     await d.focus({ x: 0, y: 0, w: 1, h: 1 }, "app");
-    await d.move(row(L("Tema oscuro para el blog", "Dark theme for the blog")), 900);
-    await d.wait(250);
-    await d.click(row(speedrun), { ms: 600 });
-    await d.wait(400);
-    await d.focus(".detail, main.column", "detail");
-    await d.wait(1600);
+    await d.move(row(L("Tema oscuro para el blog", "Dark theme for the blog")), 1100);
+    await d.wait(300);
+    await d.move(row(speedrun), 900);
+    await d.wait(300);
+    await d.move(row(L("Lanzamiento de la v2 de mi librería", "Shipping v2 of my library")), 900);
+    await d.wait(900);
   },
   async search(d) {
-    await d.wait(600);
+    await d.wait(500);
+    await d.focus({ x: 0, y: 0, w: 1, h: 1 }, "app");
     await d.press("Meta+k");
-    await d.wait(350);
-    await d.focus(".quick", "quick");
-    await d.type(L("webhook stripe", "stripe webhook"), 95);
-    await d.wait(700);
-    await d.press("ArrowDown");
-    await d.wait(350);
-    await d.press("ArrowUp");
-    await d.wait(500);
-    await d.press("Meta+Enter");
-    await d.wait(500);
-    await d.focus("main.column", "detail");
-    await d.wait(1300);
-  },
-  async conversation(d) {
-    await d.click(row(stripe), { ms: 500 });
-    await d.wait(700);
-    await d.move({ x: W * 0.72, y: H * 0.62 }, 500);
-    await d.focus("main.column", "conversation");
-    await d.scroll(900, 1600);
-    await d.wait(500);
-    await d.press("Meta+f");
+    await d.wait(250);
+    await d.focus(".quick", "quick", 0.03);
     await d.wait(300);
-    await d.type("webhook", 90);
-    await d.wait(500);
-    await d.focus(".find, [aria-label*='" + L("Buscar en la conversación", "Find in the conversation") + "']", "find");
-    await d.press("Enter");
-    await d.wait(450);
-    await d.press("Enter");
-    await d.wait(1200);
+    await d.type(L("webhook stripe", "stripe webhook"), 115);
+    await d.wait(1300);
+    await d.press("ArrowDown");
+    await d.wait(550);
+    await d.press("ArrowUp");
+    await d.wait(650);
+    await d.press("Meta+Enter");
+    await d.wait(200);
+    await d.focus({ x: 0.36, y: 0.02, w: 0.62, h: 0.42 }, "detalle");
+    await d.wait(2000);
   },
   async resume(d) {
-    await d.click(row(stripe), { ms: 500 });
-    await d.wait(600);
+    await d.wait(400);
     const button = `button:has-text("${L("Reanudar en", "Resume in")}")`;
-    await d.focus(button, "resume", 0.06);
-    await d.move(button, 900);
+    await d.focus({ x: 0.36, y: 0.02, w: 0.6, h: 0.32 }, "cabecera");
+    await d.move(button, 1200);
     await d.wait(500);
-    await d.click(button, { ms: 150 });
-    await d.wait(1200);
+    await d.focus(button, "botón", 0.07);
+    await d.wait(400);
+    await d.click(button, { ms: 120 });
+    await d.wait(900);
+  },
+  async conversation(d) {
+    await d.wait(300);
+    await d.focus("main.column", "conversación", 0.01);
+    await d.move({ x: W * 0.7, y: H * 0.62 }, 700);
+    await d.scroll(1000, 2200);
+    await d.wait(700);
+    await d.press("Meta+f");
+    await d.wait(250);
+    await d.focus({ x: 0.36, y: 0.0, w: 0.62, h: 0.62 }, "buscar");
+    await d.type("webhook", 115);
+    await d.wait(700);
+    await d.press("Enter");
+    await d.wait(900);
+    await d.press("Enter");
+    await d.wait(1300);
   },
   async organize(d) {
-    await d.click(row(stripe), { ms: 500 });
-    await d.wait(500);
+    await d.wait(300);
+    await d.focus({ x: 0.15, y: 0.0, w: 0.85, h: 0.4 }, "favorito");
+    await d.move(`[aria-label="${L("Favoritos", "Favorites")}"] >> nth=-1`, 900).catch(() => {});
+    await d.wait(300);
     await d.press("Meta+d");
-    await d.focus(row(stripe), "favorite", 0.03);
-    await d.wait(800);
+    await d.wait(1100);
+    await d.focus({ x: 0.0, y: 0.08, w: 0.42, h: 0.75 }, "colecciones");
     const target = `.sidebar :text("${L("Código abierto", "Open source")}")`;
-    const from = await d.move(row(L("Responder issues pendientes", "Triage open issues")), 700);
+    await d.move(row(L("Responder issues pendientes", "Triage open issues")), 900);
+    await d.wait(250);
     d.mark("drag");
     await d.page.mouse.down();
-    await d.move(target, 1100);
+    await d.move(target, 1400);
+    await d.wait(150);
     await d.page.mouse.up();
-    await d.focus(".sidebar", "collections");
-    await d.wait(600);
-    await d.click(target, { ms: 500 });
-    await d.wait(1500);
-    void from;
-  },
-  async cards(d) {
-    await d.wait(500);
-    await d.press("Meta+2");
-    await d.focus({ x: 0.17, y: 0.05, w: 0.83, h: 0.95 }, "cards");
-    await d.wait(1200);
-    await d.click(".card >> nth=1", { ms: 700 });
-    await d.wait(1400);
-  },
-  async activity(d) {
-    await d.wait(400);
-    await d.click(`.sidebar :text("${L("Actividad", "Activity")}")`, { ms: 700 });
-    await d.wait(600);
-    await d.focus({ x: 0.17, y: 0.05, w: 0.83, h: 0.9 }, "activity");
-    await d.move({ x: W * 0.55, y: H * 0.45 }, 900);
-    await d.move({ x: W * 0.8, y: H * 0.42 }, 1100);
-    await d.wait(1200);
-  },
-  async exportmd(d) {
-    await d.click(row(stripe), { ms: 500 });
-    await d.wait(500);
-    await d.click(`[aria-label="${L("Más", "More")}"]`, { ms: 700 });
-    await d.wait(400);
-    await d.focus(".menu", "menu", 0.03);
-    await d.click(`.menu :text("${L("Copiar como Markdown", "Copy as Markdown")}")`, { ms: 600 });
+    d.mark("drop");
+    await d.wait(700);
+    await d.click(target, { ms: 600 });
+    await d.focus({ x: 0.0, y: 0.0, w: 0.6, h: 0.5 }, "colección");
     await d.wait(1600);
   },
-  async guide(d) {
-    await d.wait(500);
-    await d.press("F1");
-    await d.wait(500);
-    await d.focus(".guide", "guide");
-    await d.type("markdown", 90);
+  async cards(d) {
+    await d.wait(300);
+    await d.press("Meta+2");
+    await d.focus({ x: 0.15, y: 0.03, w: 0.85, h: 0.9 }, "tarjetas");
+    await d.wait(700);
+    await d.move(".card >> nth=1", 900);
+    await d.wait(300);
+    await d.move(".card >> nth=4", 900);
     await d.wait(900);
-    await d.click(`.guide [role=tab]:has-text("${L("Atajos", "Shortcuts")}")`, { ms: 700 });
-    await d.wait(1000);
-    await d.click(`.guide [role=tab]:has-text("${L("Novedades", "What's New")}")`, { ms: 600 });
-    await d.wait(1400);
+  },
+  async activity(d) {
+    await d.wait(300);
+    await d.click(`.sidebar :text("${L("Actividad", "Activity")}")`, { ms: 700 });
+    await d.wait(300);
+    await d.focus({ x: 0.15, y: 0.0, w: 0.85, h: 0.62 }, "actividad");
+    await d.move({ x: W * 0.55, y: H * 0.42 }, 1100);
+    await d.move({ x: W * 0.82, y: H * 0.38 }, 1100);
+    await d.wait(700);
+  },
+  async exportmd(d) {
+    await d.wait(300);
+    const more = `[aria-label="${L("Más", "More")}"]`;
+    await d.focus({ x: 0.55, y: 0.0, w: 0.45, h: 0.62 }, "menú");
+    await d.click(more, { ms: 900 });
+    await d.wait(500);
+    await d.click(`.menu :text("${L("Copiar como Markdown", "Copy as Markdown")}")`, { ms: 800 });
+    await d.focus({ x: 0.3, y: 0.55, w: 0.6, h: 0.45 }, "aviso");
+    await d.wait(1300);
+  },
+  async guide(d) {
+    await d.wait(300);
+    await d.press("F1");
+    await d.wait(200);
+    await d.focus(".guide", "guía", 0.01);
+    await d.wait(500);
+    await d.type("markdown", 105);
+    await d.wait(1600);
   },
   async dark(d) {
-    await d.wait(400);
-    await d.click(row(L("Lanzamiento de la v2 de mi librería", "Shipping v2 of my library")), { ms: 700 });
-    await d.wait(1800);
+    await d.wait(300);
+    await d.focus({ x: 0, y: 0, w: 1, h: 1 }, "app");
+    await d.click(row(L("Lanzamiento de la v2 de mi librería", "Shipping v2 of my library")), { ms: 800 });
+    await d.wait(1000);
   },
   async windows(d) {
-    await d.wait(400);
-    await d.click(row(stripe), { ms: 700 });
-    await d.wait(1800);
+    await d.wait(300);
+    await d.focus({ x: 0, y: 0, w: 1, h: 1 }, "app");
+    await d.click(row(stripe), { ms: 800 });
+    await d.wait(1000);
   },
 };
 
@@ -251,7 +260,7 @@ async function record(name) {
     await cdp.send("Page.screencastFrameAck", { sessionId }).catch(() => {});
   });
   const events = [];
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: W * SCALE, maxHeight: H * SCALE, everyNthFrame: 1 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: W * SCALE, maxHeight: H * SCALE, everyNthFrame: 1 });
   await page.waitForTimeout(300);
   const start = Date.now();
   const d = director(page, events, start);

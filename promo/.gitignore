@@ -3,3 +3,5 @@ public/
 out/
 .venv/
 music-candidates/
+edit/media/
+*.blend1

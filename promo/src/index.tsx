@@ -1,5 +1,7 @@
 import { Composition, registerRoot } from "remotion";
 import { DURATION_S, FPS, Launch } from "./v2/Launch";
+import { Overlay } from "./v3/Overlay";
+import edl from "../edit/edl-es-16x9.json";
 
 // Un formato por red y dispositivo, en español e inglés:
 //   16x9  1920×1080  YouTube, LinkedIn, X, web
@@ -24,6 +26,8 @@ const Root: React.FC = () => (
         />
       )),
     )}
+    {/* v3: capa gráfica transparente para el montaje en Blender. */}
+    <Composition id="overlay-es-16x9" component={Overlay} defaultProps={{ lang: "es" as const, format: "16x9" as const }} durationInFrames={edl.frames} fps={edl.fps} width={edl.width} height={edl.height} />
   </>
 );
 

@@ -15,6 +15,41 @@ ningún build.
 | `1x1` | 1080×1080 | feed de Instagram, LinkedIn y X |
 | `4x5` | 1080×1350 | feed de Instagram y LinkedIn (el que más pantalla ocupa en el móvil) |
 
+## Flujo v3 (editor: Blender)
+
+```sh
+cd promo
+(cd ../desktop && npx vite)                       # la app en :1420 con datos de ejemplo
+node capture/record.mjs                           # tomas a 4× (5760×3240), --lang en para inglés
+node tools/edl.ts es 16x9                         # EDL: escenas, cámara por fotograma, sonidos
+python3 tools/prepare_media.py edit/edl-es-16x9.json   # recorta cada toma a su tramo y velocidad
+npx remotion bundle src/index.tsx --out-dir out/bundle
+npx remotion render out/bundle overlay-es-16x9 edit/media/overlay-es-16x9.mov \
+  --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le --image-format=png
+# En Blender (MCP o consola de Python), con edit/lanzamiento.blend abierto:
+#   exec(open("…/promo/edit/build_blender.py").read())
+/Applications/Blender.app/Contents/MacOS/Blender -b edit/lanzamiento.blend -a   # render
+ffmpeg -i out/v3-es-16x9-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 320k out/v3-es-16x9.mp4
+node tools/audit.ts                               # comprobar ampliación y encuadres
+```
+
+- **EDL** (`tools/edl.ts` → `edit/edl-*.json`): fuente única de tiempos. Blender monta las tomas y
+  la cámara (keyframes de escala y desplazamiento, editables) y Remotion dibuja la capa gráfica
+  con el mismo reloj.
+- **Blender** (`edit/build_blender.py`):
+  - canales 2–12: tomas de la app;
+  - canal 20: capa gráfica con alfa;
+  - canales 21–22: música, unida en un compás;
+  - canales 23 en adelante: efectos de sonido;
+  - marcadores en cada escena.
+- **Capa gráfica** (`src/v3/Overlay.tsx`):
+  - cursor con pulsación y onda en cada clic, y rótulos en la esquina libre;
+  - gancho inicial, marca, titulares y cierre;
+  - transiciones: la marca que se abre hacia la app, la terminal que crece desde el botón
+    «Reanudar», el titular que entra empujando y la cortina blanca.
+- **Reglas**: ninguna ampliación por encima de 1× (la toma es 4×); velocidad ≤ 1,25×; mínimo
+  2 compases por función con interacción.
+
 ## Cómo se hace
 
 ```sh

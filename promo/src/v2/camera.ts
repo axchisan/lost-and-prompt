@@ -47,10 +47,10 @@ function frameFor(rect: Rect, aspect: number, minH: number): View {
  * Encuadre en el segundo `t`: pasa suavemente de una zona de interés a la siguiente (0,7 s) y, en
  * formatos estrechos, sigue al cursor en horizontal para que la acción nunca quede fuera.
  */
-export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { lead?: number; zoom?: number } = {}): View {
+export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { lead?: number; zoom?: number; minH?: number } = {}): View {
   const lead = opts.lead ?? 0.15;
-  const zoom = opts.zoom ?? 1;
-  const minH = aspect < 1 ? 0.62 : 0.42;
+  let zoom = opts.zoom ?? 1;
+  const minH = Math.max(opts.minH ?? 0, aspect < 1 ? 0.62 : 0.42);
   const focuses = events.filter((e): e is Extract<ClipEvent, { type: "focus" }> => e.type === "focus");
   const full: Rect = { x: 0, y: 0, w: 1, h: 1 };
   let from = frameFor(full, aspect, minH);
@@ -65,7 +65,8 @@ export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { l
   }
   let v = lerpView(from, to, k);
   if (zoom !== 1) {
-    const h = v.h / zoom;
+    const h = Math.max(v.h / zoom, opts.minH ?? 0);
+    zoom = v.h / h;
     const w = v.w / zoom;
     v = { w, h, x: v.x + (v.w - w) / 2, y: v.y + (v.h - h) / 2 };
   }
