@@ -1,0 +1,21 @@
+{
+  "name": "lost-and-prompt-promo",
+  "private": true,
+  "description": "Vídeo promocional de Lost & Prompt, hecho con Remotion. Fuera del build de las apps.",
+  "type": "module",
+  "scripts": {
+    "assets": "rm -rf public && mkdir -p public && cp -R ../docs/screenshots public/screenshots && cp ../docs/diseno/icono/icono-caja-sin-sombra-1024.png public/icon.png",
+    "studio": "npm run assets && remotion studio",
+    "render": "npm run assets && node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

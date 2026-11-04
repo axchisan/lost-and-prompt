@@ -140,6 +140,10 @@ Ver el trayecto completo del proyecto: qué trajo cada versión, desde la 0.1.0.
 
 ## 3. Vídeo promocional para redes
 
+> **Primera versión hecha** en `promo/` (ver su README): Remotion 4.0.540, cuatro versiones (ES/EN,
+> 16:9 y 9:16), 35 s, con las capturas de ejemplo. Se renderiza con `npm run render`. Pendiente:
+> que el usuario la revise; luego, quizá grabaciones reales en movimiento y música.
+
 - **Lo que ya hay:** `docs/screenshots/{es,en}/demo.mp4` y `.gif` (14 s, 1200×670, grabados con
   los datos de ejemplo `-LPMock YES`), usados en los README y en la web. Capturas con
   `scripts/screenshots.sh`. `ffmpeg` instalado en `/opt/homebrew/bin/ffmpeg`.
