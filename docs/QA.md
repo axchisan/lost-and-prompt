@@ -3,6 +3,11 @@
 Lista de comprobación manual por plataforma. Una versión se publica cuando su plataforma pasa
 todo lo marcado como **obligatorio**.
 
+## Todas las plataformas
+
+- [ ] Lo nuevo de esta versión está en la guía «Aprende a usarla» (ES y EN, atajos de cada plataforma).
+- [ ] El aviso de actualización sale al volver a abrir la app desde la bandeja, no solo al arrancarla.
+
 ## Windows
 
 Instalador: artefacto `lost-and-prompt-windows` de la última ejecución verde de

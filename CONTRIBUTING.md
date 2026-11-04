@@ -63,6 +63,13 @@ Para probar la app de Mac con datos ficticios: `-LPMock YES` como argumento de a
 - **Commits** claros y en presente; una idea por pull request.
 - Añade tu cambio a la sección `[Unreleased]` de `CHANGELOG.md`.
 
+## Guía «Aprende a usarla»
+
+Toda función nueva, o cambio en cómo se usa una existente, se añade a la guía de la app en el mismo
+cambio: qué hace, cómo se usa, su atajo en Mac y en Windows/Linux, en español y en inglés. Una
+versión no se publica si la guía no recoge lo que trae. Plan y estructura en
+[`docs/10-siguiente-sesion.md`](docs/10-siguiente-sesion.md).
+
 ## Traducciones
 
 ¿Quieres Lost & Prompt en tu idioma? Abre un issue «Traducción a …» y te ayudamos a empezar.

@@ -17,7 +17,7 @@ la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 
 
 ## Próximo bloque
 
-Apartado de atajos y comandos, historial completo de versiones y vídeo promocional: plan en
+Fallo del aviso de actualización en Windows (la app en la bandeja no vuelve a comprobar al abrirla), guía «Aprende a usarla» con todas las funciones y atajos, historial completo de versiones y vídeo promocional: plan en
 [`10-siguiente-sesion.md`](10-siguiente-sesion.md).
 
 ## Ideas para después
