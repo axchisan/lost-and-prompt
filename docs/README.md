@@ -18,6 +18,7 @@ importar en qué directorio se abrieron. Nativa en SwiftUI en macOS; Tauri 2 + R
 | 7 | [Hoja de ruta](07-hoja-de-ruta.md) | Fases: documentación → diseño → mockups → construcción → publicación |
 | 8 | [Distribución](08-distribucion.md) | Versiones, publicación automática, actualizaciones y canales en las tres plataformas |
 | 9 | [Pendientes](09-pendientes.md) | Qué falta: funciones, plataformas, canales y difusión |
+| 10 | [Siguiente sesión](10-siguiente-sesion.md) | Ayuda de atajos, historial de versiones y vídeo promocional: estado y plan |
 | — | [Promoción](promocion.md) | Textos listos para Reddit, Hacker News, X, Product Hunt… |
 | — | [QA](QA.md) | Lista de comprobación manual antes de cada versión |
 | — | [Decisiones](decisiones.md) | Registro de decisiones tomadas (y pendientes) |
