@@ -58,6 +58,16 @@
         }
       }
     },
+    "%lld mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld messages"
+          }
+        }
+      }
+    },
     "%lld sesiones": {
       "localizations": {
         "en": {
@@ -634,6 +644,16 @@
         }
       }
     },
+    "Carpeta: `%@`": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder: `%@`"
+          }
+        }
+      }
+    },
     "Carpetas": {
       "localizations": {
         "en": {
@@ -744,6 +764,16 @@
         }
       }
     },
+    "Compartir conversación…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Conversation…"
+          }
+        }
+      }
+    },
     "Conservar 6 meses": {
       "localizations": {
         "en": {
@@ -810,6 +840,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copy Command"
+          }
+        }
+      }
+    },
+    "Copiar como Markdown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy as Markdown"
           }
         }
       }
@@ -984,6 +1024,26 @@
         }
       }
     },
+    "El archivo lleva la sesión completa: tus mensajes, las respuestas y lo que leyeron y devolvieron las herramientas (archivos, comandos, variables de entorno). Revisa que no haya contraseñas ni claves antes de compartirlo. Quien lo reciba la abre con «Importar sesión…» en Lost & Prompt y la continúa en Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file holds the whole session: your messages, the replies, and what the tools read and returned (files, commands, environment variables). Check that it contains no passwords or keys before sharing it. Whoever receives it opens it with “Import Session…” in Lost & Prompt and continues it in Claude Code."
+          }
+        }
+      }
+    },
+    "El archivo no es una sesión de Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file isn’t a Claude Code session."
+          }
+        }
+      }
+    },
     "El idioma cambia al reiniciar Lost & Prompt.": {
       "localizations": {
         "en": {
@@ -1024,6 +1084,16 @@
         }
       }
     },
+    "Elige la carpeta del proyecto donde continuarla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the project folder to continue it in."
+          }
+        }
+      }
+    },
     "Elige la carpeta donde abrir una sesión nueva de Claude Code.": {
       "localizations": {
         "en": {
@@ -1050,6 +1120,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choose the folder where you want to resume “%@”."
+          }
+        }
+      }
+    },
+    "Elige la sesión de Claude Code (.jsonl) que te compartieron.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the Claude Code session (.jsonl) that was shared with you."
           }
         }
       }
@@ -1170,6 +1250,66 @@
           "stringUnit": {
             "state": "translated",
             "value": "This Month"
+          }
+        }
+      }
+    },
+    "Exportada con Lost & Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exported with Lost & Prompt"
+          }
+        }
+      }
+    },
+    "Exportar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export"
+          }
+        }
+      }
+    },
+    "Exportar como Markdown…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export as Markdown…"
+          }
+        }
+      }
+    },
+    "Exportar para continuar en Claude Code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export to Continue in Claude Code"
+          }
+        }
+      }
+    },
+    "Exportar para continuar en Claude Code…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export to Continue in Claude Code…"
+          }
+        }
+      }
+    },
+    "Exportar…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export…"
           }
         }
       }
@@ -1334,6 +1474,26 @@
         }
       }
     },
+    "Importar aquí": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Here"
+          }
+        }
+      }
+    },
+    "Importar sesión…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Session…"
+          }
+        }
+      }
+    },
     "Incluirá la sesión «%@».": {
       "localizations": {
         "en": {
@@ -1386,6 +1546,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Started:"
+          }
+        }
+      }
+    },
+    "Inició: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Started: %@"
           }
         }
       }
@@ -1930,6 +2100,16 @@
         }
       }
     },
+    "Rama de git: `%@`": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Git branch: `%@`"
+          }
+        }
+      }
+    },
     "Razonamiento": {
       "localizations": {
         "en": {
@@ -2350,6 +2530,16 @@
         }
       }
     },
+    "Ya tienes esta sesión en tu biblioteca.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This session is already in your library."
+          }
+        }
+      }
+    },
     "cd '<carpeta>' && claude --resume <id> %@": {
       "localizations": {
         "en": {
@@ -2426,6 +2616,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Last activity:"
+          }
+        }
+      }
+    },
+    "Última actividad: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last activity: %@"
           }
         }
       }

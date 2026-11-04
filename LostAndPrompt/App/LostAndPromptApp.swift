@@ -120,6 +120,15 @@ struct AppCommands: Commands {
             Button("Mostrar en Finder") { if let s = model.selectedSession { model.revealInFinder(s) } }
                 .keyboardShortcut("r", modifiers: [.command, .option])
                 .disabled(model.selectedSession == nil)
+            Divider()
+            Button("Copiar como Markdown") { if let s = model.selectedSession { model.copyMarkdown(s) } }
+                .keyboardShortcut("c", modifiers: [.command, .option])
+                .disabled(model.selectedSession == nil)
+            Button("Exportar como Markdown…") { if let s = model.selectedSession { model.exportMarkdown(s) } }
+                .keyboardShortcut("e", modifiers: [.command, .shift])
+                .disabled(model.selectedSession == nil)
+            Button("Exportar para continuar en Claude Code…") { if let s = model.selectedSession { model.exportForClaudeCode(s) } }
+                .disabled(model.selectedSession?.filePath == nil)
         }
         CommandGroup(after: .textEditing) {
             Divider()
@@ -143,6 +152,9 @@ struct AppCommands: Commands {
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             Button("Volver a leer las sesiones") { Task { await model.reload() } }
                 .keyboardShortcut("r")
+            Divider()
+            Button("Importar sesión…") { model.importSession() }
+                .keyboardShortcut("i", modifiers: [.command, .shift])
         }
         CommandGroup(after: .toolbar) {
             Picker("Vista", selection: Binding(get: { model.listStyle }, set: { model.listStyle = $0 })) {

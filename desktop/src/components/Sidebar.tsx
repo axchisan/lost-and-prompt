@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ChartColumn, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
+import { Archive, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
@@ -234,6 +234,7 @@ function SidebarFooter() {
       {menu && (
         <div className="menu up" role="menu" onClick={(e) => e.stopPropagation()}>
           {item(<Settings size={14} />, t("settingsEllipsis"), () => open.settings(), `${modKey},`)}
+          {item(<FileUp size={14} />, t("importSession"), actions.importSession)}
           <hr />
           {item(<RefreshCw size={14} />, t("checkUpdates"), () => actions.checkForUpdates(true))}
           {item(<MessageSquareWarning size={14} />, t("reportProblem"), () => openUrl(links.issues))}

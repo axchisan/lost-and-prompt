@@ -9,6 +9,7 @@ pub mod organization;
 pub mod paths;
 pub mod search;
 pub mod settings;
+pub mod share;
 pub mod store;
 
 pub use model::{Message, Role, SessionSummary};

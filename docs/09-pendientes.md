@@ -13,11 +13,11 @@ lo que más se nota al usarla.
 | O4 | Etiquetas de color por sesión, al estilo de Finder | No | No | Las colecciones ya tienen color |
 
 Hechos en la **0.3.0**: L4 (buscar en la conversación), L3 (Markdown completo), R7 (nueva sesión en
-la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 (archivar), S1 (duración) y L2 (razonamiento; solo ~14 % de los bloques guardan texto). O4 queda en espera: las colecciones ya tienen color y se solaparían. Q6 (accesibilidad) hecho tras la 0.4.1: auditoría de Xcode en Mac y axe-core en Windows/Linux sin avisos (ver CONTRIBUTING).
+la carpeta) y R6 (abrir en el editor). Hechos en la **0.4.0**: E6 (filtros), O6 (archivar), S1 (duración) y L2 (razonamiento; solo ~14 % de los bloques guardan texto). O4 queda en espera: las colecciones ya tienen color y se solaparían. Q6 (accesibilidad) hecho tras la 0.4.1: auditoría de Xcode en Mac y axe-core en Windows/Linux sin avisos (ver CONTRIBUTING). L5 (exportar a Markdown) hecho en la **0.6.0**, junto con exportar e importar sesiones para continuarlas en Claude Code.
 
 ## Ideas para después
 
-E9 sesiones en Spotlight · O7 reglas automáticas de colecciones · L5 exportar a Markdown · S3 mapa
+E9 sesiones en Spotlight · O7 reglas automáticas de colecciones · S3 mapa
 de actividad al estilo de GitHub · P3 respaldo propio de las sesiones en una carpeta elegida ·
 atajo global configurable desde Ajustes.
 

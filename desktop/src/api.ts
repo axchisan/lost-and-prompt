@@ -68,6 +68,13 @@ export interface TerminalInfo {
   installed: boolean;
 }
 
+/** Un `.jsonl` de sesión que alguien compartió: su id y la carpeta donde se trabajó. */
+export interface SharedSession {
+  id: string;
+  cwd: string | null;
+  cwdExists: boolean;
+}
+
 export interface EditorInfo {
   id: string;
   name: string;
@@ -95,6 +102,10 @@ export const api = {
     invoke<void>("new_session", { cwd, distro, terminal, extraArguments, customTemplate }),
   editors: () => invoke<EditorInfo[]>("editors"),
   openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
+  exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
+  saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),
+  inspectSessionFile: (file: string) => invoke<SharedSession>("inspect_session_file", { file }),
+  importSession: (file: string, folder: string) => invoke<string>("import_session", { file, folder }),
   relocate: (id: string, newCwd: string) => invoke<void>("relocate", { id, newCwd }),
   updateTray: (content: TrayContent) => invoke<void>("update_tray", { content }),
   autostartEnabled: () => invoke<boolean>("autostart_enabled"),

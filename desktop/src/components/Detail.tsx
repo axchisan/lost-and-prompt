@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy, Ellipsis, Folder, FolderOpen, House, Layers, LoaderCircle, MessagesSquare, Pencil, Hash,
   SquareTerminal, Star, StickyNote, TriangleAlert, User, Sparkle, Wrench, Check, CodeXml, MessageSquarePlus,
-  Search, ChevronUp, ChevronDown, TextSearch, Archive, ArchiveRestore, Brain, ListFilter,
+  Search, ChevronUp, ChevronDown, TextSearch, Archive, ArchiveRestore, Brain, ListFilter, ClipboardCopy, FileDown, Share,
 } from "lucide-react";
 import type { Message, Session } from "../api";
 import { duration, grouped, relativeDay, timeOnly, usd } from "../format";
@@ -375,6 +375,20 @@ function MoreMenu({ session }: { session: Session }) {
           <button role="menuitem" onClick={() => (close(), actions.copyId(session))}>
             <Hash size={14} />
             {t("copySessionId")}
+          </button>
+          <hr />
+          <div className="menu-label">{t("exportSection")}</div>
+          <button role="menuitem" onClick={() => (close(), actions.copyMarkdown(session))}>
+            <ClipboardCopy size={14} />
+            {t("copyMarkdown")}
+          </button>
+          <button role="menuitem" onClick={() => (close(), actions.exportMarkdown(session))}>
+            <FileDown size={14} />
+            {t("exportMarkdown")}
+          </button>
+          <button role="menuitem" onClick={() => (close(), actions.exportSession(session))}>
+            <Share size={14} />
+            {t("exportForClaude")}
           </button>
         </>
       )}

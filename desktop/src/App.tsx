@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api, type Collection, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
 import { Ctx, defaultPrefs, inCollection, noFilter, resumeCommand, type AppContext, type CollectionTarget, type FindState, type ListFilter, type MenuState, type Prefs, type SidebarItem } from "./state";
+import { exportFileName, sessionMarkdown } from "./sessionExport";
 import { Sidebar } from "./components/Sidebar";
 import { SessionList, SessionCards } from "./components/SessionList";
 import { Detail, NoSelection } from "./components/Detail";
@@ -293,6 +294,63 @@ export default function App() {
         await api.relocate(session.id, folder);
         await reload();
         if (terminal) await api.resume(session.id, terminal.id, prefs.extraArguments, prefs.customTerminal);
+      } catch (error) {
+        showError(error);
+      }
+    },
+    copyMarkdown: (session) =>
+      api
+        .messages(session.id)
+        .then((messages) => navigator.clipboard.writeText(sessionMarkdown(session, messages, t, language)))
+        .then(() => setToast(t("markdownCopied")), showError),
+    exportMarkdown: async (session) => {
+      try {
+        const path = await saveDialog({ defaultPath: exportFileName(session, "md"), filters: [{ name: "Markdown", extensions: ["md"] }] });
+        if (!path) return;
+        await api.saveText(path, sessionMarkdown(session, await api.messages(session.id), t, language));
+        setToast(t("exportedTo", { path }));
+      } catch (error) {
+        showError(error);
+      }
+    },
+    // El .jsonl tal cual, para que otro lo importe y lo continúe; antes se avisa de lo que contiene.
+    exportSession: (session) =>
+      setDialog({
+        kind: "confirm",
+        message: t("exportForClaudeWarning"),
+        confirmLabel: t("exportForClaudeTitle"),
+        action: async () => {
+          try {
+            const path = await saveDialog({ defaultPath: exportFileName(session, "jsonl"), filters: [{ name: t("sessionFile"), extensions: ["jsonl"] }] });
+            if (!path) return;
+            await api.exportSession(session.id, path);
+            setToast(t("exportedTo", { path }));
+          } catch (error) {
+            showError(error);
+          }
+        },
+      }),
+    importSession: async () => {
+      try {
+        const file = await openDialog({ title: t("importSession"), filters: [{ name: t("sessionFile"), extensions: ["jsonl"] }] });
+        if (typeof file !== "string") return;
+        const shared = await api.inspectSessionFile(file);
+        if (sessions.some((s) => s.id === shared.id)) {
+          setSidebar({ kind: "recents" });
+          setSelectedId(shared.id);
+          return showError(t("importAlreadyHave"));
+        }
+        const folder = await openDialog({
+          directory: true,
+          title: t("importChooseFolder"),
+          defaultPath: shared.cwdExists && shared.cwd ? shared.cwd : undefined,
+        });
+        if (typeof folder !== "string") return;
+        const id = await api.importSession(file, folder);
+        await reload();
+        setSidebar({ kind: "recents" });
+        setSelectedId(id);
+        setToast(t("imported"));
       } catch (error) {
         showError(error);
       }

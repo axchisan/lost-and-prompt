@@ -7,6 +7,29 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-04
+
+### Added
+- Export a conversation: "Copy as Markdown" and "Export as Markdown…" (in the session's More menu,
+  its context menu and the Session menu) give you a readable copy with the session details, your
+  messages and Claude's replies. On the Mac, "Share Conversation…" sends it through Messages, Mail,
+  AirDrop and the rest of the share sheet.
+- Share a session to continue it: "Export to Continue in Claude Code…" saves the session file, and
+  whoever receives it uses "Import Session…" (File menu on the Mac, the settings menu in the sidebar
+  on Windows and Linux), picks the project folder and resumes it in Claude Code from there. Before
+  exporting, the app warns that the file holds everything the tools read and returned.
+
+### Añadido
+- Exportar una conversación: «Copiar como Markdown» y «Exportar como Markdown…» (en el menú «Más»
+  de la sesión, en su menú contextual y en el menú Sesión) dan una copia para leer con los datos de
+  la sesión, tus mensajes y las respuestas de Claude. En Mac, «Compartir conversación…» la envía por
+  Mensajes, Mail, AirDrop y el resto de opciones para compartir.
+- Compartir una sesión para continuarla: «Exportar para continuar en Claude Code…» guarda el archivo
+  de la sesión, y quien lo recibe usa «Importar sesión…» (menú Archivo en Mac, menú de ajustes de la
+  barra lateral en Windows y Linux), elige la carpeta de su proyecto y la reanuda en Claude Code desde
+  ahí. Antes de exportar, la app avisa de que el archivo lleva todo lo que leyeron y devolvieron las
+  herramientas.
+
 ## [0.5.1] - 2026-11-01
 
 ### Added
@@ -272,7 +295,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.1...v0.4.2

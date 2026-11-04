@@ -19,6 +19,9 @@ struct OrganizationData: Codable {
     /// Carpetas («entornos») de cada colección: todas sus sesiones y las de sus subcarpetas, también
     /// las futuras, entran en la colección.
     var collectionFolders: [String: [String]] = [:]
+    /// Sesiones que se continúan en otra carpeta (reanudadas donde la original ya no existe, o
+    /// importadas de otra persona): sesión → carpeta. Claude Code la usa desde la primera vez que escribe.
+    var relocations: [UUID: String] = [:]
 
     init() {}
 
@@ -33,6 +36,7 @@ struct OrganizationData: Codable {
         memberships = try c.decodeIfPresent([String: [UUID]].self, forKey: .memberships) ?? [:]
         archived = try c.decodeIfPresent(Set<UUID>.self, forKey: .archived) ?? []
         collectionFolders = try c.decodeIfPresent([String: [String]].self, forKey: .collectionFolders) ?? [:]
+        relocations = try c.decodeIfPresent([UUID: String].self, forKey: .relocations) ?? [:]
     }
 }
 

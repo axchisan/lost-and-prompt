@@ -379,6 +379,49 @@ fn relocate(id: Uuid, new_cwd: String, state: State<'_, AppState>) -> Result<(),
     })
 }
 
+/// Copia el archivo de la sesión (para que otra persona la importe y la continúe).
+#[tauri::command]
+fn export_session(id: Uuid, destination: String, state: State<'_, AppState>) -> Result<(), String> {
+    let path = state.summaries.lock().unwrap().iter().find(|s| s.id == id).map(|s| s.path.clone()).ok_or("No se encontró la sesión")?;
+    std::fs::copy(&path, &destination).map(|_| ()).map_err(|e| e.to_string())
+}
+
+/// Guarda texto en un archivo elegido por el usuario (exportar como Markdown).
+#[tauri::command]
+fn save_text(path: String, text: String) -> Result<(), String> {
+    std::fs::write(&path, text).map_err(|e| e.to_string())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SharedSession {
+    id: Uuid,
+    cwd: Option<String>,
+    /// Si la carpeta original existe en este equipo.
+    cwd_exists: bool,
+}
+
+#[tauri::command]
+fn inspect_session_file(file: String) -> Result<SharedSession, String> {
+    let session = lap_core::share::inspect(Path::new(&file))?;
+    let cwd_exists = session.cwd.as_deref().is_some_and(|c| Path::new(c).is_dir());
+    Ok(SharedSession { id: session.id, cwd: session.cwd, cwd_exists })
+}
+
+/// Importa una sesión compartida en `folder`. Si no es su carpeta original, se recuerda la nueva
+/// para reanudarla ahí (como «Elegir carpeta…»).
+#[tauri::command]
+fn import_session(file: String, folder: String, state: State<'_, AppState>) -> Result<Uuid, String> {
+    let (session, _) = lap_core::share::import(&paths::projects_dir(), Path::new(&file), &folder)?;
+    log::info!("sesión {} importada en {folder}", session.id);
+    if session.cwd.as_deref() != Some(folder.as_str()) {
+        with_organization(&state, |org| {
+            org.relocations.insert(session.id, folder.clone());
+        })?;
+    }
+    Ok(session.id)
+}
+
 #[tauri::command]
 fn reveal(id: Uuid, state: State<'_, AppState>) -> Result<(), String> {
     let summaries = state.summaries.lock().unwrap();
@@ -538,6 +581,10 @@ pub fn run() {
             editors,
             open_in_editor,
             relocate,
+            export_session,
+            save_text,
+            inspect_session_file,
+            import_session,
             reveal,
             update_tray,
             autostart_enabled,

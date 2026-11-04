@@ -144,6 +144,10 @@ export interface AppContext {
     reload: () => void;
     chooseFolder: (session: Session) => void;
     checkForUpdates: (manual: boolean) => void;
+    copyMarkdown: (session: Session) => void;
+    exportMarkdown: (session: Session) => void;
+    exportSession: (session: Session) => void;
+    importSession: () => void;
   };
   open: {
     rename: (session: Session) => void;

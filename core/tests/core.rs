@@ -203,3 +203,24 @@ fn colecciones_con_carpetas() {
     org.delete_collection(&collection.id);
     assert!(org.collection_folders.is_empty());
 }
+
+#[test]
+fn importa_una_sesion_compartida() {
+    let dir = tempfile::tempdir().unwrap();
+    let projects = dir.path().join("projects");
+    let id = uuid::Uuid::parse_str(ID).unwrap();
+
+    let session = lap_core::share::inspect(&fixture_file()).unwrap();
+    assert_eq!(session.id, id);
+    assert!(session.cwd.is_some(), "trae la carpeta original");
+
+    let (imported, target) = lap_core::share::import(&projects, &fixture_file(), "/Users/luis/proyectos/acme").unwrap();
+    assert_eq!(imported.id, id);
+    assert_eq!(target, projects.join("-Users-luis-proyectos-acme").join(format!("{ID}.jsonl")));
+    assert_eq!(scan(&projects, None).len(), 1, "Claude Code (y la app) la encuentran ahí");
+    assert!(lap_core::share::import(&projects, &fixture_file(), "/Users/luis/proyectos/acme").is_err(), "no sobrescribe");
+
+    let other = dir.path().join("notas.jsonl");
+    std::fs::write(&other, "{\"hola\": 1}\n").unwrap();
+    assert!(lap_core::share::inspect(&other).is_err(), "un JSONL cualquiera no es una sesión");
+}

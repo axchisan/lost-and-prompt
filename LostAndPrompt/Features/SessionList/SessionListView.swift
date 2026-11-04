@@ -191,6 +191,28 @@ struct SessionContextMenu: View {
                 .disabled(!session.folderExists)
         }
         Button("Mostrar en Finder", systemImage: "folder") { model.revealInFinder(session) }
+        Divider()
+        ExportMenu(session: session)
+    }
+}
+
+/// «Exportar»: la conversación en Markdown para leerla, o el archivo de la sesión para que otra
+/// persona la importe y la continúe en Claude Code.
+struct ExportMenu: View {
+    @Environment(AppModel.self) private var model
+    var session: Session
+
+    var body: some View {
+        Menu("Exportar", systemImage: "square.and.arrow.up") {
+            Button("Copiar como Markdown", systemImage: "doc.on.clipboard") { model.copyMarkdown(session) }
+            Button("Exportar como Markdown…", systemImage: "doc.text") { model.exportMarkdown(session) }
+            ShareLink(item: SessionMarkdownFile(session: session), preview: SharePreview(session.title)) {
+                Label("Compartir conversación…", systemImage: "square.and.arrow.up")
+            }
+            Divider()
+            Button("Exportar para continuar en Claude Code…", systemImage: "arrow.up.doc") { model.exportForClaudeCode(session) }
+                .disabled(session.filePath == nil)
+        }
     }
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { Archive, ArchiveRestore, Check, CodeXml, Copy, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
 import { links, tints, type Collection, type Session, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
@@ -282,7 +282,7 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
     onClose();
   };
   const x = Math.min(state.x, window.innerWidth - 240);
-  const y = Math.min(state.y, window.innerHeight - 360);
+  const y = Math.max(8, Math.min(state.y, window.innerHeight - 480));
   if (state.folder) {
     const folder = state.folder;
     return (
@@ -371,6 +371,19 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
       <button role="menuitem" onClick={run(() => actions.reveal(session))}>
         <Folder size={14} />
         {t("showInFolder")}
+      </button>
+      <hr />
+      <button role="menuitem" onClick={run(() => actions.copyMarkdown(session))}>
+        <ClipboardCopy size={14} />
+        {t("copyMarkdown")}
+      </button>
+      <button role="menuitem" onClick={run(() => actions.exportMarkdown(session))}>
+        <FileDown size={14} />
+        {t("exportMarkdown")}
+      </button>
+      <button role="menuitem" onClick={run(() => actions.exportSession(session))}>
+        <Share size={14} />
+        {t("exportForClaude")}
       </button>
     </div>
   );

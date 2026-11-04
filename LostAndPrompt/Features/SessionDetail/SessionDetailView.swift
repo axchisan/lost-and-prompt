@@ -191,6 +191,8 @@ struct SessionDetailView: View {
                 }
                 Button("Mostrar en Finder", systemImage: "folder") { model.revealInFinder(session) }
                 Button("Copiar ID de la sesión", systemImage: "number") { model.copySessionID(session) }
+                Divider()
+                ExportMenu(session: session)
             } label: {
                 Label("Más", systemImage: "ellipsis.circle")
             }
