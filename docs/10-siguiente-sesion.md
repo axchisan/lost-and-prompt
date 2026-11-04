@@ -21,6 +21,11 @@ Punto de partida para una sesión nueva de Claude Code abierta en la raíz del r
 
 ## 0. Primero: fallo del aviso de actualización en Windows
 
+> **Hecho en la 0.6.1** (puntos 1–4): comprobación al mostrar/enfocar la ventana (si pasó más de 1 h)
+> y cada 4 h, botón fijo «Versión x.y.z disponible» en la barra lateral, aviso automático una vez por
+> versión sin tapar otros diálogos y cada comprobación en el registro. Falta el punto 5 (preguntar al
+> amigo) y probarlo en Windows real con la 0.6.2.
+
 Un amigo del usuario abrió la app en Windows y **no le salió el aviso** de la versión nueva.
 
 **Causa probable (revisada en el código, sin reproducir aún):**

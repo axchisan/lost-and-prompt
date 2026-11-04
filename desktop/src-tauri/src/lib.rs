@@ -467,6 +467,17 @@ fn install_kind() -> &'static str {
     }
 }
 
+/// Deja en el registro lo que pasa en la interfaz (p. ej. cada comprobación de actualizaciones),
+/// para poder pedir el archivo con «Abrir registros» cuando algo falla en otro equipo.
+#[tauri::command]
+fn write_log(warn: bool, message: String) {
+    if warn {
+        log::warn!("{message}");
+    } else {
+        log::info!("{message}");
+    }
+}
+
 #[tauri::command]
 fn open_logs(app: AppHandle) -> Result<(), String> {
     let dir = app.path().app_log_dir().map_err(|e| e.to_string())?;
@@ -590,7 +601,8 @@ pub fn run() {
             autostart_enabled,
             set_autostart,
             install_kind,
-            open_logs
+            open_logs,
+            write_log
         ])
         .run(tauri::generate_context!())
         .expect("no se pudo iniciar Lost & Prompt");

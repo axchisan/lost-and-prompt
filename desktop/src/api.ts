@@ -112,6 +112,7 @@ export const api = {
   setAutostart: (enabled: boolean) => invoke<void>("set_autostart", { enabled }),
   installKind: () => invoke<"nsis" | "scoop" | "appimage" | "package" | "dev">("install_kind"),
   openLogs: () => invoke<void>("open_logs"),
+  writeLog: (message: string, warn = false) => invoke<void>("write_log", { warn, message }),
 };
 
 export interface TrayContent {

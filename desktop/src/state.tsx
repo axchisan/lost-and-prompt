@@ -160,7 +160,11 @@ export interface AppContext {
     menu: (state: MenuState) => void;
     confirm: (message: string, confirmLabel: string, action: () => void) => void;
     about: () => void;
+    /** Vuelve a abrir el aviso de la versión nueva que ya se encontró. */
+    update: () => void;
   };
+  /** Versión nueva encontrada, aunque se haya cerrado su aviso: deja un indicador fijo. */
+  pendingUpdate: string | null;
 }
 
 export const Ctx = createContext<AppContext | null>(null);

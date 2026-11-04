@@ -55,6 +55,12 @@ export default function App() {
   const [dialog, setDialog] = useState<Dialog>(null);
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
+  const dialogRef = useRef(dialog);
+  dialogRef.current = dialog;
+  // Versión cuyo aviso ya salió solo: no se repite en cada comprobación, queda el indicador.
+  const announcedRef = useRef<string | null>(null);
+  const lastCheckRef = useRef(0);
   const [systemDark, setSystemDark] = useState(() => matchMedia("(prefers-color-scheme: dark)").matches);
   const loadingRef = useRef(false);
   const prefsRef = useRef(prefs);
@@ -356,11 +362,25 @@ export default function App() {
       }
     },
     checkForUpdates: async (manual) => {
+      lastCheckRef.current = Date.now();
+      const how = manual ? "manual" : "automática";
       try {
         const update = await check();
-        if (update) setDialog({ kind: "update", update });
-        else if (manual) setToast(t("upToDate"));
+        api.writeLog(`actualizaciones (${how}): ${update ? `hay ${update.version}` : "al día"}`).catch(() => {});
+        setPendingUpdate(update);
+        if (!update) {
+          if (manual) setToast(t("upToDate"));
+          return;
+        }
+        // El aviso automático sale una vez por versión y nunca tapa otro diálogo abierto;
+        // el indicador de la barra lateral lo vuelve a abrir cuando se quiera.
+        const busy = dialogRef.current && dialogRef.current.kind !== "update";
+        if (manual || (!busy && announcedRef.current !== update.version)) {
+          announcedRef.current = update.version;
+          setDialog({ kind: "update", update });
+        }
       } catch (error) {
+        api.writeLog(`actualizaciones (${how}): falló la comprobación: ${error}`, true).catch(() => {});
         // Sin conexión con GitHub (DNS, antivirus, proxy…), el error técnico no ayuda: se explica.
         if (manual) showError(`${t("updateCheckFailed")} ${isConnectionError(error) ? t("updateConnectionHint") : ""}\n\n${error}`);
       }
@@ -384,16 +404,30 @@ export default function App() {
       .catch(() => {});
   }, [library, prefs.showInTray, t]);
 
-  // Actualizaciones: al abrir (con unos segundos de margen) y cada 24 horas.
+  // Actualizaciones: al abrir (con unos segundos de margen), cada pocas horas y al volver a la
+  // ventana. En Windows la app vive en la bandeja durante días: abrirla desde el acceso directo
+  // solo muestra la ventana que ya existía, así que comprobar al arrancar no basta.
   const checkRef = useRef(actions.checkForUpdates);
   checkRef.current = actions.checkForUpdates;
   useEffect(() => {
     if (!prefs.autoUpdate) return;
+    const HOUR = 60 * 60 * 1000;
+    const ifStale = () => {
+      if (Date.now() - lastCheckRef.current > HOUR) checkRef.current(false);
+    };
     const first = setTimeout(() => checkRef.current(false), 5000);
-    const daily = setInterval(() => checkRef.current(false), 24 * 60 * 60 * 1000);
+    const every = setInterval(() => checkRef.current(false), 4 * HOUR);
+    const shown = listen("window-shown", ifStale);
+    const focus = getCurrentWindow()
+      .onFocusChanged(({ payload }) => payload && ifStale())
+      .catch(() => () => {});
+    window.addEventListener("focus", ifStale);
     return () => {
       clearTimeout(first);
-      clearInterval(daily);
+      clearInterval(every);
+      shown.then((off) => off());
+      focus.then((off) => off());
+      window.removeEventListener("focus", ifStale);
     };
   }, [prefs.autoUpdate]);
 
@@ -528,7 +562,9 @@ export default function App() {
       menu: setMenu,
       confirm: (message, confirmLabel, action) => setDialog({ kind: "confirm", message, confirmLabel, action }),
       about: () => setDialog({ kind: "about" }),
+      update: () => pendingUpdate && setDialog({ kind: "update", update: pendingUpdate }),
     },
+    pendingUpdate: pendingUpdate?.version ?? null,
   };
 
   const layout = sidebar.kind === "activity" ? "two" : prefs.listStyle === "cards" ? (selected ? "cards-open" : "two") : "";

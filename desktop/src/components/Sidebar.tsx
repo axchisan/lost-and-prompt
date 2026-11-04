@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
+import { Archive, CircleArrowDown, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
@@ -195,7 +195,7 @@ function FolderRow({ node, depth, isHome }: { node: FolderNode; depth: number; i
 
 /** Engranaje fijo abajo: en Windows y Linux no hay barra de menús como en Mac. */
 function SidebarFooter() {
-  const { t, open, modKey, actions } = useApp();
+  const { t, open, modKey, actions, pendingUpdate } = useApp();
   const [menu, setMenu] = useState(false);
   useEffect(() => {
     if (!menu) return;
@@ -231,6 +231,12 @@ function SidebarFooter() {
       >
         <Settings />
       </button>
+      {pendingUpdate && (
+        <button className="update-pill" onClick={open.update} title={t("updateReadyHint")}>
+          <CircleArrowDown size={14} aria-hidden />
+          {t("updateReady", { version: pendingUpdate })}
+        </button>
+      )}
       {menu && (
         <div className="menu up" role="menu" onClick={(e) => e.stopPropagation()}>
           {item(<Settings size={14} />, t("settingsEllipsis"), () => open.settings(), `${modKey},`)}

@@ -98,4 +98,6 @@ pub fn show_main(app: &AppHandle) {
         let _ = window.show();
         let _ = window.set_focus();
     }
+    // La interfaz aprovecha para buscar actualizaciones si hace rato que no lo hace.
+    let _ = app.emit("window-shown", ());
 }

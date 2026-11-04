@@ -7,6 +7,28 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-04
+
+### Fixed
+- Windows and Linux: the new-version notice could take a day or more to appear, because the app
+  lives in the tray and only checked when it started and every 24 hours. It now also checks when
+  you open or return to the window (if the last check was over an hour ago) and every 4 hours.
+- Windows and Linux: once a new version is found, a "Version x.y.z available" button stays at the
+  bottom of the sidebar, so closing the notice, or another dialog covering it, no longer hides the
+  update. The automatic notice no longer replaces a dialog you have open.
+- Windows and Linux: every update check, including failed automatic ones, is written to the log
+  ("Open Logs"), to help diagnose why an update is not showing up.
+
+### Corregido
+- Windows y Linux: el aviso de versión nueva podía tardar un día o más en salir, porque la app vive
+  en la bandeja y solo comprobaba al arrancar y cada 24 horas. Ahora también comprueba al abrir la
+  ventana o volver a ella (si la última comprobación fue hace más de una hora) y cada 4 horas.
+- Windows y Linux: cuando hay una versión nueva, queda un botón «Versión x.y.z disponible» abajo en
+  la barra lateral, así que cerrar el aviso, o que otro diálogo lo tape, ya no esconde la
+  actualización. El aviso automático ya no sustituye a un diálogo que tengas abierto.
+- Windows y Linux: cada comprobación de actualizaciones, también las automáticas que fallan, queda
+  en el registro («Abrir registros»), para poder averiguar por qué no aparece una actualización.
+
 ## [0.6.0] - 2026-11-04
 
 ### Added
@@ -295,7 +317,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.4.2...v0.5.0
