@@ -1,19 +1,29 @@
 import { Composition, registerRoot } from "remotion";
-import { DURATION, FPS, Promo, type PromoProps } from "./Promo";
+import { DURATION_S, FPS, Launch } from "./v2/Launch";
 
-// Cuatro versiones: 16:9 (YouTube, LinkedIn, X) y 9:16 (Reels, TikTok, Shorts), en español e inglés.
-const versions: { id: string; props: PromoProps; width: number; height: number }[] = [
-  { id: "promo-es-16x9", props: { lang: "es", vertical: false }, width: 1920, height: 1080 },
-  { id: "promo-en-16x9", props: { lang: "en", vertical: false }, width: 1920, height: 1080 },
-  { id: "promo-es-9x16", props: { lang: "es", vertical: true }, width: 1080, height: 1920 },
-  { id: "promo-en-9x16", props: { lang: "en", vertical: true }, width: 1080, height: 1920 },
-];
+// Un formato por red y dispositivo, en español e inglés:
+//   16x9  1920×1080  YouTube, LinkedIn, X, web
+//   9x16  1080×1920  Reels, TikTok, YouTube Shorts, historias
+//   1x1   1080×1080  feed de Instagram, LinkedIn y X
+//   4x5   1080×1350  feed de Instagram y LinkedIn (el que más ocupa en el móvil)
+export const FORMATS = { "16x9": [1920, 1080], "9x16": [1080, 1920], "1x1": [1080, 1080], "4x5": [1080, 1350] } as const;
 
 const Root: React.FC = () => (
   <>
-    {versions.map((v) => (
-      <Composition key={v.id} id={v.id} component={Promo} defaultProps={v.props} durationInFrames={DURATION} fps={FPS} width={v.width} height={v.height} />
-    ))}
+    {(["es", "en"] as const).flatMap((lang) =>
+      Object.entries(FORMATS).map(([format, [width, height]]) => (
+        <Composition
+          key={`${lang}-${format}`}
+          id={`launch-${lang}-${format}`}
+          component={Launch}
+          defaultProps={{ lang }}
+          durationInFrames={Math.round(DURATION_S * FPS)}
+          fps={FPS}
+          width={width}
+          height={height}
+        />
+      )),
+    )}
   </>
 );
 
