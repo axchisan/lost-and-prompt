@@ -1,13 +1,13 @@
 import { AbsoluteFill, Easing, Sequence, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { Caption, Counter, Flurry, Headline, Logo, Outro, Terminal } from "../v2/Text";
-import esEdl from "../../edit/edl-es-16x9.json";
+import { Caption, Counter, Flurry, Headline, Logo, Outro, Terminal } from "./Text";
+import { EDLS } from "./edls";
 
 // Capa gráfica del vídeo v3, transparente salvo en las escenas de texto. Se renderiza aparte
 // (ProRes 4444 con alfa) y el editor (Blender) la pone encima de las tomas de la app. Todo su
 // tiempo sale de la misma EDL que usa Blender, así que cursor, rótulos y cortes coinciden al fotograma.
-type Edl = typeof esEdl;
+type Edl = (typeof EDLS)[keyof typeof EDLS];
 type Cam = { f: number; scale: number; x: number; y: number; cursor: { x: number; y: number } | null; click: number | null };
-const EDL: Record<string, Edl> = { "es-16x9": esEdl };
+export const EDL: Record<string, Edl> = EDLS;
 const out = Easing.bezier(0.16, 1, 0.3, 1);
 
 const COPY = {
@@ -31,9 +31,29 @@ const COPY = {
     terminal: ["✓ Sesión reanudada · Migración del checkout a Stripe", "› ¿Y los pedidos que ya estaban pagados con PayPal?", "  Siguen intactos: comprobé los 1.284 pedidos."],
     headline: "Y todo, *a tu manera.", free: "Gratis. Y de código *abierto.", private: "Todo se queda en tu equipo.",
   },
+  en: {
+    intro: "Every day you open *Claude Code.", projects: "Dozens of projects.", sessions: "sessions", question: "Where did that session go?",
+    tagline: "Every Claude Code session you ever lost, found.", locale: "en-US",
+    folders: ["acme-store", "blog", "platformer-bot", "dotfiles", "tiny-date", "ml-lab", "portfolio", "weather-ios", "scripts", "acme-api", "Documents", "trip-2026"],
+    captions: {
+      biblioteca: ["Library", "Every session, from every folder"],
+      búsqueda: ["Search", "Find any conversation", "⌘K · Ctrl+K"],
+      reanudar: ["Resume", "Pick up right where you left off"],
+      conversación: ["Conversations", "Read and search inside every session", "⌘F · Ctrl+F"],
+      organizar: ["Organize", "Favorites and collections, your way"],
+      tarjetas: ["View", "Rows or cards"],
+      actividad: ["Activity", "What you use and what it costs"],
+      exportar: ["Share", "Copy it as Markdown"],
+      guía: ["Guide", "Learn everything it does"],
+      oscuro: ["Appearance", "Light or dark"],
+      windows: ["Cross-platform", "On Windows and Linux too"],
+    } as Record<string, string[]>,
+    terminal: ["✓ Session resumed · Checkout migration to Stripe", "› What about orders already paid with PayPal?", "  They're untouched: I checked all 1,284 orders."],
+    headline: "And all of it, *your way.", free: "Free. And *open source.", private: "Everything stays on your computer.",
+  },
 };
 
-export type OverlayProps = { lang: "es"; format: "16x9" };
+export type OverlayProps = { edlKey: string };
 
 /** Cámara de la escena activa en el fotograma `fr` (la que entra manda durante una transición). */
 function active(edl: Edl, fr: number) {
@@ -154,10 +174,10 @@ const Flash: React.FC = () => {
   return <AbsoluteFill style={{ background: "#fff", opacity: o }} />;
 };
 
-export const Overlay: React.FC<OverlayProps> = ({ lang, format }) => {
+export const Overlay: React.FC<OverlayProps> = ({ edlKey }) => {
   const { fps } = useVideoConfig();
-  const edl = EDL[`${lang}-${format}`];
-  const c = COPY[lang];
+  const edl = EDL[edlKey];
+  const c = COPY[edl.lang as "es" | "en"];
   const m = edl.marks;
   const f = (s: number) => Math.round(s * fps);
   const BEAT = 60 / 129.2;

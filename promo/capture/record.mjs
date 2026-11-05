@@ -14,13 +14,16 @@ import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "nod
 import path from "node:path";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const W = 1440;
-const H = 810;
-const SCALE = Number(process.env.LP_SCALE || 4); // 4×: la cámara puede acercarse sin perder nitidez
+const args0 = process.argv.slice(2);
+const format = args0.includes("--format") ? args0[args0.indexOf("--format") + 1] : "16x9";
+// Ventana de la app con la proporción de cada formato (la interfaz se reorganiza sola) y escala de
+// captura suficiente para que la cámara pueda acercarse sin perder nitidez.
+const LAYOUT = { "16x9": [1440, 810, 4], "9x16": [900, 1600, 3], "4x5": [1080, 1350, 3], "1x1": [1200, 1200, 3] };
+const [W, H, SCALE] = LAYOUT[format];
 const FPS = 60;
 const args = process.argv.slice(2);
 const lang = args.includes("--lang") ? args[args.indexOf("--lang") + 1] : "es";
-const wanted = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--lang");
+const wanted = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--lang" && args[i - 1] !== "--format");
 const L = (es, en) => (lang === "en" ? en : es);
 
 /** Herramientas de una toma: cada acción queda apuntada con su hora. */
@@ -122,7 +125,9 @@ function director(page, events, start) {
       let rect;
       if (typeof target === "string") {
         const b = await page.locator(target).first().boundingBox();
-        rect = { x: b.x / W - pad, y: b.y / H - pad, w: b.width / W + pad * 2, h: b.height / H + pad * 2 };
+        const x0 = Math.max(0, b.x / W - pad), y0 = Math.max(0, b.y / H - pad);
+        const x1 = Math.min(1, (b.x + b.width) / W + pad), y1 = Math.min(1, (b.y + b.height) / H + pad);
+        rect = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
       } else rect = target;
       log("focus", { rect: Object.fromEntries(Object.entries(rect).map(([k, v]) => [k, +v.toFixed(4)])), label });
     },
@@ -164,13 +169,13 @@ const shots = {
     await d.wait(650);
     await d.press("Meta+Enter");
     await d.wait(200);
-    await d.focus({ x: 0.36, y: 0.02, w: 0.62, h: 0.42 }, "detalle");
+    await d.focus(".detail .head", "detalle", 0.015);
     await d.wait(2000);
   },
   async resume(d) {
     await d.wait(400);
     const button = `button:has-text("${L("Reanudar en", "Resume in")}")`;
-    await d.focus({ x: 0.36, y: 0.02, w: 0.6, h: 0.32 }, "cabecera");
+    await d.focus(".detail .head", "cabecera", 0.015);
     await d.move(button, 1200);
     await d.wait(500);
     await d.focus(button, "botón", 0.07);
@@ -186,7 +191,7 @@ const shots = {
     await d.wait(700);
     await d.press("Meta+f");
     await d.wait(250);
-    await d.focus({ x: 0.36, y: 0.0, w: 0.62, h: 0.62 }, "buscar");
+    await d.focus(".detail", "buscar", 0.0);
     await d.type("webhook", 115);
     await d.wait(700);
     await d.press("Enter");
@@ -196,12 +201,12 @@ const shots = {
   },
   async organize(d) {
     await d.wait(300);
-    await d.focus({ x: 0.15, y: 0.0, w: 0.85, h: 0.4 }, "favorito");
+    await d.focus(".detail .head", "favorito", 0.015);
     await d.move(`[aria-label="${L("Favoritos", "Favorites")}"] >> nth=-1`, 900).catch(() => {});
     await d.wait(300);
     await d.press("Meta+d");
     await d.wait(1100);
-    await d.focus({ x: 0.0, y: 0.08, w: 0.42, h: 0.75 }, "colecciones");
+    await d.focus(".sidebar", "colecciones", 0.0);
     const target = `.sidebar :text("${L("Código abierto", "Open source")}")`;
     await d.move(row(L("Responder issues pendientes", "Triage open issues")), 900);
     await d.wait(250);
@@ -213,13 +218,13 @@ const shots = {
     d.mark("drop");
     await d.wait(700);
     await d.click(target, { ms: 600 });
-    await d.focus({ x: 0.0, y: 0.0, w: 0.6, h: 0.5 }, "colección");
+    await d.focus(".list", "colección", 0.0);
     await d.wait(1600);
   },
   async cards(d) {
     await d.wait(300);
     await d.press("Meta+2");
-    await d.focus({ x: 0.15, y: 0.03, w: 0.85, h: 0.9 }, "tarjetas");
+    await d.focus(".cards", "tarjetas", 0.0);
     await d.wait(700);
     await d.move(".card >> nth=1", 900);
     await d.wait(300);
@@ -230,7 +235,7 @@ const shots = {
     await d.wait(300);
     await d.click(`.sidebar :text("${L("Actividad", "Activity")}")`, { ms: 700 });
     await d.wait(300);
-    await d.focus({ x: 0.15, y: 0.0, w: 0.85, h: 0.62 }, "actividad");
+    await d.focus(".activity-inner", "actividad", 0.0);
     await d.move({ x: W * 0.55, y: H * 0.42 }, 1100);
     await d.move({ x: W * 0.82, y: H * 0.38 }, 1100);
     await d.wait(700);
@@ -238,11 +243,12 @@ const shots = {
   async exportmd(d) {
     await d.wait(300);
     const more = `[aria-label="${L("Más", "More")}"]`;
-    await d.focus({ x: 0.55, y: 0.0, w: 0.45, h: 0.62 }, "menú");
+    await d.focus(".detail .head", "menú", 0.015);
     await d.click(more, { ms: 900 });
     await d.wait(500);
     await d.click(`.menu :text("${L("Copiar como Markdown", "Copy as Markdown")}")`, { ms: 800 });
-    await d.focus({ x: 0.3, y: 0.55, w: 0.6, h: 0.45 }, "aviso");
+    await d.wait(150);
+    await d.focus(".toast", "aviso", 0.03).catch(() => {});
     await d.wait(1300);
   },
   async guide(d) {
@@ -285,8 +291,8 @@ async function record(name) {
   await page.goto("http://localhost:1420", { waitUntil: "networkidle" });
   await page.waitForTimeout(1200);
 
-  const dir = path.join(ROOT, "public/clips", lang);
-  const frameDir = path.join(ROOT, "out/frames", lang, name);
+  const dir = path.join(ROOT, "public/clips", lang, format);
+  const frameDir = path.join(ROOT, "out/frames", lang, format, name);
   rmSync(frameDir, { recursive: true, force: true });
   mkdirSync(frameDir, { recursive: true });
   mkdirSync(dir, { recursive: true });
@@ -325,8 +331,8 @@ async function record(name) {
   }
   const out = path.join(dir, `${name}.mp4`);
   execFileSync("ffmpeg", ["-v", "error", "-y", "-framerate", String(FPS), "-i", path.join(ticks, "%06d.jpg"), "-vf", `scale=${W * SCALE}:${H * SCALE}:flags=lanczos,format=yuv420p`, "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-movflags", "+faststart", out]);
-  writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ name, lang, width: W, height: H, duration: +((end - start) / 1000).toFixed(3), events }, null, 1));
-  console.log(`ok ${lang}/${name}: ${((end - start) / 1000).toFixed(1)} s, ${frames.length} fotogramas capturados, ${events.length} eventos`);
+  writeFileSync(path.join(dir, `${name}.json`), JSON.stringify({ name, lang, format, width: W, height: H, scale: SCALE, duration: +((end - start) / 1000).toFixed(3), events }, null, 1));
+  console.log(`ok ${lang}/${format}/${name}: ${((end - start) / 1000).toFixed(1)} s, ${frames.length} fotogramas capturados, ${events.length} eventos`);
 }
 
 for (const name of wanted.length ? wanted : Object.keys(shots)) await record(name);

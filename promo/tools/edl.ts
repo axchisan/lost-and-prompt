@@ -3,14 +3,16 @@
 //   - Remotion (src/v3): la capa transparente con cursor, rótulos y transiciones gráficas.
 // Uso: node tools/edl.ts [es|en] [16x9] → edit/edl-<lang>-<formato>.json
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { cursorAt, viewAt, type ClipData } from "../src/v2/camera.ts";
+import { cursorAt, viewAt, type ClipData } from "../src/v3/camera.ts";
 
 const lang = (process.argv[2] || "es") as "es" | "en";
 const format = process.argv[3] || "16x9";
 const SIZE: Record<string, [number, number]> = { "16x9": [1920, 1080], "9x16": [1080, 1920], "1x1": [1080, 1080], "4x5": [1080, 1350] };
 const [W, H] = SIZE[format];
 const FPS = 60;
-const SOURCE_H = 810 * 4; // píxeles reales de alto de la toma (grabada a 4×)
+// Acercamiento mínimo en formatos de móvil: nunca más de esta fracción del alto de la app a la
+// vez, para que el texto de la interfaz se lea en un teléfono (16:9 sin límite).
+const MAX_H: Record<string, number | undefined> = { "9x16": 0.5, "4x5": 0.6, "1x1": 0.65 };
 
 // Compases de la pista en segundos de vídeo (tools/analyze_music.py). La música es continua
 // salvo un salto: de 38,29 s de vídeo se pasa a 45,859 s de la pista (se quitan 4 compases de la pausa).
@@ -42,8 +44,7 @@ const scenes: Scene[] = [
   { name: "windows", clip: "windows", from: T.windows, to: T.free, src: 0.4, rate: 1, in: { type: "push-left", frames: 14 } },
 ];
 
-// Nunca ampliar por encima de 1×: el encuadre no puede tener menos alto que el cuadro de salida.
-const minH = H / SOURCE_H;
+
 const f = (s: number) => Math.round(s * FPS);
 const out = {
   lang, format, width: W, height: H, fps: FPS, duration: T.end, frames: f(T.end), marks: T, music: { file: "music/track.mp3", jump: MUSIC_JUMP, fadeOut: [T.end - 3.2, T.end] },
@@ -52,7 +53,10 @@ const out = {
 };
 
 for (const [i, s] of scenes.entries()) {
-  const data = JSON.parse(readFileSync(`public/clips/${lang}/${s.clip}.json`, "utf8")) as ClipData;
+  const data = JSON.parse(readFileSync(`public/clips/${lang}/${format}/${s.clip}.json`, "utf8")) as ClipData & { scale: number };
+  // Nunca ampliar por encima de 1×: el encuadre no puede tener menos alto que el cuadro de salida.
+  const minH = H / (data.height * data.scale);
+  const sourceAspect = data.width / data.height;
   // Margen para las transiciones que solapan con la escena anterior.
   const lead = s.in.frames;
   const first = f(s.from) - lead;
@@ -78,7 +82,7 @@ for (const [i, s] of scenes.entries()) {
   };
   for (let fr = first; fr < last; fr++) {
     const t = srcAt(fr);
-    const v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH });
+    const v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH, maxH: MAX_H[format], sourceAspect });
     const c = rawCursor.has(fr) ? smooth(fr) : null;
     const lastClick = [...data.events].reverse().find((e) => e.type === "click" && e.t <= t);
     camera.push({
@@ -91,6 +95,29 @@ for (const [i, s] of scenes.entries()) {
       click: lastClick && lastClick.type === "click" && t - lastClick.t < 0.6 ? +(t - lastClick.t).toFixed(3) : null,
     });
   }
+  if (MAX_H[format]) {
+    // La cámara sigue al cursor: se suaviza (σ ≈ 5 fotogramas) para que se deslice, no tiemble.
+    const raw = camera.map((c) => ({ ...c }));
+    for (let i = 0; i < camera.length; i++) {
+      let sx = 0, sy = 0, ss = 0, sw = 0;
+      for (let k = -15; k <= 15; k++) {
+        const c = raw[i + k];
+        if (!c) continue;
+        const w = Math.exp(-(k * k) / (2 * 5 * 5));
+        sx += c.x * w; sy += c.y * w; ss += c.scale * w; sw += w;
+      }
+      const nc = { x: sx / sw, y: sy / sw, scale: ss / sw };
+      // El cursor se recoloca respecto a la cámara suavizada.
+      const cur = raw[i].cursor;
+      const ov = { w: 1 / raw[i].scale, h: 1 / raw[i].scale };
+      const nv = { w: 1 / nc.scale, h: 1 / nc.scale };
+      if (cur) {
+        const sxp = raw[i].x - ov.w / 2 + cur.x * ov.w, syp = raw[i].y - ov.h / 2 + cur.y * ov.h;
+        camera[i].cursor = { x: +((sxp - (nc.x - nv.w / 2)) / nv.w).toFixed(4), y: +((syp - (nc.y - nv.h / 2)) / nv.h).toFixed(4) };
+      }
+      camera[i].x = +nc.x.toFixed(5); camera[i].y = +nc.y.toFixed(5); camera[i].scale = +nc.scale.toFixed(5);
+    }
+  }
   // Sonidos de interfaz de esta escena, en su segundo del vídeo.
   for (const e of data.events) {
     const at = s.from + (e.t - s.src) / s.rate;
@@ -100,7 +127,7 @@ for (const [i, s] of scenes.entries()) {
     if (e.type === "shortcut") out.sfx.push({ at, src: "menu", volume: 0.3 });
     if (e.type === "mark" && e.label === "drop") out.sfx.push({ at, src: "drop", volume: 0.45 });
   }
-  out.scenes.push({ ...s, first, last, srcIn: srcAt(first), srcOut: srcAt(last), clipFile: `clips/${lang}/${s.clip}.mp4`, sourceSize: [1440 * 4, 810 * 4], camera });
+  out.scenes.push({ ...s, first, last, srcIn: srcAt(first), srcOut: srcAt(last), clipFile: `clips/${lang}/${format}/${s.clip}.mp4`, sourceSize: [data.width * data.scale, data.height * data.scale], camera });
 }
 
 // Sonidos de montaje.
@@ -118,4 +145,4 @@ sfx(T.free - 0.05, "whoosh", 0.35); sfx(T.free + 0.02, "hit", 0.4); sfx(T.outro,
 mkdirSync("edit", { recursive: true });
 const file = `edit/edl-${lang}-${format}.json`;
 writeFileSync(file, JSON.stringify(out));
-console.log(`${file}: ${out.scenes.length} escenas, ${out.sfx.length} sonidos, ${out.frames} fotogramas (${T.end.toFixed(1)} s); zoom máx. ${(1 / minH).toFixed(2)}× sobre el cuadro completo`);
+console.log(`${file}: ${out.scenes.length} escenas, ${out.sfx.length} sonidos, ${out.frames} fotogramas (${T.end.toFixed(1)} s)`);

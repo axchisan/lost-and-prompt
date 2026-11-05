@@ -16,7 +16,6 @@ export type Rect = { x: number; y: number; w: number; h: number };
 export type View = { x: number; y: number; w: number; h: number };
 export type ClipData = { name: string; width: number; height: number; duration: number; events: ClipEvent[] };
 
-const SOURCE = 1440 / 810;
 const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -53,8 +52,8 @@ export function cursorAt(events: ClipEvent[], t: number): Pt {
 }
 
 /** Encuadre que muestra `rect` con margen, con la proporción `aspect` (ancho/alto de salida). */
-function frameFor(rect: Rect, aspect: number, minH: number): View {
-  const ratio = aspect / SOURCE; // ancho del encuadre = alto × ratio (en unidades 0–1)
+function frameFor(rect: Rect, aspect: number, minH: number, source: number): View {
+  const ratio = aspect / source; // ancho del encuadre = alto × ratio (en unidades 0–1)
   const maxH = Math.min(1, 1 / ratio);
   let h = Math.max(rect.h * 1.18, (rect.w * 1.18) / ratio, minH);
   h = Math.min(h, maxH);
@@ -68,20 +67,22 @@ function frameFor(rect: Rect, aspect: number, minH: number): View {
  * Encuadre en el segundo `t`: pasa suavemente de una zona de interés a la siguiente (0,7 s) y, en
  * formatos estrechos, sigue al cursor en horizontal para que la acción nunca quede fuera.
  */
-export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { lead?: number; zoom?: number; minH?: number } = {}): View {
+export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { lead?: number; zoom?: number; minH?: number; maxH?: number; sourceAspect?: number } = {}): View {
+  const source = opts.sourceAspect ?? 1440 / 810;
   const lead = opts.lead ?? 0.15;
   let zoom = opts.zoom ?? 1;
-  const minH = Math.max(opts.minH ?? 0, aspect < 1 ? 0.62 : 0.42);
+  // Con una toma de la misma proporción que la salida, el acercamiento lo limita la nitidez (minH).
+  const minH = Math.max(opts.minH ?? 0, Math.abs(aspect - source) < 0.01 ? 0.42 : aspect < 1 ? 0.62 : 0.42);
   const focuses = events.filter((e): e is Extract<ClipEvent, { type: "focus" }> => e.type === "focus");
   const full: Rect = { x: 0, y: 0, w: 1, h: 1 };
-  let from = frameFor(full, aspect, minH);
+  let from = frameFor(full, aspect, minH, source);
   let to = from;
   let k = 1;
   for (const f of focuses) {
     const start = f.t - lead;
     if (t < start) break;
     from = lerpView(from, to, k);
-    to = frameFor(f.rect, aspect, minH);
+    to = frameFor(f.rect, aspect, minH, source);
     k = ease(clamp((t - start) / 0.7, 0, 1));
   }
   let v = lerpView(from, to, k);
@@ -91,7 +92,16 @@ export function viewAt(events: ClipEvent[], t: number, aspect: number, opts: { l
     const w = v.w / zoom;
     v = { w, h, x: v.x + (v.w - w) / 2, y: v.y + (v.h - h) / 2 };
   }
-  if (v.w < 0.75) {
+  if (opts.maxH && v.h > opts.maxH) {
+    // Acercamiento mínimo (formatos de móvil): si la zona no cabe, la cámara sigue al cursor.
+    const k = opts.maxH / v.h;
+    const c = cursorAt(events, t - 0.12);
+    const cx = v.x + v.w / 2 + (c.x - (v.x + v.w / 2)) * 0.85;
+    const cy = v.y + v.h / 2 + (c.y - (v.y + v.h / 2)) * 0.85;
+    const w = v.w * k, h = opts.maxH;
+    v = { w, h, x: clamp(cx - w / 2, 0, 1 - w), y: clamp(cy - h / 2, 0, 1 - h) };
+  }
+  if (v.w < 0.75 && Math.abs(aspect - source) > 0.01) {
     // Formatos estrechos: el cursor manda en horizontal (con suavidad), sin salir de la toma.
     const c = cursorAt(events, t - 0.12);
     const cx = v.x + v.w / 2 + (c.x - (v.x + v.w / 2)) * 0.75;

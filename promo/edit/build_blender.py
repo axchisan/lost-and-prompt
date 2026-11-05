@@ -1,8 +1,10 @@
 """Monta el vídeo v3 en el editor de vídeo de Blender a partir de la EDL.
 
-Se ejecuta dentro de Blender (por MCP o en el editor de texto) con el proyecto
-promo/edit/lanzamiento.blend abierto:
-    exec(open("/…/promo/edit/build_blender.py").read())
+Se ejecuta dentro de Blender con la plantilla «Editar vídeo» abierta (por MCP, en la consola o en
+segundo plano), indicando idioma y formato; guarda edit/lanzamiento-<idioma>-<formato>.blend:
+    LP_LANG, LP_FORMAT = "es", "9x16"; exec(open("/…/promo/edit/build_blender.py").read())
+En segundo plano (monta y renderiza sin abrir la ventana):
+    Blender -b edit/lanzamiento.blend --python-expr 'LP_LANG="en";LP_FORMAT="9x16";exec(open("edit/build_blender.py").read())' -a
 
 Pistas (canales):
     2…12   tomas de la app, una por escena; la que entra va siempre encima
@@ -133,7 +135,7 @@ r.ffmpeg.audio_mixrate = 48000
 r.ffmpeg.audio_channels = "STEREO"
 r.filepath = f"{ROOT}/out/v3-{LANG}-{FORMAT}-raw.mp4"
 
-bpy.ops.wm.save_mainfile()
+bpy.ops.wm.save_as_mainfile(filepath=f"{ROOT}/edit/lanzamiento-{LANG}-{FORMAT}.blend")
 result = {
     "strips": len(ed.strips_all),
     "frames": edl["frames"],
