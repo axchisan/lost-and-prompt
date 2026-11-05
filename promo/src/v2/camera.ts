@@ -20,10 +20,17 @@ const SOURCE = 1440 / 810;
 const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
+const order = new WeakMap<ClipEvent[], ClipEvent[]>();
+const sorted = (events: ClipEvent[]) => {
+  let s = order.get(events);
+  if (!s) order.set(events, (s = [...events].sort((a, b) => a.t - b.t)));
+  return s;
+};
+
 /** Dónde estaba el cursor en el segundo `t` de la toma (misma curva que al grabar). */
 export function cursorAt(events: ClipEvent[], t: number): Pt {
   let p: Pt = { x: 0.62, y: 0.55 };
-  for (const e of events) {
+  for (const e of sorted(events)) {
     if (e.t > t) break;
     if (e.type === "move") {
       const k = clamp((t - e.t) / Math.max(0.001, e.duration), 0, 1);

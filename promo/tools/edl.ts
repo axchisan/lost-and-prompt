@@ -59,10 +59,27 @@ for (const [i, s] of scenes.entries()) {
   const last = f(s.to) + (scenes[i + 1] && ["crossfade", "push-left"].includes(scenes[i + 1].in.type) ? 0 : 0);
   const camera: { f: number; scale: number; x: number; y: number; cursor: { x: number; y: number } | null; click: number | null }[] = [];
   const srcAt = (frame: number) => s.src + ((frame - f(s.from)) / FPS) * s.rate;
+  // Cursor en la toma, fotograma a fotograma, suavizado con una gaussiana (σ ≈ 1,6 fotogramas):
+  // quita los tirones de la grabación sin mover los clics, que ocurren con el ratón quieto.
+  const rawCursor = new Map<number, { x: number; y: number }>();
+  for (let fr = first - 6; fr < last + 6; fr++) {
+    const t = srcAt(fr);
+    if (data.events.some((e) => (e.type === "move" || e.type === "path") && e.t <= t)) rawCursor.set(fr, cursorAt(data.events, t));
+  }
+  const smooth = (fr: number) => {
+    let sx = 0, sy = 0, sw = 0;
+    for (let k = -5; k <= 5; k++) {
+      const p = rawCursor.get(fr + k);
+      if (!p) continue;
+      const w = Math.exp(-(k * k) / (2 * 1.6 * 1.6));
+      sx += p.x * w; sy += p.y * w; sw += w;
+    }
+    return sw ? { x: sx / sw, y: sy / sw } : null;
+  };
   for (let fr = first; fr < last; fr++) {
     const t = srcAt(fr);
     const v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH });
-    const c = data.events.some((e) => (e.type === "move" || e.type === "path") && e.t <= t) ? cursorAt(data.events, t) : null;
+    const c = rawCursor.has(fr) ? smooth(fr) : null;
     const lastClick = [...data.events].reverse().find((e) => e.type === "click" && e.t <= t);
     camera.push({
       f: fr,

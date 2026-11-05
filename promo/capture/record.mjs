@@ -86,7 +86,9 @@ function director(page, events, start) {
       if (over) await go(end, { x: (end.x + to.x) / 2, y: (end.y + to.y) / 2 }, to, Math.max(110, ms * 0.18));
       cursor.x = to.x;
       cursor.y = to.y;
-      log("path", { points, duration: +((Date.now() - t0) / 1000).toFixed(3) });
+      // Hora del primer punto (no la del final): el cursor dibujado empieza a moverse cuando el real.
+      events.push({ t: points[0][0], type: "path", points, duration: +((Date.now() - t0) / 1000).toFixed(3) });
+      events.sort((x, y) => x.t - y.t);
       return to;
     },
     async click(target, { ms = 700, button = "left", pause = 120 } = {}) {
