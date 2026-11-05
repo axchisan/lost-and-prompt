@@ -1,6 +1,7 @@
 import { AbsoluteFill, Easing, Sequence, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Caption, Counter, Flurry, Headline, Logo, Outro, Terminal } from "./Text";
 import { EDLS } from "./edls";
+import { VerticalTitles, type VCopy } from "./VerticalTitles";
 
 // Capa gráfica del vídeo v3, transparente salvo en las escenas de texto. Se renderiza aparte
 // (ProRes 4444 con alfa) y el editor (Blender) la pone encima de las tomas de la app. Todo su
@@ -50,6 +51,36 @@ const COPY = {
     } as Record<string, string[]>,
     terminal: ["✓ Session resumed · Checkout migration to Stripe", "› What about orders already paid with PayPal?", "  They're untouched: I checked all 1,284 orders."],
     headline: "And all of it, *your way.", free: "Free. And *open source.", private: "Everything stays on your computer.",
+  },
+};
+
+
+const VERTICAL_COPY: Record<"es" | "en", VCopy> = {
+  es: {
+    biblioteca: { kicker: "Biblioteca", title: "Todas tus sesiones, de todas tus carpetas", accent: "carpetas", extra: ["~/acme-store", "~/blog", "~/platformer-bot", "~/dotfiles", "~/tiny-date"] },
+    búsqueda: { kicker: "Búsqueda", title: "Encuentra cualquier conversación", extra: ["⌘", "K"] },
+    reanudar: { kicker: "Reanudar", title: "Vuelve justo donde lo dejaste", accent: "dejaste" },
+    conversación: { kicker: "Conversaciones", title: "Lee y busca dentro de cada sesión", extra: ["⌘", "F"] },
+    organizar: { kicker: "Organiza", title: "Favoritos y colecciones, a tu manera", accent: "a tu manera", extra: ["Cliente Acme", "Código abierto", "Casa y trámites", "Juegos"] },
+    tarjetas: { kicker: "Vista", title: "Filas o tarjetas", accent: "tarjetas" },
+    actividad: { kicker: "Actividad", title: "Lo que usas y lo que cuesta" },
+    exportar: { kicker: "Compartir", title: "Cópiala en Markdown", accent: "Markdown", extra: ["Copiar", "Exportar .md", "Continuar en Claude Code"] },
+    guía: { kicker: "Guía", title: "Aprende todo lo que hace", accent: "todo", extra: ["F1", "⌘?"] },
+    oscuro: { kicker: "Apariencia", title: "Claro u oscuro" },
+    windows: { kicker: "Multiplataforma", title: "También en Windows y Linux", accent: "Windows Linux", extra: ["macOS", "Windows", "Linux"] },
+  },
+  en: {
+    biblioteca: { kicker: "Library", title: "Every session, from every folder", accent: "folder", extra: ["~/acme-store", "~/blog", "~/platformer-bot", "~/dotfiles", "~/tiny-date"] },
+    búsqueda: { kicker: "Search", title: "Find any conversation", extra: ["⌘", "K"] },
+    reanudar: { kicker: "Resume", title: "Pick up right where you left off", accent: "off" },
+    conversación: { kicker: "Conversations", title: "Read and search inside every session", extra: ["⌘", "F"] },
+    organizar: { kicker: "Organize", title: "Favorites and collections, your way", accent: "your way", extra: ["Acme client", "Open source", "Home & errands", "Games"] },
+    tarjetas: { kicker: "View", title: "Rows or cards", accent: "cards" },
+    actividad: { kicker: "Activity", title: "What you use and what it costs" },
+    exportar: { kicker: "Share", title: "Copy it as Markdown", accent: "Markdown", extra: ["Copy", "Export .md", "Continue in Claude Code"] },
+    guía: { kicker: "Guide", title: "Learn everything it does", accent: "everything", extra: ["F1", "⌘?"] },
+    oscuro: { kicker: "Appearance", title: "Light or dark" },
+    windows: { kicker: "Cross-platform", title: "On Windows and Linux too", accent: "Windows Linux", extra: ["macOS", "Windows", "Linux"] },
   },
 };
 
@@ -189,7 +220,11 @@ export const Overlay: React.FC<OverlayProps> = ({ edlKey }) => {
   return (
     <AbsoluteFill>
       <Cursor edl={edl} />
-      <Captions edl={edl} captions={c.captions} />
+      {edl.format === "9x16" ? (
+        <VerticalTitles scenes={edl.scenes as never} copy={VERTICAL_COPY[edl.lang as "es" | "en"]} />
+      ) : (
+        <Captions edl={edl} captions={c.captions} />
+      )}
 
       <Sequence name="gancho 1" durationInFrames={f(3.181)}>
         <Headline text={c.intro} beats={beats(0.55, 5)} exitAt={f(3.181) - 8} />

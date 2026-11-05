@@ -12,7 +12,14 @@ const [W, H] = SIZE[format];
 const FPS = 60;
 // Acercamiento mínimo en formatos de móvil: nunca más de esta fracción del alto de la app a la
 // vez, para que el texto de la interfaz se lea en un teléfono (16:9 sin límite).
-const MAX_H: Record<string, number | undefined> = { "9x16": 0.5, "4x5": 0.6, "1x1": 0.65 };
+const MAX_H: Record<string, number | undefined> = { "9x16": 0.9, "4x5": 0.6, "1x1": 0.65 };
+// 9:16 dinámico: usa las tomas cuadradas (la app completa). Cada escena empieza en «explicación»
+// (la app entera en un bloque a todo el ancho, con el título encima sobre blanco) y pasa con un zoom
+// continuo a «enfoque» (pantalla completa, la cámara en la acción).
+const VERTICAL = format === "9x16";
+const CLIP_FORMAT = VERTICAL ? "1x1" : format;
+const D_TOP = 520; // px desde arriba donde empieza el bloque de la app en «explicación»
+const D_MAX = 1.9, D_SHARE = 0.38, D_MOVE = 0.75; // duración de la explicación y del zoom (s)
 
 // Compases de la pista en segundos de vídeo (tools/analyze_music.py). La música es continua
 // salvo un salto: de 38,29 s de vídeo se pasa a 45,859 s de la pista (se quitan 4 compases de la pausa).
@@ -53,15 +60,19 @@ const out = {
 };
 
 for (const [i, s] of scenes.entries()) {
-  const data = JSON.parse(readFileSync(`public/clips/${lang}/${format}/${s.clip}.json`, "utf8")) as ClipData & { scale: number };
+  const data = JSON.parse(readFileSync(`public/clips/${lang}/${CLIP_FORMAT}/${s.clip}.json`, "utf8")) as ClipData & { scale: number };
   // Nunca ampliar por encima de 1×: el encuadre no puede tener menos alto que el cuadro de salida.
-  const minH = H / (data.height * data.scale);
   const sourceAspect = data.width / data.height;
+  // Alto del encuadre (unidades de la toma) por cada unidad de ancho: depende de las dos proporciones.
+  const hRatio = (H / W) * sourceAspect;
+  const minH = Math.max(H / (data.height * data.scale), (W / (data.width * data.scale)) * hRatio);
+  const dEnd = s.from + Math.min(D_MAX, D_SHARE * (s.to - s.from));
+  const dView = { x: 0, w: 1, h: hRatio, y: -D_TOP / W };
   // Margen para las transiciones que solapan con la escena anterior.
   const lead = s.in.frames;
   const first = f(s.from) - lead;
   const last = f(s.to) + (scenes[i + 1] && ["crossfade", "push-left"].includes(scenes[i + 1].in.type) ? 0 : 0);
-  const camera: { f: number; scale: number; x: number; y: number; cursor: { x: number; y: number } | null; click: number | null }[] = [];
+  const camera: { f: number; scale: number; x: number; y: number; layout: number; cursor: { x: number; y: number } | null; click: number | null }[] = [];
   const srcAt = (frame: number) => s.src + ((frame - f(s.from)) / FPS) * s.rate;
   // Cursor en la toma, fotograma a fotograma, suavizado con una gaussiana (σ ≈ 1,6 fotogramas):
   // quita los tirones de la grabación sin mover los clics, que ocurren con el ratón quieto.
@@ -82,13 +93,20 @@ for (const [i, s] of scenes.entries()) {
   };
   for (let fr = first; fr < last; fr++) {
     const t = srcAt(fr);
-    const v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH, maxH: MAX_H[format], sourceAspect });
+    let v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH, maxH: MAX_H[format], sourceAspect });
+    let layout = 1;
+    if (VERTICAL) {
+      const k = Math.min(1, Math.max(0, (fr / FPS - dEnd) / D_MOVE));
+      layout = k * k * (3 - 2 * k);
+      v = { x: dView.x + (v.x - dView.x) * layout, y: dView.y + (v.y - dView.y) * layout, w: dView.w + (v.w - dView.w) * layout, h: dView.h + (v.h - dView.h) * layout };
+    }
     const c = rawCursor.has(fr) ? smooth(fr) : null;
     const lastClick = [...data.events].reverse().find((e) => e.type === "click" && e.t <= t);
     camera.push({
       f: fr,
       // Encuadre v (0–1 de la toma) → escala y centro para el editor (la toma «ajustada» al cuadro = 1).
-      scale: +(1 / v.h).toFixed(5),
+      scale: +(1 / v.w).toFixed(5),
+      layout: +layout.toFixed(3),
       x: +(v.x + v.w / 2).toFixed(5),
       y: +(v.y + v.h / 2).toFixed(5),
       cursor: c && { x: +((c.x - v.x) / v.w).toFixed(4), y: +((c.y - v.y) / v.h).toFixed(4) },
@@ -109,8 +127,8 @@ for (const [i, s] of scenes.entries()) {
       const nc = { x: sx / sw, y: sy / sw, scale: ss / sw };
       // El cursor se recoloca respecto a la cámara suavizada.
       const cur = raw[i].cursor;
-      const ov = { w: 1 / raw[i].scale, h: 1 / raw[i].scale };
-      const nv = { w: 1 / nc.scale, h: 1 / nc.scale };
+      const ov = { w: 1 / raw[i].scale, h: hRatio / raw[i].scale };
+      const nv = { w: 1 / nc.scale, h: hRatio / nc.scale };
       if (cur) {
         const sxp = raw[i].x - ov.w / 2 + cur.x * ov.w, syp = raw[i].y - ov.h / 2 + cur.y * ov.h;
         camera[i].cursor = { x: +((sxp - (nc.x - nv.w / 2)) / nv.w).toFixed(4), y: +((syp - (nc.y - nv.h / 2)) / nv.h).toFixed(4) };
@@ -127,7 +145,7 @@ for (const [i, s] of scenes.entries()) {
     if (e.type === "shortcut") out.sfx.push({ at, src: "menu", volume: 0.3 });
     if (e.type === "mark" && e.label === "drop") out.sfx.push({ at, src: "drop", volume: 0.45 });
   }
-  out.scenes.push({ ...s, first, last, srcIn: srcAt(first), srcOut: srcAt(last), clipFile: `clips/${lang}/${format}/${s.clip}.mp4`, sourceSize: [data.width * data.scale, data.height * data.scale], camera });
+  out.scenes.push({ ...s, first, last, srcIn: srcAt(first), srcOut: srcAt(last), clipFile: `clips/${lang}/${CLIP_FORMAT}/${s.clip}.mp4`, sourceSize: [data.width * data.scale, data.height * data.scale], camera });
 }
 
 // Sonidos de montaje.

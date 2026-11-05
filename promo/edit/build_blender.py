@@ -51,6 +51,11 @@ def keyframes(strip, frames):
             target.keyframe_insert(prop, frame=fr)
 
 
+# Fondo blanco: se ve donde la toma no llena el cuadro (formato vertical en «explicación»).
+bg = ed.strips.new_effect("fondo blanco", "COLOR", channel=1, frame_start=1, length=edl["frames"])
+bg.color = (1.0, 1.0, 1.0)
+bg.width, bg.height = W, H  # en Blender 5 la pista de color mide 1×1 px si no se indica
+
 scenes = edl["scenes"]
 for i, s in enumerate(scenes):
     strip = ed.strips.new_movie(f"{i:02d} {s['name']}", f"{ROOT}/{s['media']}", channel=2 + i, frame_start=B(s["first"]), fit_method="FIT")
@@ -68,7 +73,7 @@ for i, s in enumerate(scenes):
         S = cam["scale"]
         fit = W / s["sourceSize"][0]  # «ajustar al cuadro» de Blender es esta escala base
         ox = -(cam["x"] - 0.5) * W * S
-        oy = (cam["y"] - 0.5) * H * S
+        oy = (cam["y"] - 0.5) * s["sourceSize"][1] * fit * S  # alto mostrado de la toma (puede no ser H)
         # Empuje lateral: la toma que entra llega desde la derecha y la que sale se va a la izquierda.
         if s["in"]["type"] == "push-left" and fr < s["first"] + s["in"]["frames"]:
             ox += W * (1 - ease((fr - s["first"]) / s["in"]["frames"]))
