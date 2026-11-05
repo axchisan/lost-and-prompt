@@ -36,21 +36,57 @@ function director(page, events, start) {
   };
   const norm = (p) => ({ x: +(p.x / W).toFixed(4), y: +(p.y / H).toFixed(4) });
   const api = {
-    wait: (ms) => page.waitForTimeout(ms),
-    /** Mueve el cursor con una curva suave (el real, para que se vean los estados hover). */
+    /** Espera; si es larga y el cursor ya se vio, deriva unos píxeles (una mano nunca está quieta). */
+    async wait(ms) {
+      if (ms < 900 || !events.some((e) => e.type === "path")) return page.waitForTimeout(ms);
+      const base = { ...cursor };
+      const a = Math.sin(base.x + base.y) * Math.PI;
+      const drift = { x: base.x + Math.cos(a) * 5, y: base.y + Math.sin(a) * 3 };
+      await api.move(drift, Math.min(ms - 100, 900));
+      await page.waitForTimeout(Math.max(0, ms - 1000));
+    },
+    /**
+     * Mueve el ratón como una mano: arco ligero (no línea recta), arranque rápido y frenada suave
+     * (perfil de mínimo tirón) y, en trayectos largos, un pequeño pase del objetivo con corrección.
+     * El ratón real sigue ese camino y cada punto queda registrado con su hora, así el cursor
+     * dibujado coincide al fotograma con los estados hover y los clics de la interfaz.
+     */
     async move(target, ms = 700) {
       const to = await center(target);
       const from = { ...cursor };
-      const steps = Math.max(8, Math.round(ms / 16));
-      log("move", { from: norm(from), to: norm(to), duration: ms / 1000 });
-      for (let i = 1; i <= steps; i++) {
-        const k = i / steps;
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        cursor.x = from.x + (to.x - from.x) * e;
-        cursor.y = from.y + (to.y - from.y) * e;
-        await page.mouse.move(cursor.x, cursor.y);
-        await page.waitForTimeout(ms / steps);
-      }
+      const dx = to.x - from.x, dy = to.y - from.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1) return to;
+      const seed = Math.sin(from.x * 12.9898 + to.y * 78.233) * 43758.5453;
+      const rnd = seed - Math.floor(seed); // determinista: la misma toma sale igual
+      const bend = (rnd < 0.5 ? -1 : 1) * Math.min(60, dist * (0.08 + rnd * 0.08));
+      const nx = -dy / dist, ny = dx / dist;
+      const ctrl = { x: from.x + dx * 0.45 + nx * bend, y: from.y + dy * 0.45 + ny * bend };
+      const over = dist > 220 ? Math.min(9, dist * 0.02) : 0;
+      const end = { x: to.x + (dx / dist) * over, y: to.y + (dy / dist) * over };
+      const minJerk = (k) => k * k * k * (10 - 15 * k + 6 * k * k);
+      const points = [];
+      const t0 = Date.now();
+      const steps = Math.max(10, Math.round(ms / 16));
+      const go = async (a, c, b, dur) => {
+        const n = Math.max(4, Math.round((dur / ms) * steps));
+        const start = Date.now();
+        for (let i = 1; i <= n; i++) {
+          const k = minJerk(Math.min(1, (Date.now() - start + 16) / dur));
+          const u = 1 - k;
+          cursor.x = u * u * a.x + 2 * u * k * c.x + k * k * b.x;
+          cursor.y = u * u * a.y + 2 * u * k * c.y + k * k * b.y;
+          await page.mouse.move(cursor.x, cursor.y);
+          points.push([+now().toFixed(3), +(cursor.x / W).toFixed(4), +(cursor.y / H).toFixed(4)]);
+          if (k >= 1) break;
+          await page.waitForTimeout(Math.max(1, start + (i * dur) / n - Date.now()));
+        }
+      };
+      await go(from, ctrl, end, over ? ms * 0.86 : ms);
+      if (over) await go(end, { x: (end.x + to.x) / 2, y: (end.y + to.y) / 2 }, to, Math.max(110, ms * 0.18));
+      cursor.x = to.x;
+      cursor.y = to.y;
+      log("path", { points, duration: +((Date.now() - t0) / 1000).toFixed(3) });
       return to;
     },
     async click(target, { ms = 700, button = "left", pause = 120 } = {}) {
@@ -234,8 +270,10 @@ const shots = {
 const setup = { dark: { theme: "dark" }, windows: { platform: "windows" } };
 
 async function record(name) {
-  const browser = await chromium.launch({ channel: "chrome", headless: true });
-  const context = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: SCALE, locale: lang === "en" ? "en-US" : "es-ES", reducedMotion: "no-preference", permissions: ["clipboard-read", "clipboard-write"] });
+  // Chrome sin ventana reserva 87 px de barra: la ventana es más alta para que el área útil sea
+  // exactamente W×H, y la escala va por parámetro (con viewport de Playwright la captura sale a 1×).
+  const browser = await chromium.launch({ channel: "chrome", headless: true, args: [`--force-device-scale-factor=${SCALE}`, `--window-size=${W},${H + 87}`] });
+  const context = await browser.newContext({ viewport: null, locale: lang === "en" ? "en-US" : "es-ES", reducedMotion: "no-preference", permissions: ["clipboard-read", "clipboard-write"] });
   const page = await context.newPage();
   const opts = setup[name] || {};
   await page.addInitScript(`window.__LP_LANG=${JSON.stringify(lang)};window.__LP_PLATFORM=${JSON.stringify(opts.platform || "macos")};window.__LP_THEME=${JSON.stringify(opts.theme || "light")};`);
@@ -260,6 +298,8 @@ async function record(name) {
     await cdp.send("Page.screencastFrameAck", { sessionId }).catch(() => {});
   });
   const events = [];
+  const size = await page.evaluate(() => [innerWidth, innerHeight, devicePixelRatio]);
+  if (size[0] !== W || size[1] !== H || size[2] !== SCALE) throw new Error(`Área útil ${size} en vez de ${W}×${H} a ${SCALE}×`);
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: W * SCALE, maxHeight: H * SCALE, everyNthFrame: 1 });
   await page.waitForTimeout(300);
   const start = Date.now();

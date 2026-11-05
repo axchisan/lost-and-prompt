@@ -51,14 +51,14 @@ const Cursor: React.FC<{ edl: Edl }> = ({ edl }) => {
   if (!a || !a.cam.cursor) return null;
   // En la terminal (tras el clic de reanudar) el cursor desaparece con ella.
   const size = 30 * (width / 1920) * Math.min(1.6, Math.max(1, a.cam.scale * 0.8));
-  const press = a.cam.click === null ? 1 : interpolate(a.cam.click, [0, 0.08, 0.22], [0.8, 0.8, 1], { extrapolateRight: "clamp" });
-  const ring = a.cam.click === null ? 1 : interpolate(a.cam.click, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
+  const press = a.cam.click === null ? 1 : interpolate(a.cam.click, [0, 0.06, 0.16], [0.86, 0.86, 1], { extrapolateRight: "clamp" });
+  const ring = a.cam.click === null ? 1 : interpolate(a.cam.click, [0, 0.38], [0, 1], { extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
   const x = a.cam.cursor.x * width;
   const y = a.cam.cursor.y * height;
   return (
     <>
       {ring < 1 && (
-        <div style={{ position: "absolute", left: x, top: y, width: size * 3, height: size * 3, marginLeft: -size * 1.5, marginTop: -size * 1.5, borderRadius: "50%", border: `${size * 0.12}px solid rgba(10,108,255,${0.6 * (1 - ring)})`, background: `rgba(10,108,255,${0.12 * (1 - ring)})`, scale: String(0.3 + ring * 0.9) }} />
+        <div style={{ position: "absolute", left: x, top: y, width: size * 2.2, height: size * 2.2, marginLeft: -size * 1.1, marginTop: -size * 1.1, borderRadius: "50%", border: `${size * 0.08}px solid rgba(10,108,255,${0.5 * (1 - ring)})`, background: `rgba(10,108,255,${0.08 * (1 - ring)})`, scale: String(0.35 + ring * 0.75) }} />
       )}
       <svg width={size} height={size * 1.45} viewBox="0 0 20 29" style={{ position: "absolute", left: x - size * 0.1, top: y - size * 0.07, scale: String(press), transformOrigin: "10% 5%", filter: "drop-shadow(0 3px 4px rgba(0,0,0,.3))" }}>
         <path d="M1.5 1.5 L1.5 23 L7 18 L10.6 26.5 L14.3 24.9 L10.8 16.7 L18 16.7 Z" fill="#111" stroke="#fff" strokeWidth="1.8" strokeLinejoin="round" />

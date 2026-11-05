@@ -4,6 +4,7 @@
 
 export type ClipEvent =
   | { t: number; type: "move"; from: Pt; to: Pt; duration: number }
+  | { t: number; type: "path"; points: [number, number, number][]; duration: number }
   | { t: number; type: "click"; at: Pt }
   | { t: number; type: "key"; key: string }
   | { t: number; type: "shortcut"; keys: string }
@@ -23,10 +24,23 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 export function cursorAt(events: ClipEvent[], t: number): Pt {
   let p: Pt = { x: 0.62, y: 0.55 };
   for (const e of events) {
-    if (e.type !== "move" || e.t > t) continue;
-    const k = clamp((t - e.t) / Math.max(0.001, e.duration), 0, 1);
-    const q = ease(k);
-    p = { x: e.from.x + (e.to.x - e.from.x) * q, y: e.from.y + (e.to.y - e.from.y) * q };
+    if (e.t > t) break;
+    if (e.type === "move") {
+      const k = clamp((t - e.t) / Math.max(0.001, e.duration), 0, 1);
+      const q = ease(k);
+      p = { x: e.from.x + (e.to.x - e.from.x) * q, y: e.from.y + (e.to.y - e.from.y) * q };
+    } else if (e.type === "path" && e.points.length) {
+      // Camino real del ratón: interpolación entre los puntos registrados con su hora.
+      const pts = e.points;
+      if (t >= pts[pts.length - 1][0]) p = { x: pts[pts.length - 1][1], y: pts[pts.length - 1][2] };
+      else {
+        let i = 0;
+        while (i + 1 < pts.length && pts[i + 1][0] <= t) i++;
+        const a = pts[i], b = pts[Math.min(i + 1, pts.length - 1)];
+        const k = b[0] > a[0] ? clamp((t - a[0]) / (b[0] - a[0]), 0, 1) : 1;
+        p = t < a[0] ? p : { x: a[1] + (b[1] - a[1]) * k, y: a[2] + (b[2] - a[2]) * k };
+      }
+    }
   }
   return p;
 }

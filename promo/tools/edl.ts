@@ -22,21 +22,24 @@ const T = {
   free: B(71.935), outro: B(75.627), end: B(82.4),
 };
 
+// La toma de «reanudar» dura hasta poco después del clic; luego crece la terminal (capa gráfica).
+const RESUME_APP = 2.85;
+
 type Transition = { type: "cut" | "crossfade" | "push-left" | "flash" | "overlay"; frames: number };
 type Scene = { name: string; clip: string; from: number; to: number; src: number; rate: number; zoom?: number; in: Transition };
 
 const scenes: Scene[] = [
   { name: "biblioteca", clip: "reveal", from: T.reveal, to: T.search, src: 0.9, rate: 1, in: { type: "overlay", frames: 26 } },
-  { name: "búsqueda", clip: "search", from: T.search, to: T.resume, src: 0.3, rate: 1, in: { type: "crossfade", frames: 12 } },
-  { name: "reanudar", clip: "resume", from: T.resume, to: T.resume + 3.0, src: 0.3, rate: 1, in: { type: "crossfade", frames: 12 } },
+  { name: "búsqueda", clip: "search", from: T.search, to: T.resume, src: 0.15, rate: 1, in: { type: "crossfade", frames: 12 } },
+  { name: "reanudar", clip: "resume", from: T.resume, to: T.resume + RESUME_APP, src: 0.15, rate: 1, in: { type: "crossfade", frames: 12 } },
   { name: "conversación", clip: "conversation", from: T.conversation, to: T.headline, src: 0.45, rate: 1.25, in: { type: "overlay", frames: 18 } },
-  { name: "organizar", clip: "organize", from: T.organize, to: T.drop2, src: 0.2, rate: 1.15, in: { type: "overlay", frames: 0 } },
-  { name: "tarjetas", clip: "cards", from: T.drop2, to: T.activity, src: 0.2, rate: 1.1, in: { type: "flash", frames: 0 } },
-  { name: "actividad", clip: "activity", from: T.activity, to: T.exportmd, src: 0.35, rate: 1.2, in: { type: "push-left", frames: 14 } },
-  { name: "exportar", clip: "exportmd", from: T.exportmd, to: T.guide, src: 0.2, rate: 1.15, in: { type: "cut", frames: 0 } },
-  { name: "guía", clip: "guide", from: T.guide, to: T.dark, src: 0.25, rate: 0.95, in: { type: "push-left", frames: 14 } },
+  { name: "organizar", clip: "organize", from: T.organize, to: T.drop2, src: 0.15, rate: 1, in: { type: "overlay", frames: 0 } },
+  { name: "tarjetas", clip: "cards", from: T.drop2, to: T.activity, src: 0.2, rate: 1, in: { type: "flash", frames: 0 } },
+  { name: "actividad", clip: "activity", from: T.activity, to: T.exportmd, src: 0.35, rate: 1.1, in: { type: "push-left", frames: 14 } },
+  { name: "exportar", clip: "exportmd", from: T.exportmd, to: T.guide, src: 0.2, rate: 1, in: { type: "cut", frames: 0 } },
+  { name: "guía", clip: "guide", from: T.guide, to: T.dark, src: 0.25, rate: 0.88, in: { type: "push-left", frames: 14 } },
   { name: "oscuro", clip: "dark", from: T.dark, to: T.windows, src: 0.45, rate: 1, in: { type: "cut", frames: 0 } },
-  { name: "windows", clip: "windows", from: T.windows, to: T.free, src: 0.6, rate: 1, in: { type: "push-left", frames: 14 } },
+  { name: "windows", clip: "windows", from: T.windows, to: T.free, src: 0.4, rate: 1, in: { type: "push-left", frames: 14 } },
 ];
 
 // Nunca ampliar por encima de 1×: el encuadre no puede tener menos alto que el cuadro de salida.
@@ -59,7 +62,7 @@ for (const [i, s] of scenes.entries()) {
   for (let fr = first; fr < last; fr++) {
     const t = srcAt(fr);
     const v = viewAt(data.events, t, W / H, { zoom: s.zoom ?? 1, minH });
-    const c = data.events.some((e) => e.type === "move" && e.t <= t) ? cursorAt(data.events, t) : null;
+    const c = data.events.some((e) => (e.type === "move" || e.type === "path") && e.t <= t) ? cursorAt(data.events, t) : null;
     const lastClick = [...data.events].reverse().find((e) => e.type === "click" && e.t <= t);
     camera.push({
       f: fr,
@@ -88,7 +91,7 @@ const sfx = (at: number, src: string, volume: number) => out.sfx.push({ at, src,
 sfx(3.181 - 0.05, "whoosh", 0.3); sfx(5.039 - 0.05, "whoosh", 0.3); sfx(6.896 - 0.1, "whip", 0.35);
 sfx(T.logo - 0.55, "rise", 0.22); sfx(T.logo, "hit", 0.65); sfx(T.logo + 0.05, "confirm", 0.25);
 sfx(T.reveal - 0.08, "whoosh", 0.35);
-sfx(T.resume + 2.8 + 0.02, "whoosh", 0.35); // la terminal crece desde el botón
+sfx(T.resume + RESUME_APP + 0.02, "whoosh", 0.35); // la terminal crece desde el botón
 sfx(T.conversation - 0.08, "whip", 0.35);
 sfx(T.headline - 0.06, "whip", 0.35); sfx(T.organize - 0.1, "whoosh", 0.3);
 sfx(T.drop2 - 0.55, "rise", 0.28); sfx(T.drop2, "hit", 0.7);
