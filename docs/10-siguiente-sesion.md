@@ -1,3 +1,6 @@
+> **Terminado.** Los puntos 0–3 están hechos (0.6.1, 0.7.0 y el vídeo en `promo/`). Lo siguiente está en
+> [`11-siguiente-sesion.md`](11-siguiente-sesion.md).
+
 # Siguiente sesión: fallo del aviso en Windows, guía «Aprende a usarla», historial de versiones y vídeo
 
 Punto de partida para una sesión nueva de Claude Code abierta en la raíz del repo

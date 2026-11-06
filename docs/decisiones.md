@@ -23,3 +23,7 @@
 
 | # | Pregunta | Opciones |
 |---|---|---|
+| P-11a | ¿La app puede escribir en los archivos de Claude Code (borrar sesiones, mover carpetas de proyecto, reescribir `cwd`)? Cambia la regla de CONTRIBUTING | Sí, con las salvaguardas de `11-siguiente-sesion.md` (vista previa, copia, atómico, papelera, nunca con la sesión abierta); o solo leer y dejar copias |
+| P-11b | Eliminar: ¿papelera por defecto o borrado definitivo? ¿Quitar también sus líneas de `history.jsonl`? | Papelera + opción «sin dejar rastro»; borrado definitivo |
+| P-11c | Varias cuentas (`~/.claude-migozz`): ¿mezcladas con las personales o separadas? ¿Exportables? | Mezcladas con distintivo y filtro; separadas por defecto; ocultas |
+| P-11d | Mover carpetas: ¿la app mueve la carpeta real o solo «repara» lo que el usuario movió? | Las dos (reparar primero); solo reparar |

@@ -19,6 +19,7 @@ importar en qué directorio se abrieron. Nativa en SwiftUI en macOS; Tauri 2 + R
 | 8 | [Distribución](08-distribucion.md) | Versiones, publicación automática, actualizaciones y canales en las tres plataformas |
 | 9 | [Pendientes](09-pendientes.md) | Qué falta: funciones, plataformas, canales y difusión |
 | 10 | [Siguiente sesión](10-siguiente-sesion.md) | Fallo del aviso en Windows, guía «Aprende a usarla», historial de versiones y vídeo: estado y plan |
+| 11 | [Siguiente sesión](11-siguiente-sesion.md) | Eliminar sesiones, mover carpetas sin romperlas y varias cuentas de Claude Code (Migozz): análisis y plan |
 | — | [Promoción](promocion.md) | Textos listos para Reddit, Hacker News, X, Product Hunt… |
 | — | [QA](QA.md) | Lista de comprobación manual antes de cada versión |
 | — | [Decisiones](decisiones.md) | Registro de decisiones tomadas (y pendientes) |
