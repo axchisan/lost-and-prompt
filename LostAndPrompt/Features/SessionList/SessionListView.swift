@@ -12,7 +12,7 @@ struct SessionListView: View {
                 emptyState
             } else {
                 List(selection: $model.selectedSessionID) {
-                    if model.usesRealData && model.retentionDays == nil && model.searchText.isEmpty {
+                    if model.usesRealData && model.currentRetentionDays == nil && model.searchText.isEmpty {
                         RetentionBanner()
                     }
                     ForEach(model.dayGroups(for: sessions)) { group in
@@ -100,6 +100,10 @@ struct SessionRow: View {
                 }
                 Image(systemName: session.isInHome ? "house" : "folder")
                 Text(session.folderName).lineLimit(1)
+                // Viendo todas las cuentas, las que no son la principal llevan su nombre.
+                if model.showsAccounts, model.currentAccount == nil, session.accountEnvironment != nil {
+                    AccountBadge(name: model.accountName(session.accountID))
+                }
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -128,7 +132,7 @@ struct RetentionBanner: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
-                Button("Conservar 6 meses") { model.applyRetention(180) }
+                Button("Conservar 6 meses") { model.applyRetention(180, account: model.currentAccount) }
                 SettingsLink { Text("Otro plazo…") }
             }
             .controlSize(.small)

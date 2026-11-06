@@ -112,12 +112,19 @@ private struct UpdatesSection: View {
     }
 }
 
-/// Retención de Claude Code: `cleanupPeriodDays` en `~/.claude/settings.json`.
+/// Retención de Claude Code (`cleanupPeriodDays` en el `settings.json` de cada cuenta) y cuentas.
 private struct HistorySettings: View {
     @Environment(AppModel.self) private var model
     @State private var choice = 180
     @State private var customDays = 90
     @State private var confirming = false
+    /// Cuenta cuya retención se cambia.
+    @State private var targetID = ""
+
+    private var target: ClaudeAccount? {
+        model.visibleAccounts.first { $0.id == targetID } ?? model.currentAccount ?? model.accounts.first
+    }
+    private var current: Int? { model.retention(of: target) }
 
     private let options = [30, 90, 180, 365]
 
@@ -125,6 +132,13 @@ private struct HistorySettings: View {
         @Bindable var model = model
         Form {
             Section {
+                if model.visibleAccounts.count > 1 {
+                    Picker("Cuenta", selection: Binding(get: { target?.id ?? "" }, set: { targetID = $0 })) {
+                        ForEach(model.visibleAccounts) { account in
+                            Text(model.accountName(account.id)).tag(account.id)
+                        }
+                    }
+                }
                 Picker("Conservar sesiones", selection: $choice) {
                     Text("1 mes").tag(30)
                     Text("3 meses").tag(90)
@@ -139,36 +153,113 @@ private struct HistorySettings: View {
                     }
                 }
                 LabeledContent("Ahora mismo") {
-                    Text(model.retentionDays.map { "\($0) días" } ?? String(localized: "30 días (valor por defecto)"))
+                    Text(current.map { "\($0) días" } ?? String(localized: "30 días (valor por defecto)"))
                 }
             } header: {
                 Text("Historial de Claude Code")
             } footer: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en `~/.claude/settings.json` y guarda antes una copia del archivo.")
+                    Text("Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en el `settings.json` de la cuenta (`~/.claude` en la principal) y guarda antes una copia del archivo.")
                     HStack {
                         Spacer()
                         Button("Aplicar") { confirming = true }
-                            .disabled(selectedDays == model.retentionDays)
+                            .disabled(selectedDays == current)
                     }
                 }
                 .foregroundStyle(.secondary)
             }
+
+            AccountsSection()
 
             Section("Lista") {
                 Toggle("Ocultar sesiones vacías", isOn: $model.hideEmptySessions)
             }
         }
         .formStyle(.grouped)
-        .onAppear { choice = model.retentionDays.flatMap { options.contains($0) ? $0 : 0 } ?? 30 }
+        .onAppear(perform: showCurrent)
+        .onChange(of: targetID) { showCurrent() }
         .confirmationDialog("¿Conservar las sesiones \(selectedDays) días?", isPresented: $confirming) {
-            Button("Cambiar") { model.applyRetention(selectedDays) }
+            Button("Cambiar") { model.applyRetention(selectedDays, account: target) }
         } message: {
-            Text("Se modificará ~/.claude/settings.json. Se guardará una copia del archivo actual.")
+            Text("Se modificará \(Session.abbreviate(target?.settingsURL.path ?? "~/.claude/settings.json")). Se guardará una copia del archivo actual.")
         }
     }
 
     private var selectedDays: Int { choice == 0 ? customDays : choice }
+
+    private func showCurrent() {
+        choice = current.flatMap { options.contains($0) ? $0 : 0 } ?? 30
+        if let current, !options.contains(current) { customDays = current }
+    }
+}
+
+/// Cuentas de Claude Code: carpetas de configuración que se leen.
+private struct AccountsSection: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        Section {
+            ForEach(model.accounts) { account in
+                AccountRow(account: account)
+            }
+        } header: {
+            Text("Cuentas de Claude Code")
+        } footer: {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Cada carpeta de configuración de Claude Code (`~/.claude`, `~/.claude-trabajo`, la de `CLAUDE_CONFIG_DIR`…) es una cuenta con sus propias sesiones. Se detectan solas; cambia el nombre escribiendo encima.")
+                HStack {
+                    Spacer()
+                    Button("Añadir carpeta…") { model.addAccount() }
+                }
+            }
+            .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct AccountRow: View {
+    @Environment(AppModel.self) private var model
+    let account: ClaudeAccount
+    @State private var name = ""
+    @FocusState private var editing: Bool
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                TextField("Nombre de la cuenta", text: $name, prompt: Text("Principal"))
+                    .labelsHidden()
+                    .textFieldStyle(.plain)
+                    .fontWeight(.medium)
+                    .focused($editing)
+                    .onSubmit(save)
+                    .onChange(of: editing) { _, now in if !now { save() } }
+                let count = model.sessions.filter { $0.accountID == account.id && $0.userMessages > 0 }.count
+                Text("\(Session.abbreviate(account.id)) · \(count) sesiones")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
+            Spacer()
+            if model.isManualAccount(account.id) {
+                Button("Quitar") { model.removeAccount(account.id) }
+            }
+            if !account.isDefault {
+                Toggle("Leer las sesiones de esta cuenta", isOn: Binding(
+                    get: { !model.isHiddenAccount(account.id) },
+                    set: { model.setAccount(account.id, hidden: !$0) }))
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .help("Leer las sesiones de esta cuenta")
+            }
+        }
+        .onAppear { name = model.accountName(account.id) == String(localized: "Principal") && account.isDefault ? "" : model.accountName(account.id) }
+    }
+
+    private func save() {
+        let detected = account.detectedName
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        model.renameAccount(account.id, to: trimmed == detected ? "" : trimmed)
+    }
 }
 
 private struct AppearanceSettings: View {

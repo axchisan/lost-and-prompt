@@ -47,6 +47,12 @@ pub struct Organization {
     /// Carpetas («entornos») de cada colección: sus sesiones y las de sus subcarpetas, también las
     /// futuras, entran en la colección.
     pub collection_folders: BTreeMap<String, Vec<String>>,
+    /// Nombres propios de las cuentas de Claude Code (carpeta de configuración → nombre).
+    pub account_names: BTreeMap<String, String>,
+    /// Cuentas que no se leen (carpetas de configuración).
+    pub hidden_accounts: BTreeSet<String>,
+    /// Carpetas de configuración añadidas a mano, además de las que se detectan.
+    pub extra_accounts: Vec<String>,
 }
 
 impl Organization {

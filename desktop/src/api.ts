@@ -13,6 +13,10 @@ export interface Session {
   isHome: boolean;
   /** Distribución de WSL, si la sesión viene de ahí. */
   environment: string | null;
+  /** Cuenta de Claude Code: la ruta de su carpeta de configuración. */
+  account: string;
+  /** `CLAUDE_CONFIG_DIR` para reanudarla; null en la cuenta principal. */
+  accountEnv: string | null;
   gitBranch: string | null;
   startedAt: string;
   lastActivity: string;
@@ -37,8 +41,26 @@ export interface Collection {
   tint: Tint;
 }
 
+/** Una cuenta de Claude Code: una carpeta de configuración con sus sesiones. */
+export interface Account {
+  id: string;
+  /** Nombre propio o sacado de la carpeta; vacío en la principal (se muestra «Principal»). */
+  name: string;
+  configDir: string;
+  isDefault: boolean;
+  hidden: boolean;
+  /** Añadida a mano: se puede quitar. */
+  manual: boolean;
+  /** Distribución de WSL, si la cuenta está ahí. */
+  environment: string | null;
+  sessionCount: number;
+  /** null si usa el valor por defecto o no se puede cambiar desde aquí (WSL). */
+  retentionDays: number | null;
+}
+
 export interface Library {
   sessions: Session[];
+  accounts: Account[];
   collections: Collection[];
   /** Carpetas de cada colección (id → carpetas). */
   collectionFolders: Record<string, string[]>;
@@ -93,19 +115,23 @@ export const api = {
   toggleMembership: (id: string, collection: string) => invoke<boolean>("toggle_membership", { id, collection }),
   toggleFolderMembership: (collection: string, folder: string) => invoke<boolean>("toggle_folder_membership", { collection, folder }),
   updateCollection: (id: string, name: string, tint: Tint) => invoke<void>("update_collection", { id, name, tint }),
-  setRetention: (days: number) => invoke<number | null>("set_retention", { days }),
+  setRetention: (days: number, account: string | null) => invoke<number | null>("set_retention", { days, account }),
+  setAccountName: (id: string, name: string) => invoke<void>("set_account_name", { id, name }),
+  setAccountHidden: (id: string, hidden: boolean) => invoke<void>("set_account_hidden", { id, hidden }),
+  addAccount: (dir: string) => invoke<void>("add_account", { dir }),
+  removeAccount: (id: string) => invoke<void>("remove_account", { id }),
   terminals: () => invoke<TerminalInfo[]>("terminals"),
   resume: (id: string, terminal: string, extraArguments: string, customTemplate: string) =>
     invoke<void>("resume", { id, terminal, extraArguments, customTemplate }),
   reveal: (id: string) => invoke<void>("reveal", { id }),
-  newSession: (cwd: string, distro: string | null, terminal: string, extraArguments: string, customTemplate: string) =>
-    invoke<void>("new_session", { cwd, distro, terminal, extraArguments, customTemplate }),
+  newSession: (cwd: string, distro: string | null, account: string | null, terminal: string, extraArguments: string, customTemplate: string) =>
+    invoke<void>("new_session", { cwd, distro, account, terminal, extraArguments, customTemplate }),
   editors: () => invoke<EditorInfo[]>("editors"),
   openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
   exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
   saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),
   inspectSessionFile: (file: string) => invoke<SharedSession>("inspect_session_file", { file }),
-  importSession: (file: string, folder: string) => invoke<string>("import_session", { file, folder }),
+  importSession: (file: string, folder: string, account: string | null) => invoke<string>("import_session", { file, folder, account }),
   relocate: (id: string, newCwd: string) => invoke<void>("relocate", { id, newCwd }),
   updateTray: (content: TrayContent) => invoke<void>("update_tray", { content }),
   autostartEnabled: () => invoke<boolean>("autostart_enabled"),

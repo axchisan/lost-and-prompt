@@ -19,14 +19,17 @@ enum Launcher {
 
     static func resume(_ session: Session, in terminal: TerminalApp, extraArguments: String, customTemplate: String = "") throws {
         guard FileManager.default.fileExists(atPath: session.cwd) else { throw LaunchError.missingFolder(session.abbreviatedPath) }
-        let command = claude("--resume \(session.id.uuidString.lowercased())", extraArguments)
+        let command = ClaudeAccounts.command(claude("--resume \(session.id.uuidString.lowercased())", extraArguments), account: session.accountEnvironment)
         try run(command, cwd: session.cwd, title: session.title, in: terminal, customTemplate: customTemplate)
     }
 
     /// Abre Claude Code sin `--resume` en la carpeta: una sesión nueva.
-    static func newSession(in cwd: String, title: String, terminal: TerminalApp, extraArguments: String, customTemplate: String = "") throws {
+    /// `accountEnvironment` es el `CLAUDE_CONFIG_DIR` de la cuenta con la que se abre (nil: la principal).
+    static func newSession(in cwd: String, title: String, terminal: TerminalApp, extraArguments: String, customTemplate: String = "",
+                           accountEnvironment: String? = nil) throws {
         guard FileManager.default.fileExists(atPath: cwd) else { throw LaunchError.missingFolder(Session.abbreviate(cwd)) }
-        try run(claude(nil, extraArguments), cwd: cwd, title: title, in: terminal, customTemplate: customTemplate)
+        let command = ClaudeAccounts.command(claude(nil, extraArguments), account: accountEnvironment)
+        try run(command, cwd: cwd, title: title, in: terminal, customTemplate: customTemplate)
     }
 
     private static func claude(_ resume: String?, _ extraArguments: String) -> String {

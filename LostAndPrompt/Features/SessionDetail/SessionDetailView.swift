@@ -45,10 +45,16 @@ struct SessionDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label {
-                Text(session.abbreviatedPath).font(.callout.monospaced()).textSelection(.enabled)
-            } icon: {
-                Image(systemName: session.isInHome ? "house" : "folder")
+            HStack(spacing: 8) {
+                Label {
+                    Text(session.abbreviatedPath).font(.callout.monospaced()).textSelection(.enabled)
+                } icon: {
+                    Image(systemName: session.isInHome ? "house" : "folder")
+                }
+                if model.showsAccounts {
+                    AccountBadge(name: model.accountName(session.accountID))
+                        .help("Cuenta de Claude Code de la sesión")
+                }
             }
             .foregroundStyle(.secondary)
 

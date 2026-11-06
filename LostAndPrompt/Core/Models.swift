@@ -33,6 +33,10 @@ struct Session: Identifiable, Hashable {
     var note: String?
     /// Archivo `.jsonl` de la sesión; `nil` en los datos de ejemplo.
     var filePath: String?
+    /// Cuenta de Claude Code: la ruta de su carpeta de configuración (vacía en los datos de ejemplo).
+    var accountID = ""
+    /// `CLAUDE_CONFIG_DIR` para reanudarla; `nil` en la cuenta principal.
+    var accountEnvironment: String?
 
     var title: String { customTitle ?? aiTitle }
 
@@ -65,7 +69,7 @@ struct Session: Identifiable, Hashable {
     }
 
     var resumeCommand: String {
-        "cd '\(cwd)' && claude --resume \(id.uuidString.lowercased())"
+        "cd '\(cwd)' && " + ClaudeAccounts.command("claude --resume \(id.uuidString.lowercased())", account: accountEnvironment)
     }
 }
 

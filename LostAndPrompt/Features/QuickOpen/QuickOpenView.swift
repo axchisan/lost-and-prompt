@@ -125,7 +125,7 @@ struct QuickOpenView: View {
         if model.usesRealData {
             let shown = Set(matches.map(\.id))
             return realHits.compactMap { hit in
-                guard !shown.contains(hit.sessionID), let session = model.sessions.first(where: { $0.id == hit.sessionID }) else { return nil }
+                guard !shown.contains(hit.sessionID), let session = model.scopedSessions.first(where: { $0.id == hit.sessionID }) else { return nil }
                 return (session, hit.snippet.replacingOccurrences(of: "\u{1}", with: "").replacingOccurrences(of: "\u{2}", with: ""))
             }
         }

@@ -23,18 +23,18 @@ nonisolated struct SessionSummary: Codable, Sendable {
 /// El formato es interno y cambia entre versiones: todo campo es opcional y los tipos de
 /// registro desconocidos se ignoran.
 nonisolated enum ClaudeStore {
-    static var projectsURL: URL {
-        FileManager.default.homeDirectoryForCurrentUser.appending(path: ".claude/projects", directoryHint: .isDirectory)
-    }
+    /// Carpeta de sesiones de la cuenta principal (`~/.claude/projects`).
+    static var projectsURL: URL { ClaudeAccounts.defaultAccount.projectsURL }
 
     static var cacheURL: URL {
         URL.applicationSupportDirectory.appending(path: "LostAndPrompt/index-cache.json")
     }
 
-    /// Escanea todas las sesiones. Reutiliza la caché para los archivos que no cambiaron.
+    /// Escanea las sesiones de varias carpetas `projects` (una por cuenta). Reutiliza la caché para
+    /// los archivos que no cambiaron.
     @concurrent
-    static func scan() async -> [SessionSummary] {
-        let files = sessionFiles()
+    static func scan(_ projectsURLs: [URL]) async -> [SessionSummary] {
+        let files = projectsURLs.flatMap(sessionFiles)
         var cache = loadCache()
         let results = await withTaskGroup(of: SessionSummary?.self) { group in
             for (url, size, modified) in files {
@@ -53,7 +53,7 @@ nonisolated enum ClaudeStore {
         return results
     }
 
-    private static func sessionFiles() -> [(URL, Int64, Date)] {
+    private static func sessionFiles(in projectsURL: URL) -> [(URL, Int64, Date)] {
         let fm = FileManager.default
         let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey, .isDirectoryKey]
         guard let folders = try? fm.contentsOfDirectory(at: projectsURL, includingPropertiesForKeys: keys) else { return [] }

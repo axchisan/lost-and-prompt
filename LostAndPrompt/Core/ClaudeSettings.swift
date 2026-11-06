@@ -1,20 +1,16 @@
 import Foundation
 
-/// Lectura y escritura de `cleanupPeriodDays` en `~/.claude/settings.json`.
+/// Lectura y escritura de `cleanupPeriodDays` en el `settings.json` de cada cuenta de Claude Code.
 enum ClaudeSettings {
-    static var url: URL {
-        FileManager.default.homeDirectoryForCurrentUser.appending(path: ".claude/settings.json")
-    }
-
     /// Días que Claude Code conserva las sesiones; `nil` si usa el valor por defecto (30).
-    static func retentionDays() -> Int? {
+    static func retentionDays(_ url: URL = ClaudeAccounts.defaultAccount.settingsURL) -> Int? {
         guard let data = try? Data(contentsOf: url),
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
         return object["cleanupPeriodDays"] as? Int
     }
 
     /// Cambia la retención conservando el resto de ajustes. Antes guarda una copia del archivo.
-    static func setRetentionDays(_ days: Int) throws {
+    static func setRetentionDays(_ days: Int, in url: URL = ClaudeAccounts.defaultAccount.settingsURL) throws {
         let fm = FileManager.default
         var object: [String: Any] = [:]
         if let data = try? Data(contentsOf: url) {

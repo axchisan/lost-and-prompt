@@ -22,6 +22,12 @@ struct OrganizationData: Codable {
     /// Sesiones que se continúan en otra carpeta (reanudadas donde la original ya no existe, o
     /// importadas de otra persona): sesión → carpeta. Claude Code la usa desde la primera vez que escribe.
     var relocations: [UUID: String] = [:]
+    /// Nombres propios de las cuentas de Claude Code (carpeta de configuración → nombre).
+    var accountNames: [String: String] = [:]
+    /// Cuentas que no se leen (carpetas de configuración).
+    var hiddenAccounts: Set<String> = []
+    /// Carpetas de configuración añadidas a mano, además de las que se detectan.
+    var extraAccounts: [String] = []
 
     init() {}
 
@@ -37,6 +43,9 @@ struct OrganizationData: Codable {
         archived = try c.decodeIfPresent(Set<UUID>.self, forKey: .archived) ?? []
         collectionFolders = try c.decodeIfPresent([String: [String]].self, forKey: .collectionFolders) ?? [:]
         relocations = try c.decodeIfPresent([UUID: String].self, forKey: .relocations) ?? [:]
+        accountNames = try c.decodeIfPresent([String: String].self, forKey: .accountNames) ?? [:]
+        hiddenAccounts = try c.decodeIfPresent(Set<String>.self, forKey: .hiddenAccounts) ?? []
+        extraAccounts = try c.decodeIfPresent([String].self, forKey: .extraAccounts) ?? []
     }
 }
 

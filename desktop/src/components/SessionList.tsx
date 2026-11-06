@@ -165,7 +165,7 @@ export function EmptyState() {
 }
 
 function RetentionBanner() {
-  const { t, actions, open } = useApp();
+  const { t, actions, open, account } = useApp();
   return (
     <div className="banner">
       <b>
@@ -174,7 +174,7 @@ function RetentionBanner() {
       </b>
       <p>{t("retentionHint")}</p>
       <div className="actions">
-        <button className="btn small" onClick={() => actions.applyRetention(180)}>
+        <button className="btn small" onClick={() => actions.applyRetention(180, account?.id ?? null)}>
           {t("keep6Months")}
         </button>
         <button className="btn small" onClick={() => open.settings("history")}>
@@ -197,6 +197,7 @@ function Meta({ session }: { session: Session }) {
       {session.isHome ? <House /> : <Folder />}
       <span>{session.isHome ? app.t("home") : session.folderName}</span>
       {session.environment && <span className="env">WSL</span>}
+      {!app.account && app.accounts.length > 1 && session.accountEnv && <span className="env">{app.accountName(session.account)}</span>}
     </div>
   );
 }

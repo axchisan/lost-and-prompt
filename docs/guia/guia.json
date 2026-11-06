@@ -44,8 +44,18 @@
           "try": "settings:history",
           "title": { "es": "Que Claude Code no borre tus sesiones", "en": "Keep Claude Code from deleting your sessions" },
           "body": {
-            "es": "Claude Code borra por defecto las sesiones de más de 30 días. En Ajustes › Historial puedes conservarlas más tiempo: la app cambia el ajuste cleanupPeriodDays de Claude Code y guarda antes una copia de tu settings.json.",
-            "en": "By default Claude Code deletes sessions older than 30 days. In Settings › History you can keep them longer: the app changes Claude Code's cleanupPeriodDays setting and saves a copy of your settings.json first."
+            "es": "Claude Code borra por defecto las sesiones de más de 30 días. En Ajustes › Historial puedes conservarlas más tiempo: la app cambia el ajuste cleanupPeriodDays de Claude Code y guarda antes una copia de tu settings.json. Con varias cuentas, cada una tiene su propio plazo.",
+            "en": "By default Claude Code deletes sessions older than 30 days. In Settings › History you can keep them longer: the app changes Claude Code's cleanupPeriodDays setting and saves a copy of your settings.json first. With several accounts, each one has its own."
+          }
+        },
+        {
+          "id": "accounts",
+          "since": "0.8.0",
+          "try": "settings:history",
+          "title": { "es": "Varias cuentas de Claude Code", "en": "Several Claude Code accounts" },
+          "body": {
+            "es": "Si usas más de una cuenta de Claude Code en el mismo equipo (por ejemplo, la personal y la del trabajo con CLAUDE_CONFIG_DIR=~/.claude-trabajo), la app las encuentra sola: ~/.claude, las carpetas ~/.claude-* y la variable de tus archivos del shell. Cada cuenta se ve por separado: elígela en «Cuenta», arriba de la barra lateral, o elige «Todas las cuentas». Las sesiones se reanudan con su cuenta. En Ajustes › Historial puedes cambiarles el nombre, dejar de leer una, añadir otra carpeta a mano y ajustar la retención de cada una.",
+            "en": "If you use more than one Claude Code account on the same computer (say, your personal one and a work one with CLAUDE_CONFIG_DIR=~/.claude-work), the app finds them on its own: ~/.claude, the ~/.claude-* folders and the variable in your shell files. Each account is shown on its own: pick it under \"Account\" at the top of the sidebar, or choose \"All Accounts\". Sessions resume with their account. In Settings › History you can rename them, stop reading one, add another folder by hand and set each one's retention."
           }
         }
       ]

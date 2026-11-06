@@ -4,6 +4,7 @@
 //! conversaciones, guarda la organización propia del usuario y ajusta la retención del
 //! historial. Es el equivalente en Rust de `LostAndPrompt/Core` (Swift) y debe comportarse igual.
 
+pub mod accounts;
 pub mod model;
 pub mod organization;
 pub mod paths;
@@ -12,6 +13,7 @@ pub mod settings;
 pub mod share;
 pub mod store;
 
+pub use accounts::Account;
 pub use model::{Message, Role, SessionSummary};
 pub use organization::{Collection, Organization, Tint};
 pub use search::{SearchHit, SearchIndex};

@@ -32,6 +32,22 @@
         }
       }
     },
+    "%@ · %lld sesiones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld sessions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ · %2$lld sesiones"
+          }
+        }
+      }
+    },
     "%lld de %lld": {
       "localizations": {
         "en": {
@@ -470,6 +486,16 @@
         }
       }
     },
+    "Añadir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        }
+      }
+    },
     "Añadir a colección": {
       "localizations": {
         "en": {
@@ -506,6 +532,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add to a collection"
+          }
+        }
+      }
+    },
+    "Añadir carpeta…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Folder…"
           }
         }
       }
@@ -680,6 +716,16 @@
         }
       }
     },
+    "Cada carpeta de configuración de Claude Code (`~/.claude`, `~/.claude-trabajo`, la de `CLAUDE_CONFIG_DIR`…) es una cuenta con sus propias sesiones. Se detectan solas; cambia el nombre escribiendo encima.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each Claude Code configuration folder (`~/.claude`, `~/.claude-work`, the one in `CLAUDE_CONFIG_DIR`…) is an account with its own sessions. They’re found automatically; type over a name to change it."
+          }
+        }
+      }
+    },
     "Cambiar": {
       "localizations": {
         "en": {
@@ -781,11 +827,22 @@
       }
     },
     "Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en `~/.claude/settings.json` y guarda antes una copia del archivo.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Claude Code deletes sessions older than this. Lost & Prompt changes the `cleanupPeriodDays` setting in `~/.claude/settings.json` and backs up the file first."
+          }
+        }
+      }
+    },
+    "Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en el `settings.json` de la cuenta (`~/.claude` en la principal) y guarda antes una copia del archivo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code deletes sessions older than this. Lost & Prompt changes the `cleanupPeriodDays` setting in the account’s `settings.json` (`~/.claude` for the main one) and backs up the file first."
           }
         }
       }
@@ -856,6 +913,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep sessions"
+          }
+        }
+      }
+    },
+    "Continuar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
           }
         }
       }
@@ -996,6 +1063,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Any branch"
+          }
+        }
+      }
+    },
+    "Cuenta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
+    "Cuenta %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account %@"
+          }
+        }
+      }
+    },
+    "Cuenta de Claude Code cuyas sesiones se ven": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code account whose sessions are shown"
+          }
+        }
+      }
+    },
+    "Cuenta de Claude Code de la sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code account of the session"
+          }
+        }
+      }
+    },
+    "Cuentas de Claude Code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code Accounts"
           }
         }
       }
@@ -1146,6 +1263,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choose where to resume this session. Claude Code will look for it in the new folder."
+          }
+        }
+      }
+    },
+    "Elige la carpeta de configuración de Claude Code (la que usas con CLAUDE_CONFIG_DIR).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the Claude Code configuration folder (the one you use with CLAUDE_CONFIG_DIR)."
           }
         }
       }
@@ -1676,6 +1803,16 @@
         }
       }
     },
+    "Leer las sesiones de esta cuenta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read this account’s sessions"
+          }
+        }
+      }
+    },
     "Leyendo la conversación…": {
       "localizations": {
         "en": {
@@ -1946,6 +2083,16 @@
         }
       }
     },
+    "Nombre de la cuenta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account name"
+          }
+        }
+      }
+    },
     "Nota": {
       "localizations": {
         "en": {
@@ -2176,6 +2323,16 @@
         }
       }
     },
+    "Principal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main"
+          }
+        }
+      }
+    },
     "Probar ahora": {
       "localizations": {
         "en": {
@@ -2192,6 +2349,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press ⌘K to search all your sessions."
+          }
+        }
+      }
+    },
+    "Quitar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
           }
         }
       }
@@ -2376,7 +2543,18 @@
         }
       }
     },
+    "Se modificará %@. Se guardará una copia del archivo actual.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ will be changed. A copy of the current file will be saved."
+          }
+        }
+      }
+    },
     "Se modificará ~/.claude/settings.json. Se guardará una copia del archivo actual.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2416,12 +2594,32 @@
         }
       }
     },
+    "Sesión de la cuenta «%@»": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session from the “%@” account"
+          }
+        }
+      }
+    },
     "Sesión sin título": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Untitled session"
+          }
+        }
+      }
+    },
+    "Si es una cuenta del trabajo, comprueba que puedes sacar la sesión de ahí antes de compartirla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If it’s a work account, make sure you’re allowed to take the session out before sharing it."
           }
         }
       }
@@ -2552,6 +2750,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "All"
+          }
+        }
+      }
+    },
+    "Todas las cuentas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Accounts"
           }
         }
       }
@@ -2772,6 +2980,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "{cwd} is the session's folder and {command} the Claude Code command."
+          }
+        }
+      }
+    },
+    "«%@» no es una carpeta de Claude Code: no tiene una carpeta «projects».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” isn’t a Claude Code folder: it has no “projects” folder."
           }
         }
       }

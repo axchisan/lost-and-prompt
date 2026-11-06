@@ -7,6 +7,30 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Several Claude Code accounts: if you use more than one on the same computer (for example a work
+  account with `CLAUDE_CONFIG_DIR=~/.claude-work`), the app finds them on its own (`~/.claude`,
+  `$CLAUDE_CONFIG_DIR`, the `~/.claude-*` folders and the variable in your shell files) and reads
+  their sessions. Each account is shown on its own: pick it under "Account" at the top of the
+  sidebar, or choose "All Accounts".
+- Sessions resume with their account: "Resume", "Copy Command" and "New Session" add
+  `CLAUDE_CONFIG_DIR` when the session isn't from the main account.
+- Settings › History: rename accounts, stop reading one, add a folder by hand and set each
+  account's retention in its own `settings.json`.
+- Exporting a session from another account asks first.
+
+### Añadido
+- Varias cuentas de Claude Code: si usas más de una en el mismo equipo (por ejemplo, la del trabajo
+  con `CLAUDE_CONFIG_DIR=~/.claude-trabajo`), la app las encuentra sola (`~/.claude`,
+  `$CLAUDE_CONFIG_DIR`, las carpetas `~/.claude-*` y la variable de tus archivos del shell) y lee sus
+  sesiones. Cada cuenta se ve por separado: elígela en «Cuenta», arriba de la barra lateral, o elige
+  «Todas las cuentas».
+- Las sesiones se reanudan con su cuenta: «Reanudar», «Copiar comando» y «Sesión nueva» anteponen
+  `CLAUDE_CONFIG_DIR` cuando la sesión no es de la cuenta principal.
+- Ajustes › Historial: cambiar el nombre de las cuentas, dejar de leer una, añadir una carpeta a mano
+  y ajustar la retención de cada cuenta en su propio `settings.json`.
+- Exportar una sesión de otra cuenta pide confirmación antes.
+
 ## [0.7.0] - 2026-11-04
 
 ### Added

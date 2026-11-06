@@ -86,7 +86,7 @@ struct ActivityView: View {
 
     private var sessions: [Session] {
         let start = Calendar.current.date(byAdding: .day, value: -period, to: model.now)!
-        return model.sessions.filter { $0.lastActivity >= start && $0.userMessages > 0 }
+        return model.scopedSessions.filter { $0.lastActivity >= start && $0.userMessages > 0 }
     }
 
     private var totalCost: Double { sessions.compactMap(\.costUSD).reduce(0, +) }

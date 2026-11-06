@@ -182,48 +182,33 @@ function Updates() {
 const options = [30, 90, 180, 365];
 
 function HistoryPane() {
-  const { t, library, actions, prefs, setPrefs, open } = useApp();
-  const current = library.retentionDays;
-  const [choice, setChoice] = useState(current === null ? 30 : options.includes(current) ? current : 0);
-  const [custom, setCustom] = useState(current && !options.includes(current) ? current : 90);
-  const days = choice === 0 ? custom : choice;
+  const app = useApp();
+  const { t, library, prefs, setPrefs } = app;
+  // Cuentas cuya retención se puede cambiar desde aquí (las de este equipo, no las de WSL).
+  const local = library.accounts.filter((a) => !a.environment && !a.hidden);
+  const [target, setTarget] = useState(app.account?.id ?? local.find((a) => a.isDefault)?.id ?? "");
+  const account = local.find((a) => a.id === target) ?? local[0];
   return (
     <>
       <div className="form-group">
         <h2>{t("claudeHistory")}</h2>
-        <div className="form-box">
-          <div className="form-row">
-            <label htmlFor="retention">{t("keepSessions")}</label>
-            <select id="retention" value={choice} onChange={(e) => setChoice(Number(e.target.value))}>
-              <option value={30}>{t("month1")}</option>
-              <option value={90}>{t("months3")}</option>
-              <option value={180}>{t("months6")}</option>
-              <option value={365}>{t("year1")}</option>
-              <option value={0}>{t("custom")}</option>
-            </select>
-          </div>
-          {choice === 0 && (
+        {local.length > 1 && (
+          <div className="form-box" style={{ marginBottom: 8 }}>
             <div className="form-row">
-              <label htmlFor="days">{t("daysLabel")}</label>
-              <input id="days" type="number" min={1} max={3650} value={custom} onChange={(e) => setCustom(Math.max(1, Number(e.target.value)))} />
+              <label htmlFor="retention-account">{t("account")}</label>
+              <select id="retention-account" value={account?.id} onChange={(e) => setTarget(e.target.value)}>
+                {local.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {app.accountName(a.id)}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-          <div className="form-row">
-            <label>{t("currentSetting")}</label>
-            <span>{current === null ? t("defaultDays") : t("nDays", { n: current })}</span>
           </div>
-        </div>
-        <div className="form-footer">
-          <span>{t("retentionExplain")}</span>
-          <button
-            className="btn small right"
-            disabled={days === current}
-            onClick={() => open.confirm(t("confirmRetention", { n: days }), t("apply"), () => actions.applyRetention(days))}
-          >
-            {t("apply")}
-          </button>
-        </div>
+        )}
+        <Retention key={account?.id} account={account?.id ?? null} current={account ? account.retentionDays : library.retentionDays} />
       </div>
+      <Accounts />
       <div className="form-group">
         <h2>{t("list")}</h2>
         <div className="form-box">
@@ -271,6 +256,102 @@ function Appearance() {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Plazo de `cleanupPeriodDays` de una cuenta. */
+function Retention({ account, current }: { account: string | null; current: number | null }) {
+  const { t, actions, open } = useApp();
+  const [choice, setChoice] = useState(current === null ? 30 : options.includes(current) ? current : 0);
+  const [custom, setCustom] = useState(current && !options.includes(current) ? current : 90);
+  const days = choice === 0 ? custom : choice;
+  return (
+    <>
+      <div className="form-box">
+        <div className="form-row">
+          <label htmlFor="retention">{t("keepSessions")}</label>
+          <select id="retention" value={choice} onChange={(e) => setChoice(Number(e.target.value))}>
+            <option value={30}>{t("month1")}</option>
+            <option value={90}>{t("months3")}</option>
+            <option value={180}>{t("months6")}</option>
+            <option value={365}>{t("year1")}</option>
+            <option value={0}>{t("custom")}</option>
+          </select>
+        </div>
+        {choice === 0 && (
+          <div className="form-row">
+            <label htmlFor="days">{t("daysLabel")}</label>
+            <input id="days" type="number" min={1} max={3650} value={custom} onChange={(e) => setCustom(Math.max(1, Number(e.target.value)))} />
+          </div>
+        )}
+        <div className="form-row">
+          <label>{t("currentSetting")}</label>
+          <span>{current === null ? t("defaultDays") : t("nDays", { n: current })}</span>
+        </div>
+      </div>
+      <div className="form-footer">
+        <span>{t("retentionExplain")}</span>
+        <button
+          className="btn small right"
+          disabled={days === current}
+          onClick={() => open.confirm(t("confirmRetention", { n: days }), t("apply"), () => actions.applyRetention(days, account))}
+        >
+          {t("apply")}
+        </button>
+      </div>
+          </>
+  );
+}
+
+/** Cuentas de Claude Code: carpetas de configuración que se leen. */
+function Accounts() {
+  const app = useApp();
+  const { t, library, actions } = app;
+  return (
+    <div className="form-group">
+      <h2>{t("accounts")}</h2>
+      <div className="form-box">
+        {library.accounts.map((a) => (
+          <div className="form-row" key={a.id}>
+            <label htmlFor={`account-${a.id}`} style={{ minWidth: 0, flex: 1 }}>
+              <input
+                className="inline-name"
+                defaultValue={a.name}
+                placeholder={t("mainAccount")}
+                aria-label={t("accountName")}
+                onBlur={(e) => e.target.value.trim() !== a.name && actions.renameAccount(a.id, e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+              />
+              <span className="hint selectable" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }} title={a.configDir}>
+                {a.environment ? `WSL · ${a.environment} · ${a.configDir}` : a.configDir} · {t("sessions", { n: a.sessionCount })}
+              </span>
+            </label>
+            {a.manual && (
+              <button className="btn small" onClick={() => actions.removeAccount(a.id)}>
+                {t("removeAccount")}
+              </button>
+            )}
+            {!a.isDefault && !a.environment && (
+              <input
+                id={`account-${a.id}`}
+                className="switch"
+                type="checkbox"
+                aria-label={t("showAccount")}
+                title={t("showAccount")}
+                checked={!a.hidden}
+                onChange={(e) => actions.setAccountHidden(a.id, !e.target.checked)}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="form-footer">
+        <span>{t("accountsHint")}</span>
+        <button className="btn small right" onClick={() => actions.addAccount()}>
+          {t("addAccount")}
+        </button>
       </div>
     </div>
   );

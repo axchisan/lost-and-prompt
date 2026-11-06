@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Archive, CircleArrowDown, Sparkles, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
+import { Archive, UserRound, CircleArrowDown, Sparkles, ChartColumn, FileUp, ChevronRight, CircleHelp, Clock, Folder, House, Info, MessageSquareWarning, Plus, RefreshCw, Search, Settings, Star, X, FileText } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api, links } from "../api";
 import { tints, type Session } from "../api";
@@ -61,6 +61,19 @@ export function Sidebar() {
           </button>
         )}
       </label>
+      {app.accounts.length > 1 && (
+        <label className="account-picker" title={t("accountHint")}>
+          <UserRound size={15} />
+          <select aria-label={t("account")} value={app.account?.id ?? "all"} onChange={(e) => app.actions.setAccount(e.target.value)}>
+            {app.accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {app.accountName(a.id)}
+              </option>
+            ))}
+            <option value="all">{t("allAccounts")}</option>
+          </select>
+        </label>
+      )}
       <nav>
         <Item item={{ kind: "recents" }} icon={<Clock />} label={t("recents")} count={nonEmpty} on={is({ kind: "recents" })} onSelect={setSidebar} />
         <Item item={{ kind: "favorites" }} icon={<Star />} label={t("favorites")} count={favorites} on={is({ kind: "favorites" })} onSelect={setSidebar} />

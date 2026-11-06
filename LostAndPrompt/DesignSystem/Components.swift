@@ -94,3 +94,18 @@ struct SnippetText: View {
         return result
     }
 }
+
+/// Nombre de la cuenta de Claude Code de una sesión, en una cápsula.
+struct AccountBadge: View {
+    var name: String
+
+    var body: some View {
+        Text(name)
+            .font(.caption2.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
+            .background(.quaternary, in: Capsule())
+            .accessibilityLabel(Text("Cuenta \(name)"))
+    }
+}

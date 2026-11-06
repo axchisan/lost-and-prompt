@@ -6,6 +6,21 @@ struct SidebarView: View {
     var body: some View {
         @Bindable var model = model
         List(selection: $model.sidebarSelection) {
+            if model.showsAccounts {
+                // Con varias cuentas de Claude Code, cada una se ve por separado (o todas a la vez).
+                Picker(selection: Binding(get: { model.currentAccount?.id ?? "all" }, set: { model.selectAccount($0) })) {
+                    ForEach(model.visibleAccounts) { account in
+                        Text(model.accountName(account.id)).tag(account.id)
+                    }
+                    Divider()
+                    Text("Todas las cuentas").tag("all")
+                } label: {
+                    Label("Cuenta", systemImage: "person.crop.circle")
+                }
+                .pickerStyle(.menu)
+                .help("Cuenta de Claude Code cuyas sesiones se ven")
+                .selectionDisabled()
+            }
             Section {
                 Label { Text("Recientes") } icon: { Image(systemName: "clock") }
                     .badge(model.activeSessions.filter { $0.userMessages > 0 }.count)

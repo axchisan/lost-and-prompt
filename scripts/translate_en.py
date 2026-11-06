@@ -15,6 +15,28 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    # 0.8.0: varias cuentas de Claude Code
+    "«%@» no es una carpeta de Claude Code: no tiene una carpeta «projects».": "“%@” isn’t a Claude Code folder: it has no “projects” folder.",
+    "%@ · %lld sesiones": "%@ · %lld sessions",
+    "Añadir": "Add",
+    "Añadir carpeta…": "Add Folder…",
+    "Cada carpeta de configuración de Claude Code (`~/.claude`, `~/.claude-trabajo`, la de `CLAUDE_CONFIG_DIR`…) es una cuenta con sus propias sesiones. Se detectan solas; cambia el nombre escribiendo encima.": "Each Claude Code configuration folder (`~/.claude`, `~/.claude-work`, the one in `CLAUDE_CONFIG_DIR`…) is an account with its own sessions. They’re found automatically; type over a name to change it.",
+    "Claude Code borra las sesiones más antiguas que este plazo. Lost & Prompt cambia el ajuste `cleanupPeriodDays` en el `settings.json` de la cuenta (`~/.claude` en la principal) y guarda antes una copia del archivo.": "Claude Code deletes sessions older than this. Lost & Prompt changes the `cleanupPeriodDays` setting in the account’s `settings.json` (`~/.claude` for the main one) and backs up the file first.",
+    "Continuar": "Continue",
+    "Cuenta": "Account",
+    "Cuenta %@": "Account %@",
+    "Cuenta de Claude Code cuyas sesiones se ven": "Claude Code account whose sessions are shown",
+    "Cuenta de Claude Code de la sesión": "Claude Code account of the session",
+    "Cuentas de Claude Code": "Claude Code Accounts",
+    "Elige la carpeta de configuración de Claude Code (la que usas con CLAUDE_CONFIG_DIR).": "Choose the Claude Code configuration folder (the one you use with CLAUDE_CONFIG_DIR).",
+    "Leer las sesiones de esta cuenta": "Read this account’s sessions",
+    "Nombre de la cuenta": "Account name",
+    "Principal": "Main",
+    "Quitar": "Remove",
+    "Se modificará %@. Se guardará una copia del archivo actual.": "%@ will be changed. A copy of the current file will be saved.",
+    "Sesión de la cuenta «%@»": "Session from the “%@” account",
+    "Si es una cuenta del trabajo, comprueba que puedes sacar la sesión de ahí antes de compartirla.": "If it’s a work account, make sure you’re allowed to take the session out before sharing it.",
+    "Todas las cuentas": "All Accounts",
     "Aprende a usar Lost & Prompt": "Learn Lost & Prompt",
     "Novedades de cada versión": "What’s New in Each Version",
     "Ver la guía de todo lo que puede hacer": "See the guide to everything it can do",

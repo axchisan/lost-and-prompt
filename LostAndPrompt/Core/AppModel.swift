@@ -49,7 +49,16 @@ final class AppModel {
     var customTerminal = "" { didSet { save(customTerminal, "customTerminal") } }
     /// Editor para «Abrir en …» (nil si no hay ninguno conocido instalado).
     var editor: EditorApp? { didSet { save(editor?.rawValue ?? "", "editor") } }
+    /// Retención de la cuenta principal (y de los datos de ejemplo).
     var retentionDays: Int? = 180
+
+    // Cuentas de Claude Code
+    /// Todas las del equipo, también las ocultas.
+    var accounts: [ClaudeAccount] = []
+    /// Cuenta que se ve: "" la principal, "all" todas, o la ruta de una.
+    var accountSelection = "" { didSet { save(accountSelection, "account") } }
+    /// Cambia al aplicar una retención: las vistas que la leen del disco se vuelven a dibujar.
+    var refreshRetention = false
     var hideEmptySessions = true { didSet { save(hideEmptySessions, "hideEmptySessions") } }
     var showToolCalls = false
     var showThinking = false
@@ -86,17 +95,107 @@ final class AppModel {
 
     var favoritesCount: Int { activeSessions.filter(\.isFavorite).count }
 
-    /// Las sesiones sin archivar: las que se ven en la lista, los contadores y los buscadores.
-    var activeSessions: [Session] { sessions.filter { !$0.isArchived } }
+    /// Las sesiones de la cuenta elegida (o de todas): con varias cuentas, cada una se ve por separado.
+    var scopedSessions: [Session] {
+        guard let account = currentAccount else { return sessions }
+        return sessions.filter { $0.accountID == account.id }
+    }
 
-    var archivedCount: Int { sessions.filter { $0.isArchived && (!hideEmptySessions || $0.userMessages > 0) }.count }
+    /// Las sesiones sin archivar: las que se ven en la lista, los contadores y los buscadores.
+    var activeSessions: [Session] { scopedSessions.filter { !$0.isArchived } }
+
+    var archivedCount: Int { scopedSessions.filter { $0.isArchived && (!hideEmptySessions || $0.userMessages > 0) }.count }
+
+    // MARK: Cuentas
+
+    /// Las cuentas que se leen. Con una sola, la app no muestra nada de cuentas.
+    var visibleAccounts: [ClaudeAccount] { accounts.filter { !organization.hiddenAccounts.contains($0.id) } }
+
+    var showsAccounts: Bool { visibleAccounts.count > 1 }
+
+    /// Cuenta elegida en la barra lateral; nil si se ven todas (o solo hay una).
+    var currentAccount: ClaudeAccount? {
+        guard showsAccounts, accountSelection != "all" else { return nil }
+        return visibleAccounts.first { $0.id == accountSelection } ?? visibleAccounts.first(where: \.isDefault) ?? visibleAccounts.first
+    }
+
+    func account(_ id: String) -> ClaudeAccount? { accounts.first { $0.id == id } }
+
+    /// Nombre propio, el sacado de la carpeta o «Principal».
+    func accountName(_ id: String) -> String {
+        if let custom = organization.accountNames[id] { return custom }
+        if let detected = account(id)?.detectedName, !detected.isEmpty { return detected }
+        return String(localized: "Principal")
+    }
+
+    func isManualAccount(_ id: String) -> Bool { organization.extraAccounts.contains(id) }
+    func isHiddenAccount(_ id: String) -> Bool { organization.hiddenAccounts.contains(id) }
+
+    /// Retención de una cuenta (`nil`: el valor por defecto, 30 días).
+    func retention(of account: ClaudeAccount?) -> Int? {
+        _ = refreshRetention
+        guard usesRealData, let account else { return retentionDays }
+        return account.isDefault ? retentionDays : ClaudeSettings.retentionDays(account.settingsURL)
+    }
+
+    /// Retención de la cuenta que se ve (la principal si se ven todas).
+    var currentRetentionDays: Int? { retention(of: currentAccount ?? accounts.first) }
+
+    func selectAccount(_ id: String) {
+        accountSelection = id
+        sidebarSelection = .recents
+        selectedSessionID = visibleSessions.first?.id
+    }
+
+    func renameAccount(_ id: String, to name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        organization.accountNames[id] = trimmed.isEmpty ? nil : trimmed
+        persist()
+    }
+
+    func setAccount(_ id: String, hidden: Bool) {
+        if hidden { organization.hiddenAccounts.insert(id) } else { organization.hiddenAccounts.remove(id) }
+        persist()
+        Task { await reload() }
+    }
+
+    /// Añade a mano una carpeta de configuración de Claude Code (la que se usa con `CLAUDE_CONFIG_DIR`).
+    func addAccount() {
+        guard usesRealData else { return }
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.showsHiddenFiles = true
+        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
+        panel.prompt = String(localized: "Añadir")
+        panel.message = String(localized: "Elige la carpeta de configuración de Claude Code (la que usas con CLAUDE_CONFIG_DIR).")
+        guard panel.runModal() == .OK, var folder = panel.url else { return }
+        if folder.lastPathComponent == "projects" { folder = folder.deletingLastPathComponent() }
+        let path = folder.path(percentEncoded: false).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let dir = "/" + path
+        guard FileManager.default.fileExists(atPath: dir + "/projects") else {
+            errorMessage = String(localized: "«\(Session.abbreviate(dir))» no es una carpeta de Claude Code: no tiene una carpeta «projects».")
+            return
+        }
+        organization.hiddenAccounts.remove(dir)
+        if !organization.extraAccounts.contains(dir) { organization.extraAccounts.append(dir) }
+        persist()
+        Task { await reload() }
+    }
+
+    func removeAccount(_ id: String) {
+        organization.extraAccounts.removeAll { $0 == id }
+        organization.accountNames[id] = nil
+        persist()
+        Task { await reload() }
+    }
 
     /// Sesiones de la sección elegida en la barra lateral, filtradas por la búsqueda.
     var visibleSessions: [Session] {
         var result: [Session]
         switch sidebarSelection {
         case .favorites: result = activeSessions.filter(\.isFavorite)
-        case .archived: result = sessions.filter(\.isArchived)
+        case .archived: result = scopedSessions.filter(\.isArchived)
         case .collection(let id): result = activeSessions.filter { $0.isIn(id) }
         case .project(let path): result = activeSessions.filter { $0.cwd == path || $0.cwd.hasPrefix(path + "/") }
         default: result = activeSessions
@@ -128,7 +227,7 @@ final class AppModel {
         }
     }
 
-    var folderCount: Int { Set(sessions.map(\.cwd)).count }
+    var folderCount: Int { Set(scopedSessions.map(\.cwd)).count }
 
     // MARK: Agrupación por fecha
 
@@ -219,6 +318,8 @@ final class AppModel {
 
     private let searchIndex = SearchIndex()
     private var watcher: FileWatcher?
+    /// Carpetas que vigila `watcher`: si cambian las cuentas, se vuelve a crear.
+    private var watchedPaths: [String] = []
     private var hotKey: GlobalHotKey?
     private var searchTask: Task<Void, Never>?
     private var indexTask: Task<Void, Never>?
@@ -235,12 +336,10 @@ final class AppModel {
         model.hideEmptySessions = defaults.object(forKey: "hideEmptySessions") as? Bool ?? true
         model.listStyle = defaults.string(forKey: "listStyle").flatMap(SessionListStyle.init) ?? .rows
         model.retentionDays = ClaudeSettings.retentionDays()
+        model.accountSelection = defaults.string(forKey: "account") ?? ""
         model.usesRealData = true
         // Solo para capturas: `-LPSearch texto` arranca con esa búsqueda.
         if let search = defaults.string(forKey: "LPSearch") { model.searchText = search }
-        model.watcher = FileWatcher(url: ClaudeStore.projectsURL) { [weak model] in
-            Task { await model?.reload() }
-        }
         model.hotKey = GlobalHotKey { [weak model] in
             NSApp.activate()
             NSApp.windows.first { $0.identifier?.rawValue.contains("main") == true }?.makeKeyAndOrderFront(nil)
@@ -294,7 +393,11 @@ final class AppModel {
         isLoading = true
         defer { isLoading = false }
         organization = OrganizationStore.load()
-        let scanned = await ClaudeStore.scan()
+        accounts = ClaudeAccounts.detect(extra: organization.extraAccounts)
+        retentionDays = ClaudeSettings.retentionDays()
+        let shown = visibleAccounts
+        watch(shown)
+        let scanned = await ClaudeStore.scan(shown.map(\.projectsURL))
         // Si una sesión se copió a otra carpeta (al reanudarla en otro sitio), queda la copia más reciente.
         let summaries = Dictionary(grouping: scanned, by: \.id).compactMap { $0.value.max { $0.modified < $1.modified } }
         now = .now
@@ -310,8 +413,19 @@ final class AppModel {
         }
     }
 
+    /// Vigila la carpeta `projects` de cada cuenta que se lee.
+    private func watch(_ shown: [ClaudeAccount]) {
+        let paths = shown.map(\.projectsURL.path).filter { FileManager.default.fileExists(atPath: $0) }
+        guard paths != watchedPaths else { return }
+        watchedPaths = paths
+        watcher = FileWatcher(urls: paths.map { URL(filePath: $0) }) { [weak self] in
+            Task { await self?.reload() }
+        }
+    }
+
     private func makeSession(_ summary: SessionSummary) -> Session? {
         let id = summary.id
+        let account = accounts.first { summary.path.hasPrefix($0.projectsURL.path(percentEncoded: false)) }
         guard let cwd = organization.relocations[id] ?? summary.cwd else { return nil }
         return Session(
             id: id,
@@ -333,7 +447,9 @@ final class AppModel {
             lastReply: summary.lastReply,
             folderExists: FileManager.default.fileExists(atPath: cwd),
             note: organization.notes[id],
-            filePath: summary.path)
+            filePath: summary.path,
+            accountID: account?.id ?? "",
+            accountEnvironment: account?.environmentValue)
     }
 
     /// `claude-opus-5-5` → «Opus 5.5».
@@ -376,7 +492,9 @@ final class AppModel {
         panel.message = String(localized: "Elige la carpeta donde quieres reanudar «\(session.title)».")
         guard panel.runModal() == .OK, let folder = panel.url else { return }
         let encoded = folder.path.replacing(/[^A-Za-z0-9]/, with: "-")
-        let destination = ClaudeStore.projectsURL.appending(path: encoded, directoryHint: .isDirectory)
+        // En la carpeta de su cuenta: allí la busca `claude --resume` con su CLAUDE_CONFIG_DIR.
+        let projects = account(session.accountID)?.projectsURL ?? ClaudeStore.projectsURL
+        let destination = projects.appending(path: encoded, directoryHint: .isDirectory)
         do {
             try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
             let target = destination.appending(path: (source as NSString).lastPathComponent)
@@ -453,7 +571,11 @@ final class AppModel {
         newSessionHistory[cwd] = .now
         do {
             let title = String(localized: "Nueva sesión en \((cwd as NSString).lastPathComponent)")
-            try Launcher.newSession(in: cwd, title: title, terminal: terminal, extraArguments: extraArguments, customTemplate: customTerminal)
+            // Con la cuenta elegida; viendo todas, con la de la última sesión en esa carpeta.
+            let latest = sessions.filter { $0.cwd == cwd }.max { $0.lastActivity < $1.lastActivity }
+            let account = currentAccount ?? latest.flatMap { self.account($0.accountID) }
+            try Launcher.newSession(in: cwd, title: title, terminal: terminal, extraArguments: extraArguments, customTemplate: customTerminal,
+                                    accountEnvironment: account?.environmentValue)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -529,8 +651,11 @@ final class AppModel {
         persist()
     }
 
-    /// `false` si no existe `~/.claude/projects` (Claude Code no instalado o nunca usado).
-    var claudeFolderExists: Bool { FileManager.default.fileExists(atPath: ClaudeStore.projectsURL.path) }
+    /// `false` si no existe ninguna carpeta `projects` (Claude Code no instalado o nunca usado).
+    var claudeFolderExists: Bool {
+        FileManager.default.fileExists(atPath: ClaudeStore.projectsURL.path)
+            || visibleAccounts.contains { FileManager.default.fileExists(atPath: $0.projectsURL.path) }
+    }
 
     @discardableResult
     // MARK: Carpetas en colecciones
@@ -625,11 +750,14 @@ final class AppModel {
         persist()
     }
 
-    func applyRetention(_ days: Int) {
+    /// Cambia la retención de una cuenta (la principal si no se dice cuál) en su `settings.json`.
+    func applyRetention(_ days: Int, account: ClaudeAccount? = nil) {
         guard usesRealData else { retentionDays = days; return }
         do {
-            try ClaudeSettings.setRetentionDays(days)
+            let target = account ?? accounts.first ?? ClaudeAccounts.defaultAccount
+            try ClaudeSettings.setRetentionDays(days, in: target.settingsURL)
             retentionDays = ClaudeSettings.retentionDays()
+            refreshRetention.toggle()
         } catch {
             errorMessage = String(localized: "No se pudo cambiar el ajuste: \(error.localizedDescription)")
         }
@@ -662,7 +790,19 @@ final class AppModel {
         }
     }
 
+    /// Las sesiones de otra cuenta (p. ej. la del trabajo) avisan antes de sacarlas del equipo.
+    private func confirmOtherAccount(_ session: Session) -> Bool {
+        guard session.accountEnvironment != nil else { return true }
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Sesión de la cuenta «\(accountName(session.accountID))»")
+        alert.informativeText = String(localized: "Si es una cuenta del trabajo, comprueba que puedes sacar la sesión de ahí antes de compartirla.")
+        alert.addButton(withTitle: String(localized: "Continuar"))
+        alert.addButton(withTitle: String(localized: "Cancelar"))
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
     func exportMarkdown(_ session: Session) {
+        guard confirmOtherAccount(session) else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = SessionExport.fileName(session, extension: "md")
         panel.allowedContentTypes = [SessionExport.markdownType]
@@ -679,7 +819,7 @@ final class AppModel {
     /// El `.jsonl` tal cual, para que otra persona lo importe y lo continúe en Claude Code. Antes se
     /// avisa de lo que contiene: lleva también lo que leyeron y devolvieron las herramientas.
     func exportForClaudeCode(_ session: Session) {
-        guard let source = session.filePath else { return }
+        guard let source = session.filePath, confirmOtherAccount(session) else { return }
         let alert = NSAlert()
         alert.messageText = String(localized: "Exportar para continuar en Claude Code")
         alert.informativeText = String(localized: "El archivo lleva la sesión completa: tus mensajes, las respuestas y lo que leyeron y devolvieron las herramientas (archivos, comandos, variables de entorno). Revisa que no haya contraseñas ni claves antes de compartirlo. Quien lo reciba la abre con «Importar sesión…» en Lost & Prompt y la continúa en Claude Code.")
@@ -708,7 +848,8 @@ final class AppModel {
         guard open.runModal() == .OK, let file = open.url else { return }
         do {
             let shared = try SessionExport.inspect(file)
-            if sessions.contains(where: { $0.id == shared.id }) {
+            if let existing = sessions.first(where: { $0.id == shared.id }) {
+                if let account = currentAccount, existing.accountID != account.id { accountSelection = existing.accountID }
                 sidebarSelection = .recents
                 selectedSessionID = shared.id
                 throw SessionExport.ExportError.alreadyThere
@@ -721,7 +862,9 @@ final class AppModel {
             if let cwd = shared.cwd, FileManager.default.fileExists(atPath: cwd) { folderPanel.directoryURL = URL(filePath: cwd) }
             guard folderPanel.runModal() == .OK, let folder = folderPanel.url else { return }
             let encoded = folder.path.replacing(/[^A-Za-z0-9]/, with: "-")
-            let destination = ClaudeStore.projectsURL.appending(path: encoded, directoryHint: .isDirectory)
+            // En la cuenta que se ve (la principal si se ven todas).
+            let projects = (currentAccount ?? accounts.first)?.projectsURL ?? ClaudeStore.projectsURL
+            let destination = projects.appending(path: encoded, directoryHint: .isDirectory)
             try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
             let target = destination.appending(path: shared.id.uuidString.lowercased() + ".jsonl")
             guard !FileManager.default.fileExists(atPath: target.path) else { throw SessionExport.ExportError.alreadyThere }

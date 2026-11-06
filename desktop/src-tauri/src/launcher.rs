@@ -78,6 +78,22 @@ pub fn resume(terminal: &str, cwd: &str, command: &str, title: &str, custom_temp
     result.map_err(|e| format!("No se pudo abrir la terminal: {e}"))
 }
 
+/// Comando con la cuenta de Claude Code puesta (`CLAUDE_CONFIG_DIR`) en la sintaxis del shell que
+/// abre cada terminal. Sin cuenta (la principal), el comando queda igual.
+pub fn with_account(terminal: &str, command: &str, config_env: Option<&str>) -> String {
+    let Some(dir) = config_env else { return command.to_owned() };
+    if cfg!(target_os = "windows") {
+        match terminal {
+            "cmd" => format!("set \"CLAUDE_CONFIG_DIR={dir}\" && {command}"),
+            "git-bash" => lap_core::accounts::with_account_unix(command, Some(dir)),
+            // PowerShell: el resto de terminales de Windows la abren por defecto.
+            _ => format!("$env:CLAUDE_CONFIG_DIR='{}'; {command}", dir.replace('\'', "''")),
+        }
+    } else {
+        lap_core::accounts::with_account_unix(command, Some(dir))
+    }
+}
+
 /// Sesión de Claude Code dentro de WSL: se abre la distribución en la carpeta de Linux.
 pub fn resume_wsl(distro: &str, cwd: &str, command: &str) -> Result<(), String> {
     let shell = format!("{command}; exec \"${{SHELL:-bash}}\"");
@@ -87,7 +103,7 @@ pub fn resume_wsl(distro: &str, cwd: &str, command: &str) -> Result<(), String> 
     } else if cfg!(target_os = "windows") {
         let mut all = vec!["/c", "start", "", "wsl.exe"];
         all.extend_from_slice(&args);
-        spawn(hidden(&mut Command::new("cmd").args(all)))
+        spawn(hidden(Command::new("cmd").args(all)))
     } else {
         Err(std::io::Error::other("WSL solo existe en Windows"))
     };
@@ -114,7 +130,8 @@ fn open_native(terminal: &str, cwd: &str, command: &str) -> std::io::Result<()> 
         spawn(hidden(Command::new("cmd").args(all).current_dir(cwd)))
     };
     match terminal {
-        "windows-terminal" => spawn(Command::new("wt.exe").args(["-d", cwd, "powershell", "-NoExit", "-Command", command])),
+        // `wt` usa `;` para separar pestañas: dentro del comando va escapado.
+        "windows-terminal" => spawn(Command::new("wt.exe").args(["-d", cwd, "powershell", "-NoExit", "-Command", &command.replace(';', "\\;")])),
         "pwsh" => start(&["pwsh", "-NoExit", "-Command", command]),
         "cmd" => start(&["cmd", "/k", command]),
         "git-bash" => {
@@ -224,7 +241,7 @@ enum EditorLaunch {
 
 fn locate(editor: &Editor) -> Option<EditorLaunch> {
     if cfg!(target_os = "windows") {
-        let bases = ["LOCALAPPDATA", "ProgramFiles", "ProgramW6432"].iter().filter_map(|v| std::env::var_os(v)).map(PathBuf::from);
+        let bases = ["LOCALAPPDATA", "ProgramFiles", "ProgramW6432"].iter().filter_map(std::env::var_os).map(PathBuf::from);
         for base in bases {
             if let Some(exe) = editor.windows.iter().map(|rel| base.join(rel)).find(|p| p.exists()) {
                 return Some(EditorLaunch::Exe(exe));

@@ -74,6 +74,11 @@ export function Detail({ session }: { session: Session }) {
             {session.isHome ? <House size={14} /> : <Folder size={14} />}
             {session.abbreviatedPath}
             {session.environment && <span className="env">WSL · {session.environment}</span>}
+            {app.accounts.length > 1 && (
+              <span className="env" title={t("accountHint")}>
+                {app.accountName(session.account)}
+              </span>
+            )}
           </div>
           <h1 className="selectable">{session.title}</h1>
           {/* Cuándo empezó y, si siguió después, su última actividad; debajo, el resto de datos. */}

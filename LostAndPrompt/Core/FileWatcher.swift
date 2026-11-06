@@ -6,7 +6,7 @@ final class FileWatcher {
     nonisolated(unsafe) private var stream: FSEventStreamRef?
     private let onChange: () -> Void
 
-    init(url: URL, latency: TimeInterval = 1.5, onChange: @escaping () -> Void) {
+    init(urls: [URL], latency: TimeInterval = 1.5, onChange: @escaping () -> Void) {
         self.onChange = onChange
         var context = FSEventStreamContext(version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
                                            retain: nil, release: nil, copyDescription: nil)
@@ -14,7 +14,7 @@ final class FileWatcher {
             guard let info else { return }
             Unmanaged<FileWatcher>.fromOpaque(info).takeUnretainedValue().onChange()
         }
-        stream = FSEventStreamCreate(nil, callback, &context, [url.path] as CFArray,
+        stream = FSEventStreamCreate(nil, callback, &context, urls.map(\.path) as CFArray,
                                      FSEventStreamEventId(kFSEventStreamEventIdSinceNow), latency,
                                      FSEventStreamCreateFlags(kFSEventStreamCreateFlagNoDefer))
         guard let stream else { return }

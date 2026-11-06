@@ -5,13 +5,14 @@ mod launcher;
 mod roots;
 mod tray;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use chrono::{DateTime, Utc};
+use lap_core::accounts::{self, Account};
 use lap_core::model::model_name;
 use lap_core::{encode_project_dir, paths, settings, Collection, Message, Organization, SearchIndex, SessionSummary, Tint};
 use notify::{RecursiveMode, Watcher};
@@ -31,6 +32,10 @@ struct AppState {
     /// Con la bandeja activa, cerrar la ventana la oculta en vez de salir.
     keep_in_tray: AtomicBool,
     watcher: Mutex<Option<notify::RecommendedWatcher>>,
+    /// Carpetas `projects` que ya vigila `watcher`.
+    watched: Mutex<HashSet<PathBuf>>,
+    /// Cuentas de Claude Code de este equipo, también las ocultas.
+    accounts: Mutex<Vec<Account>>,
 }
 
 fn data_file(name: &str) -> PathBuf {
@@ -51,6 +56,10 @@ struct SessionDto {
     is_home: bool,
     /// Distribución de WSL, si la sesión viene de ahí.
     environment: Option<String>,
+    /// Cuenta de Claude Code (su carpeta de configuración).
+    account: String,
+    /// `CLAUDE_CONFIG_DIR` para reanudarla; `None` en la cuenta principal.
+    account_env: Option<String>,
     git_branch: Option<String>,
     started_at: DateTime<Utc>,
     last_activity: DateTime<Utc>,
@@ -69,10 +78,30 @@ struct SessionDto {
     note: Option<String>,
 }
 
+/// Cuenta de Claude Code tal como la muestra la interfaz.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AccountDto {
+    id: String,
+    /// Nombre propio o el sacado de la carpeta; vacío en la principal sin nombre propio.
+    name: String,
+    config_dir: String,
+    is_default: bool,
+    hidden: bool,
+    /// Añadida a mano (se puede quitar).
+    manual: bool,
+    /// Distribución de WSL, si la cuenta está ahí.
+    environment: Option<String>,
+    session_count: usize,
+    /// `None` en las de WSL, cuya retención no se cambia desde aquí.
+    retention_days: Option<u32>,
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Library {
     sessions: Vec<SessionDto>,
+    accounts: Vec<AccountDto>,
     collections: Vec<Collection>,
     /// Carpetas de cada colección (colección → carpetas).
     collection_folders: std::collections::BTreeMap<String, Vec<String>>,
@@ -124,6 +153,8 @@ fn to_dto(summary: &SessionSummary, org: &Organization, root: &Root) -> Option<S
         custom_title,
         folder_exists: root.native_path(&cwd).is_dir(),
         environment: root.distro.clone(),
+        account: root.account.clone(),
+        account_env: root.config_env.clone(),
         cwd,
         folder_name,
         abbreviated_path,
@@ -149,7 +180,12 @@ fn to_dto(summary: &SessionSummary, org: &Organization, root: &Root) -> Option<S
 
 #[tauri::command]
 fn load_library(include_wsl: Option<bool>, app: AppHandle, state: State<'_, AppState>) -> Library {
-    let roots = roots::roots(include_wsl.unwrap_or(true));
+    let organization = Organization::load(&data_file("organization.json"));
+    let detected = accounts::detect_local(&organization.extra_accounts);
+    let shown: Vec<Account> = detected.iter().filter(|a| !organization.hidden_accounts.contains(&a.id)).cloned().collect();
+    let default_account = detected[0].id.clone();
+    let roots = roots::roots(include_wsl.unwrap_or(true), &shown, &default_account);
+    watch_roots(&app, &roots);
     let dirs: Vec<PathBuf> = roots.iter().map(|r| r.dir.clone()).collect();
     let scanned = lap_core::scan_many(&dirs, Some(&data_file("index-cache.json")));
     // Si una sesión se copió a otra carpeta, queda la copia más reciente.
@@ -163,23 +199,52 @@ fn load_library(include_wsl: Option<bool>, app: AppHandle, state: State<'_, AppS
         }
     }
     let summaries: Vec<SessionSummary> = latest.into_values().collect();
-    let organization = Organization::load(&data_file("organization.json"));
-    let sessions = summaries
+    let sessions: Vec<SessionDto> = summaries
         .iter()
         .filter_map(|s| root_of(&roots, s).and_then(|root| to_dto(s, &organization, root)))
         .collect();
+    let count = |id: &str| sessions.iter().filter(|s| s.account == id && s.user_messages > 0).count();
+    let mut account_list: Vec<AccountDto> = detected
+        .iter()
+        .map(|a| AccountDto {
+            id: a.id.clone(),
+            name: organization.account_names.get(&a.id).cloned().unwrap_or_else(|| a.name.clone()),
+            config_dir: a.id.clone(),
+            is_default: a.is_default,
+            hidden: organization.hidden_accounts.contains(&a.id),
+            manual: organization.extra_accounts.iter().any(|e| Path::new(e) == a.config_dir),
+            environment: None,
+            session_count: count(&a.id),
+            retention_days: settings::retention_days(&a.settings_file()),
+        })
+        .collect();
+    for root in roots.iter().filter(|r| r.distro.is_some() && r.account != default_account) {
+        account_list.push(AccountDto {
+            id: root.account.clone(),
+            name: organization.account_names.get(&root.account).cloned().unwrap_or_else(|| roots::wsl_account_name(root)),
+            config_dir: root.config_env.clone().unwrap_or_default(),
+            is_default: false,
+            hidden: false,
+            manual: false,
+            environment: root.distro.clone(),
+            session_count: count(&root.account),
+            retention_days: None,
+        });
+    }
     let library = Library {
         sessions,
+        accounts: account_list,
         collections: organization.collections.clone(),
         collection_folders: organization.collection_folders.clone(),
-        retention_days: settings::retention_days(&paths::settings_file()),
-        claude_folder_exists: paths::projects_dir().is_dir(),
+        retention_days: settings::retention_days(&detected[0].settings_file()),
+        claude_folder_exists: detected.iter().any(|a| a.projects_dir().is_dir()),
         platform: std::env::consts::OS,
         home: roots[0].home.clone(),
     };
     *state.organization.lock().unwrap() = organization;
     *state.summaries.lock().unwrap() = summaries.clone();
     *state.roots.lock().unwrap() = roots;
+    *state.accounts.lock().unwrap() = detected;
     update_index(app, summaries, state.indexing.clone());
     library
 }
@@ -278,11 +343,68 @@ fn toggle_membership(id: Uuid, collection: String, state: State<'_, AppState>) -
     with_organization(&state, |org| org.toggle_membership(id, &collection))
 }
 
+/// Retención de una cuenta (la principal si no se dice cuál), en su propio `settings.json`.
 #[tauri::command]
-fn set_retention(days: u32) -> Result<Option<u32>, String> {
-    let file = paths::settings_file();
+fn set_retention(days: u32, account: Option<String>, state: State<'_, AppState>) -> Result<Option<u32>, String> {
+    let file = {
+        let accounts = state.accounts.lock().unwrap();
+        let found = match &account {
+            Some(id) => accounts.iter().find(|a| &a.id == id),
+            None => accounts.first(),
+        };
+        found.map(Account::settings_file).unwrap_or_else(paths::settings_file)
+    };
     settings::set_retention_days(&file, days).map_err(|e| e.to_string())?;
     Ok(settings::retention_days(&file))
+}
+
+#[tauri::command]
+fn set_account_name(id: String, name: String, state: State<'_, AppState>) -> Result<(), String> {
+    with_organization(&state, |org| {
+        let name = name.trim();
+        if name.is_empty() {
+            org.account_names.remove(&id);
+        } else {
+            org.account_names.insert(id, name.to_owned());
+        }
+    })
+}
+
+#[tauri::command]
+fn set_account_hidden(id: String, hidden: bool, state: State<'_, AppState>) -> Result<(), String> {
+    with_organization(&state, |org| {
+        if hidden {
+            org.hidden_accounts.insert(id);
+        } else {
+            org.hidden_accounts.remove(&id);
+        }
+    })
+}
+
+/// Añade a mano una carpeta de configuración de Claude Code (la que se usa con `CLAUDE_CONFIG_DIR`).
+#[tauri::command]
+fn add_account(dir: String, state: State<'_, AppState>) -> Result<(), String> {
+    let path = PathBuf::from(dir.trim_end_matches(['/', '\\']));
+    // Si se elige la carpeta `projects`, vale su carpeta de configuración.
+    let path = if path.file_name().is_some_and(|n| n == "projects") { path.parent().map(Path::to_path_buf).unwrap_or(path) } else { path };
+    if !path.join("projects").is_dir() {
+        return Err(format!("«{}» no es una carpeta de Claude Code: no tiene una carpeta «projects».", path.display()));
+    }
+    let text = path.to_string_lossy().into_owned();
+    with_organization(&state, |org| {
+        org.hidden_accounts.remove(&text);
+        if !org.extra_accounts.contains(&text) {
+            org.extra_accounts.push(text);
+        }
+    })
+}
+
+#[tauri::command]
+fn remove_account(id: String, state: State<'_, AppState>) -> Result<(), String> {
+    with_organization(&state, |org| {
+        org.extra_accounts.retain(|e| Path::new(e) != Path::new(&id));
+        org.account_names.remove(&id);
+    })
 }
 
 #[tauri::command]
@@ -308,10 +430,14 @@ fn resume(
         return Err(format!("La carpeta «{cwd}» ya no existe."));
     }
     let command = session.resume_command(&extra_arguments);
+    let env = root.config_env.as_deref();
     log::info!("reanudar {id} en {terminal}");
     let result = match &root.distro {
-        Some(distro) => launcher::resume_wsl(distro, &cwd, &command),
-        None => launcher::resume(&terminal, &cwd, &command, &session.display_title().unwrap_or_default(), custom_template.as_deref()),
+        Some(distro) => launcher::resume_wsl(distro, &cwd, &accounts::with_account_unix(&command, env)),
+        None => {
+            let command = launcher::with_account(&terminal, &command, env);
+            launcher::resume(&terminal, &cwd, &command, &session.display_title().unwrap_or_default(), custom_template.as_deref())
+        }
     };
     if let Err(error) = &result {
         log::warn!("no se pudo reanudar {id}: {error}");
@@ -326,10 +452,17 @@ fn resume(
 fn new_session(
     cwd: String,
     distro: Option<String>,
+    account: Option<String>,
     terminal: String,
     extra_arguments: String,
     custom_template: Option<String>,
+    state: State<'_, AppState>,
 ) -> Result<(), String> {
+    // La cuenta con la que se abre: la variable de su carpeta de configuración (si no es la principal).
+    let env = account.and_then(|id| {
+        let roots = state.roots.lock().unwrap();
+        roots.iter().find(|r| r.account == id && r.distro == distro).and_then(|r| r.config_env.clone())
+    });
     let native = match &distro {
         Some(distro) => roots::wsl_path(distro, &cwd),
         None => PathBuf::from(&cwd),
@@ -342,8 +475,11 @@ fn new_session(
     let name = cwd.rsplit(['/', '\\']).find(|part| !part.is_empty()).unwrap_or(&cwd);
     log::info!("nueva sesión en {cwd} con {terminal}");
     match &distro {
-        Some(distro) => launcher::resume_wsl(distro, &cwd, &command),
-        None => launcher::resume(&terminal, &cwd, &command, &format!("Claude Code · {name}"), custom_template.as_deref()),
+        Some(distro) => launcher::resume_wsl(distro, &cwd, &accounts::with_account_unix(&command, env.as_deref())),
+        None => {
+            let command = launcher::with_account(&terminal, &command, env.as_deref());
+            launcher::resume(&terminal, &cwd, &command, &format!("Claude Code · {name}"), custom_template.as_deref())
+        }
     }
 }
 
@@ -411,8 +547,14 @@ fn inspect_session_file(file: String) -> Result<SharedSession, String> {
 /// Importa una sesión compartida en `folder`. Si no es su carpeta original, se recuerda la nueva
 /// para reanudarla ahí (como «Elegir carpeta…»).
 #[tauri::command]
-fn import_session(file: String, folder: String, state: State<'_, AppState>) -> Result<Uuid, String> {
-    let (session, _) = lap_core::share::import(&paths::projects_dir(), Path::new(&file), &folder)?;
+fn import_session(file: String, folder: String, account: Option<String>, state: State<'_, AppState>) -> Result<Uuid, String> {
+    // En la cuenta elegida en la barra lateral (la principal si se ven todas).
+    let projects = {
+        let accounts = state.accounts.lock().unwrap();
+        account.and_then(|id| accounts.iter().find(|a| a.id == id)).or(accounts.first()).map(Account::projects_dir)
+    }
+    .unwrap_or_else(paths::projects_dir);
+    let (session, _) = lap_core::share::import(&projects, Path::new(&file), &folder)?;
     log::info!("sesión {} importada en {folder}", session.id);
     if session.cwd.as_deref() != Some(folder.as_str()) {
         with_organization(&state, |org| {
@@ -485,7 +627,7 @@ fn open_logs(app: AppHandle) -> Result<(), String> {
     tauri_plugin_opener::open_path(dir, None::<&str>).map_err(|e| e.to_string())
 }
 
-/// Avisa a la interfaz (agrupando cambios seguidos) cuando cambia `~/.claude/projects`.
+/// Avisa a la interfaz (agrupando cambios seguidos) cuando cambian las sesiones de alguna cuenta.
 fn watch_projects(app: &AppHandle) {
     let pending = Arc::new(AtomicBool::new(false));
     let handle = app.clone();
@@ -501,9 +643,20 @@ fn watch_projects(app: &AppHandle) {
             let _ = handle.emit("sessions-changed", ());
         });
     });
-    if let Ok(mut watcher) = watcher {
-        if watcher.watch(&paths::projects_dir(), RecursiveMode::Recursive).is_ok() {
-            *app.state::<AppState>().watcher.lock().unwrap() = Some(watcher);
+    if let Ok(watcher) = watcher {
+        *app.state::<AppState>().watcher.lock().unwrap() = Some(watcher);
+    }
+}
+
+/// Vigila la carpeta `projects` de cada cuenta (las de WSL no: su sistema de archivos no avisa).
+fn watch_roots(app: &AppHandle, roots: &[Root]) {
+    let state = app.state::<AppState>();
+    let mut guard = state.watcher.lock().unwrap();
+    let Some(watcher) = guard.as_mut() else { return };
+    let mut watched = state.watched.lock().unwrap();
+    for root in roots.iter().filter(|r| r.distro.is_none()) {
+        if !watched.contains(&root.dir) && root.dir.is_dir() && watcher.watch(&root.dir, RecursiveMode::Recursive).is_ok() {
+            watched.insert(root.dir.clone());
         }
     }
 }
@@ -586,6 +739,10 @@ pub fn run() {
             toggle_folder_membership,
             update_collection,
             set_retention,
+            set_account_name,
+            set_account_hidden,
+            add_account,
+            remove_account,
             terminals,
             resume,
             new_session,

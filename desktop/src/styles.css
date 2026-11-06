@@ -80,6 +80,11 @@ svg.lucide { width: 16px; height: 16px; stroke-width: 1.75; flex: none; }
 .sidebar .search { margin: 12px 12px 8px; display: flex; align-items: center; gap: 7px; background: var(--field); border-radius: var(--radius); padding: 6px 9px; color: var(--fg-2); }
 .sidebar .search input { all: unset; flex: 1; color: var(--fg); min-width: 0; }
 .sidebar .search input::placeholder { color: var(--fg-2); }
+.sidebar .account-picker { margin: 0 12px 8px; display: flex; align-items: center; gap: 7px; color: var(--fg-2); }
+.inline-name { all: unset; display: block; width: 100%; font-weight: 500; border-radius: 4px; }
+.inline-name:focus-visible { outline: 2px solid var(--accent, #007aff); outline-offset: 2px; }
+.inline-name::placeholder { color: var(--fg); }
+.sidebar .account-picker select { flex: 1; min-width: 0; }
 .sidebar .search .clear { all: unset; cursor: pointer; display: grid; place-items: center; color: var(--fg-3); }
 .sidebar nav { overflow-y: auto; padding: 0 10px 14px; flex: 1; }
 .sidebar h6 { margin: 14px 10px 4px; font-size: 11px; font-weight: 600; color: var(--fg-3); }

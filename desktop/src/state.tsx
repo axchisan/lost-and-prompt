@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Collection, EditorInfo, Library, Message, Session, TerminalInfo, Tint } from "./api";
+import type { Account, Collection, EditorInfo, Library, Message, Session, TerminalInfo, Tint } from "./api";
 import type { Language, T } from "./i18n";
 
 export type SidebarItem =
@@ -24,6 +24,8 @@ export interface Prefs {
   showInTray: boolean;
   includeWsl: boolean;
   autoUpdate: boolean;
+  /** Cuenta de Claude Code que se ve: "" la principal, "all" todas, o la ruta de una. */
+  account: string;
   /** Carpetas donde se abrió una sesión nueva desde la app (para Ctrl+N), la más reciente primero. */
   recentFolders: { cwd: string; environment: string | null; at: string }[];
 }
@@ -41,6 +43,7 @@ export const defaultPrefs: Prefs = {
   showInTray: true,
   includeWsl: true,
   autoUpdate: true,
+  account: "",
   recentFolders: [],
 };
 
@@ -92,7 +95,14 @@ export interface FindState {
 export interface AppContext {
   t: T;
   language: Language;
+  /** La biblioteca con las sesiones de la cuenta elegida (o de todas). */
   library: Library;
+  /** Cuentas que se leen (sin las ocultas). Con una sola, la app no muestra nada de cuentas. */
+  accounts: Account[];
+  /** Cuenta elegida en la barra lateral; null si se ven todas. */
+  account: Account | null;
+  /** Nombre de una cuenta para mostrar («Principal» si no tiene). */
+  accountName: (id: string) => string;
   prefs: Prefs;
   setPrefs: (change: Partial<Prefs>) => void;
   terminals: TerminalInfo[];
@@ -140,7 +150,12 @@ export interface AppContext {
     /** Lo que se suelta sobre una colección: «session:<id>» o «folder:<ruta>». */
     dropOnCollection: (collection: string, data: string) => void;
     deleteCollection: (id: string) => void;
-    applyRetention: (days: number) => void;
+    applyRetention: (days: number, account: string | null) => void;
+    setAccount: (id: string) => void;
+    renameAccount: (id: string, name: string) => void;
+    setAccountHidden: (id: string, hidden: boolean) => void;
+    addAccount: () => void;
+    removeAccount: (id: string) => void;
     reload: () => void;
     chooseFolder: (session: Session) => void;
     checkForUpdates: (manual: boolean) => void;
@@ -179,6 +194,8 @@ export function useApp(): AppContext {
 
 export function resumeCommand(session: Session, extraArguments: string) {
   const extra = extraArguments.trim();
-  const quoted = session.cwd.includes("'") ? `"${session.cwd}"` : `'${session.cwd}'`;
-  return `cd ${quoted} && claude --resume ${session.id}${extra ? " " + extra : ""}`;
+  const quote = (value: string) => (value.includes("'") ? `"${value}"` : `'${value}'`);
+  // Las cuentas que no son la principal se eligen con la variable de su carpeta de configuración.
+  const account = session.accountEnv ? `CLAUDE_CONFIG_DIR=${quote(session.accountEnv)} ` : "";
+  return `cd ${quote(session.cwd)} && ${account}claude --resume ${session.id}${extra ? " " + extra : ""}`;
 }
