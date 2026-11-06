@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-06
+
 ### Added
 - Several Claude Code accounts: if you use more than one on the same computer (for example a work
   account with `CLAUDE_CONFIG_DIR=~/.claude-work`), the app finds them on its own (`~/.claude`,
@@ -365,7 +367,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.5.1...v0.6.0
