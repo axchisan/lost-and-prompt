@@ -155,7 +155,8 @@ fn shell_value(value: &str, home: &Path) -> Option<PathBuf> {
     } else {
         resolved
     };
-    if resolved.is_empty() || resolved.contains('$') || !Path::new(&resolved).is_absolute() {
+    // Rutas de Unix (también en Windows, donde `/…` no cuenta como absoluta).
+    if resolved.is_empty() || resolved.contains('$') || !(resolved.starts_with('/') || Path::new(&resolved).is_absolute()) {
         return None;
     }
     Some(PathBuf::from(resolved))
