@@ -54,8 +54,12 @@ Para probar la app de Mac con datos ficticios: `-LPMock YES` como argumento de a
 - **Mismo comportamiento en todas las plataformas.** Si cambias cómo se leen las sesiones, cambia
   `core/` y `LostAndPrompt/Core/ClaudeStore.swift`, y comprueba la paridad con
   `cargo run --release -p lost-and-prompt-core --example parity`.
-- **Nunca escribir en los archivos de Claude Code**, salvo `settings.json` desde el ajuste de
-  retención.
+- **Escribir en los archivos de Claude Code solo con salvaguardas** (decisión D17): vista previa
+  exacta y confirmación; copia de seguridad de lo que se reescribe; reescrituras atómicas (temporal +
+  `rename`); nunca con una sesión abierta (`sessions/<pid>.json` con el proceso vivo); papelera por
+  defecto; de `~/.claude.json` solo `projects[ruta]` y `lastSessionId`. Las pruebas usan carpetas de
+  configuración falsas, nunca la del usuario. Hoy lo hacen el ajuste de retención (`settings.json`)
+  y eliminar sesiones (`core/src/cleanup.rs` y `SessionCleanup.swift`).
 - **Textos de la interfaz en español e inglés.** Mac: `LostAndPrompt/Resources/Localizable.xcstrings`
   (`scripts/translate_en.py`). Windows y Linux: `desktop/src/i18n.ts`.
 - **Estilo**: sigue el del código que tocas. Rust pasa `cargo clippy -- -D warnings`; TypeScript pasa

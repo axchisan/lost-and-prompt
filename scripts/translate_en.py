@@ -15,6 +15,31 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    # 0.9.0: eliminar sesiones
+    "¿Eliminar «%@»?": "Delete “%@”?",
+    "¿Eliminar %lld sesiones?": "Delete %lld sessions?",
+    "%lld abierta(s) ahora mismo en Claude Code: no se borra(n). Ciérrala(s) en la terminal primero.": "%lld open right now in Claude Code and won’t be deleted. Close it in the terminal first.",
+    "• %lld líneas del historial de lo que escribiste (flecha ↑ en Claude Code); antes se guarda una copia": "• %lld lines of what you typed (↑ in Claude Code); a copy is saved first",
+    "• En Lost & Prompt: nombre, nota, favorito y colecciones": "• In Lost & Prompt: name, note, favorite and collections",
+    "Borrar para siempre (%@)": "Delete Forever (%@)",
+    "Borrar sin dejar rastro": "Delete without a trace",
+    "Comprobando qué guarda Claude Code de esta sesión…": "Checking what Claude Code keeps for this session…",
+    "Copias de los archivos editados (para rebobinar)": "Copies of edited files (for rewinding)",
+    "Eliminar…": "Delete…",
+    "Entorno de la sesión": "Session environment",
+    "La conversación": "The conversation",
+    "Listas de tareas antiguas": "Old to-do lists",
+    "Mover a la papelera (%@)": "Move to Trash (%@)",
+    "No pasa por la papelera: no se puede recuperar.": "It skips the Trash: it can’t be recovered.",
+    "No se encontró nada que borrar.": "Nothing was found to delete.",
+    "No se pudo quitar todo:": "Not everything could be removed:",
+    "Registro de depuración": "Debug log",
+    "Se quita todo lo que Claude Code guarda de ella:": "Everything Claude Code keeps for it is removed:",
+    "Subagentes y resultados de herramientas": "Subagents and tool results",
+    "Tareas": "Tasks",
+    "Una de las sesiones está abierta en Claude Code. Ciérrala en la terminal primero.": "One of the sessions is open in Claude Code. Close it in the terminal first.",
+    "Va a la papelera: puedes recuperarla desde ahí.": "It goes to the Trash: you can get it back from there.",
+    "Vaciar archivadas…": "Empty Archived…",
     # 0.8.0: varias cuentas de Claude Code
     "«%@» no es una carpeta de Claude Code: no tiene una carpeta «projects».": "“%@” isn’t a Claude Code folder: it has no “projects” folder.",
     "%@ · %lld sesiones": "%@ · %lld sessions",

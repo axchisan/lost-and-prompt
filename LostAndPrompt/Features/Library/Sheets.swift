@@ -209,3 +209,78 @@ struct WelcomeSheet: View {
         }
     }
 }
+
+/// Eliminar sesiones: enseña antes todo lo que se quita de Claude Code y cuánto ocupa.
+struct DeleteSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let sessions: [Session]
+    @State private var plan: SessionCleanup.Plan?
+    @State private var permanent = false
+    @State private var working = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(sessions.count == 1 ? "¿Eliminar «\(sessions[0].title)»?" : "¿Eliminar \(sessions.count) sesiones?")
+                .font(.headline)
+                .lineLimit(2)
+            if let plan {
+                if plan.sessions.isEmpty && plan.inUse.isEmpty {
+                    Text("No se encontró nada que borrar.").foregroundStyle(.secondary)
+                } else {
+                    Text("Se quita todo lo que Claude Code guarda de ella:")
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(plan.kinds, id: \.kind) { entry in
+                            LabeledContent("• " + entry.kind.title, value: ByteCountFormatter.string(fromByteCount: entry.bytes, countStyle: .file))
+                        }
+                        if plan.historyLines > 0 {
+                            Text("• \(plan.historyLines) líneas del historial de lo que escribiste (flecha ↑ en Claude Code); antes se guarda una copia")
+                        }
+                        Text("• En Lost & Prompt: nombre, nota, favorito y colecciones")
+                    }
+                    .font(.callout)
+                }
+                if !plan.inUse.isEmpty {
+                    Label("\(plan.inUse.count) abierta(s) ahora mismo en Claude Code: no se borra(n). Ciérrala(s) en la terminal primero.",
+                          systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                }
+                Toggle(isOn: $permanent) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Borrar sin dejar rastro")
+                        Text(permanent ? "No pasa por la papelera: no se puede recuperar." : "Va a la papelera: puedes recuperarla desde ahí.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .toggleStyle(.checkbox)
+            } else {
+                HStack {
+                    ProgressView().controlSize(.small)
+                    Text("Comprobando qué guarda Claude Code de esta sesión…").foregroundStyle(.secondary)
+                }
+            }
+            HStack {
+                Spacer()
+                Button("Cancelar", role: .cancel) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button(role: .destructive) {
+                    working = true
+                    let list = sessions.filter { !(plan?.inUse.contains($0.id) ?? false) }
+                    Task {
+                        await model.delete(list, permanent: permanent)
+                        dismiss()
+                    }
+                } label: {
+                    let size = ByteCountFormatter.string(fromByteCount: plan?.totalBytes ?? 0, countStyle: .file)
+                    Text(permanent ? "Borrar para siempre (\(size))" : "Mover a la papelera (\(size))")
+                }
+                .disabled(plan == nil || plan?.sessions.isEmpty == true || working)
+            }
+        }
+        .padding(20)
+        .frame(width: 460)
+        .task { plan = await model.deletePlan(for: sessions) }
+    }
+}

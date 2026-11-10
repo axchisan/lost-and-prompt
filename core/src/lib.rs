@@ -5,6 +5,7 @@
 //! historial. Es el equivalente en Rust de `LostAndPrompt/Core` (Swift) y debe comportarse igual.
 
 pub mod accounts;
+pub mod cleanup;
 pub mod model;
 pub mod organization;
 pub mod paths;

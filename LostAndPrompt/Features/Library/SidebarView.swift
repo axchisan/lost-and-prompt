@@ -34,6 +34,11 @@ struct SidebarView: View {
                     Label("Archivadas", systemImage: "archivebox")
                         .badge(model.archivedCount)
                         .tag(SidebarItem.archived)
+                        .contextMenu {
+                            Button("Vaciar archivadas…", systemImage: "trash", role: .destructive) {
+                                model.requestDelete(model.scopedSessions.filter { $0.isArchived && (!model.hideEmptySessions || $0.userMessages > 0) })
+                            }
+                        }
                 }
             }
 

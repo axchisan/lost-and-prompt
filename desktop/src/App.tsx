@@ -15,7 +15,7 @@ import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
 import { Guide, type GuideTab } from "./components/Guide";
-import { About, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, DeleteSheet, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
@@ -30,6 +30,7 @@ type Dialog =
   | { kind: "about" }
   | { kind: "update"; update: Update }
   | { kind: "guide"; tab: GuideTab }
+  | { kind: "delete"; sessions: Session[] }
   | null;
 
 function loadPrefs(): Prefs {
@@ -265,6 +266,9 @@ export default function App() {
         }
         updateSession(session.id, { isArchived });
       }, showError),
+    deleteSessions: (list) => {
+      if (list.length > 0) setDialog({ kind: "delete", sessions: list });
+    },
     toggleMembership: (session, collection) =>
       api.toggleMembership(session.id, collection).then((inside) => {
         const ids = inside ? [...session.collectionIds, collection] : session.collectionIds.filter((c) => c !== collection);
@@ -554,6 +558,9 @@ export default function App() {
       } else if (!dialog && mod && !event.shiftKey && event.key.toLowerCase() === "n") {
         event.preventDefault();
         setDialog({ kind: "newSession" });
+      } else if (!dialog && !typing && selected && (event.key === "Delete" || (mod && event.key === "Backspace"))) {
+        event.preventDefault();
+        actions.deleteSessions([selected]);
       } else if (!dialog && selected && mod && event.shiftKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
         actions.toggleArchive(selected);
@@ -669,6 +676,23 @@ export default function App() {
       {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
       {dialog?.kind === "guide" && <Guide initialTab={dialog.tab} onClose={() => setDialog(null)} />}
       {dialog?.kind === "update" && <UpdateSheet update={dialog.update} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "delete" && (
+        <DeleteSheet
+          sessions={dialog.sessions}
+          onClose={() => setDialog(null)}
+          onDeleted={(ids, permanent) => {
+            if (selectedId && ids.includes(selectedId)) {
+              const rest = visible.filter((s) => !ids.includes(s.id));
+              const position = visible.findIndex((s) => s.id === selectedId);
+              setSelectedId(rest.length ? rest[Math.min(position, rest.length - 1)].id : null);
+            }
+            setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.filter((s) => !ids.includes(s.id)) });
+            setToast(t(permanent ? "deletedPermanently" : "movedToTrash", { n: ids.length }));
+            reload();
+          }}
+          onError={showError}
+        />
+      )}
       {dialog?.kind === "confirm" && (
         <ConfirmSheet message={dialog.message} confirmLabel={dialog.confirmLabel} onConfirm={dialog.action} onClose={() => setDialog(null)} />
       )}

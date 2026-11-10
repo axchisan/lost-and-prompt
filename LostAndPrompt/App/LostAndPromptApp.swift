@@ -128,6 +128,11 @@ struct AppCommands: Commands {
             }
             .keyboardShortcut("a", modifiers: [.command, .control])
             .disabled(model.selectedSession == nil)
+            Button("Eliminar…") { if let s = model.selectedSession { model.requestDelete([s]) } }
+                .keyboardShortcut(.delete, modifiers: .command)
+                .disabled(model.selectedSession == nil || model.deleteRequest != nil)
+            Button("Vaciar archivadas…") { model.requestDelete(model.visibleSessions) }
+                .disabled(model.sidebarSelection != .archived || model.visibleSessions.isEmpty)
             Divider()
             if let editor = model.editor {
                 Button("Abrir en \(editor.shortName)") { if let s = model.selectedSession { model.openInEditor(s.cwd) } }

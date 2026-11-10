@@ -161,6 +161,21 @@ impl Organization {
         }
     }
 
+    /// Olvida todo lo de estas sesiones (al eliminarlas): favorito, nombre, nota, archivo,
+    /// colecciones y carpeta nueva.
+    pub fn forget(&mut self, sessions: &[Uuid]) {
+        for id in sessions {
+            self.favorites.remove(id);
+            self.custom_titles.remove(id);
+            self.notes.remove(id);
+            self.archived.remove(id);
+            self.relocations.remove(id);
+        }
+        for members in self.memberships.values_mut() {
+            members.retain(|m| !sessions.contains(m));
+        }
+    }
+
     pub fn collections_of(&self, session: Uuid) -> Vec<&str> {
         self.memberships.iter().filter(|(_, m)| m.contains(&session)).map(|(c, _)| c.as_str()).collect()
     }

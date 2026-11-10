@@ -186,6 +186,7 @@ struct SessionDetailView: View {
                 Button(session.note == nil ? "Añadir nota…" : "Editar nota…", systemImage: "note.text") { model.editingNoteFor = session }
                 Button(session.isArchived ? "Sacar del archivo" : "Archivar",
                        systemImage: session.isArchived ? "tray.and.arrow.up" : "archivebox") { model.toggleArchive(session.id) }
+                Button("Eliminar…", systemImage: "trash", role: .destructive) { model.requestDelete([session]) }
                 Divider()
                 Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: session.cwd) }
                     .disabled(!session.folderExists)

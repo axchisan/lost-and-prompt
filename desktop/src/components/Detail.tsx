@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy, Ellipsis, Folder, FolderOpen, House, Layers, LoaderCircle, MessagesSquare, Pencil, Hash,
   SquareTerminal, Star, StickyNote, TriangleAlert, User, Sparkle, Wrench, Check, CodeXml, MessageSquarePlus,
-  Search, ChevronUp, ChevronDown, TextSearch, Archive, ArchiveRestore, Brain, ListFilter, ClipboardCopy, FileDown, Share,
+  Search, ChevronUp, ChevronDown, TextSearch, Archive, ArchiveRestore, Brain, ListFilter, ClipboardCopy, FileDown, Share, Trash2,
 } from "lucide-react";
 import type { Message, Session } from "../api";
 import { duration, grouped, relativeDay, timeOnly, usd } from "../format";
@@ -356,6 +356,10 @@ function MoreMenu({ session }: { session: Session }) {
           <button role="menuitem" onClick={() => (close(), actions.toggleArchive(session))}>
             {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
             {session.isArchived ? t("unarchive") : t("archive")}
+          </button>
+          <button role="menuitem" className="destructive" onClick={() => (close(), actions.deleteSessions([session]))}>
+            <Trash2 size={14} />
+            {t("deleteEllipsis")}
           </button>
           <hr />
           <button role="menuitem" disabled={!session.folderExists} onClick={() => (close(), actions.newSession(session))}>

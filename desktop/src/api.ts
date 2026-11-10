@@ -58,6 +58,18 @@ export interface Account {
   retentionDays: number | null;
 }
 
+/** Lo que se quitaría al eliminar sesiones. */
+export interface DeletePreview {
+  sessions: number;
+  /** Abiertas ahora mismo en Claude Code: no se borran. */
+  inUse: string[];
+  /** De WSL: todavía no se pueden borrar desde aquí. */
+  unsupported: string[];
+  kinds: { kind: "conversation" | "subagents" | "fileHistory" | "environment" | "tasks" | "todos" | "debug"; count: number; bytes: number }[];
+  historyLines: number;
+  totalBytes: number;
+}
+
 export interface Library {
   sessions: Session[];
   accounts: Account[];
@@ -128,6 +140,8 @@ export const api = {
     invoke<void>("new_session", { cwd, distro, account, terminal, extraArguments, customTemplate }),
   editors: () => invoke<EditorInfo[]>("editors"),
   openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
+  previewDelete: (ids: string[]) => invoke<DeletePreview>("preview_delete", { ids }),
+  deleteSessions: (ids: string[], permanent: boolean) => invoke<string[]>("delete_sessions", { ids, permanent }),
   exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
   saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),
   inspectSessionFile: (file: string) => invoke<SharedSession>("inspect_session_file", { file }),

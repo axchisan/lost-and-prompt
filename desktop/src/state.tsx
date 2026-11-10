@@ -141,6 +141,8 @@ export interface AppContext {
     openInEditor: (place: Place) => void;
     toggleFavorite: (session: Session) => void;
     toggleArchive: (session: Session) => void;
+    /** Abre el diálogo para eliminar estas sesiones. */
+    deleteSessions: (sessions: Session[]) => void;
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;

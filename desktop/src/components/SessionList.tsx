@@ -1,4 +1,4 @@
-import { Check, ClockAlert, Folder, Layers, ListFilter, MessageSquarePlus, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
+import { Trash2, Check, ClockAlert, Folder, Layers, ListFilter, MessageSquarePlus, FolderSearch, House, LayoutGrid, List, Star, Inbox, SearchX, LoaderCircle } from "lucide-react";
 import { tints, type Session } from "../api";
 import { dayGroups, grouped, shortDate } from "../format";
 import { collectionsOf, noFilter, useApp } from "../state";
@@ -102,6 +102,12 @@ function Head() {
         <h2>{sectionTitle(app)}</h2>
         <small>{subtitle}</small>
       </div>
+      {app.sidebar.kind === "archived" && visible.length > 0 && (
+        <button className="btn small destructive right" onClick={() => app.actions.deleteSessions(visible)}>
+          <Trash2 size={14} />
+          {t("emptyArchived")}
+        </button>
+      )}
     </div>
   );
 }

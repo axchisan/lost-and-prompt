@@ -607,6 +607,73 @@ final class AppModel {
         persist()
     }
 
+    // MARK: Eliminar sesiones
+
+    /// Sesiones que se quieren eliminar (abre la hoja de confirmación).
+    struct DeleteRequest: Identifiable {
+        let id = UUID()
+        var sessions: [Session]
+    }
+    var deleteRequest: DeleteRequest?
+
+    func requestDelete(_ list: [Session]) {
+        guard !list.isEmpty else { return }
+        deleteRequest = DeleteRequest(sessions: list)
+    }
+
+    /// Archivos de cada sesión, con sus copias en otras carpetas de proyecto de su cuenta.
+    private func cleanupTargets(_ list: [Session]) -> [SessionCleanup.Target] {
+        list.flatMap { session -> [SessionCleanup.Target] in
+            guard let path = session.filePath else { return [] }
+            let projects = account(session.accountID)?.projectsURL ?? URL(filePath: path).deletingLastPathComponent().deletingLastPathComponent()
+            let copies = SessionCleanup.copies(of: session.id, in: projects)
+            return (copies.isEmpty ? [URL(filePath: path)] : copies).map { SessionCleanup.Target(id: session.id, file: $0) }
+        }
+    }
+
+    /// Lo que se quitaría, para enseñarlo antes de confirmar.
+    func deletePlan(for list: [Session]) async -> SessionCleanup.Plan {
+        let targets = cleanupTargets(list)
+        return await Task.detached(priority: .userInitiated) { SessionCleanup.plan(targets) }.value
+    }
+
+    /// Elimina las sesiones (a la papelera salvo `permanent`) y olvida su organización en la app.
+    func delete(_ list: [Session], permanent: Bool) async {
+        guard usesRealData else {
+            sessions.removeAll { s in list.contains { $0.id == s.id } }
+            return
+        }
+        let targets = cleanupTargets(list)
+        let visibleBefore = visibleSessions
+        do {
+            let deleted = try await Task.detached(priority: .userInitiated) {
+                try SessionCleanup.execute(SessionCleanup.plan(targets), permanent: permanent)
+            }.value
+            forget(deleted)
+            if let selected = selectedSessionID, deleted.contains(selected) {
+                let rest = visibleBefore.filter { !deleted.contains($0.id) }
+                let position = visibleBefore.firstIndex { $0.id == selected } ?? 0
+                selectedSessionID = rest.isEmpty ? nil : rest[min(position, rest.count - 1)].id
+            }
+            sessions.removeAll { deleted.contains($0.id) }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        await reload()
+    }
+
+    private func forget(_ ids: Set<UUID>) {
+        for id in ids {
+            organization.favorites.remove(id)
+            organization.customTitles[id] = nil
+            organization.notes[id] = nil
+            organization.archived.remove(id)
+            organization.relocations[id] = nil
+        }
+        for key in organization.memberships.keys { organization.memberships[key]?.removeAll { ids.contains($0) } }
+        persist()
+    }
+
     /// Archiva o recupera la sesión. Al archivar la elegida, pasa a la siguiente de la lista.
     func toggleArchive(_ id: Session.ID) {
         guard let index = sessions.firstIndex(where: { $0.id == id }) else { return }

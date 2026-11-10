@@ -48,6 +48,16 @@
         }
       }
     },
+    "%lld abierta(s) ahora mismo en Claude Code: no se borra(n). Ciérrala(s) en la terminal primero.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld open right now in Claude Code and won’t be deleted. Close it in the terminal first."
+          }
+        }
+      }
+    },
     "%lld de %lld": {
       "localizations": {
         "en": {
@@ -586,6 +596,26 @@
         }
       }
     },
+    "Borrar para siempre (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Forever (%@)"
+          }
+        }
+      }
+    },
+    "Borrar sin dejar rastro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete without a trace"
+          }
+        }
+      }
+    },
     "Busca por título, carpeta o lo que se dijo en la conversación. ⌥⌘K abre el buscador desde cualquier app.": {
       "localizations": {
         "en": {
@@ -897,6 +927,16 @@
         }
       }
     },
+    "Comprobando qué guarda Claude Code de esta sesión…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking what Claude Code keeps for this session…"
+          }
+        }
+      }
+    },
     "Conservar 6 meses": {
       "localizations": {
         "en": {
@@ -993,6 +1033,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copy the code"
+          }
+        }
+      }
+    },
+    "Copias de los archivos editados (para rebobinar)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copies of edited files (for rewinding)"
           }
         }
       }
@@ -1347,6 +1397,16 @@
         }
       }
     },
+    "Eliminar…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete…"
+          }
+        }
+      }
+    },
     "Empezar": {
       "localizations": {
         "en": {
@@ -1383,6 +1443,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Find any session"
+          }
+        }
+      }
+    },
+    "Entorno de la sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session environment"
           }
         }
       }
@@ -1783,6 +1853,16 @@
         }
       }
     },
+    "La conversación": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The conversation"
+          }
+        }
+      }
+    },
     "Lanzador": {
       "localizations": {
         "en": {
@@ -1839,6 +1919,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "List"
+          }
+        }
+      }
+    },
+    "Listas de tareas antiguas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Old to-do lists"
           }
         }
       }
@@ -1963,6 +2053,16 @@
         }
       }
     },
+    "Mover a la papelera (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash (%@)"
+          }
+        }
+      }
+    },
     "Más": {
       "localizations": {
         "en": {
@@ -2053,6 +2153,26 @@
         }
       }
     },
+    "No pasa por la papelera: no se puede recuperar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It skips the Trash: it can’t be recovered."
+          }
+        }
+      }
+    },
+    "No se encontró nada que borrar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing was found to delete."
+          }
+        }
+      }
+    },
     "No se pudo cambiar el ajuste: %@": {
       "localizations": {
         "en": {
@@ -2069,6 +2189,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't complete the action"
+          }
+        }
+      }
+    },
+    "No se pudo quitar todo:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not everything could be removed:"
           }
         }
       }
@@ -2493,6 +2623,16 @@
         }
       }
     },
+    "Registro de depuración": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debug log"
+          }
+        }
+      }
+    },
     "Reiniciar ahora": {
       "localizations": {
         "en": {
@@ -2560,6 +2700,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "~/.claude/settings.json will be changed. A copy of the current file will be saved."
+          }
+        }
+      }
+    },
+    "Se quita todo lo que Claude Code guarda de ella:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything Claude Code keeps for it is removed:"
           }
         }
       }
@@ -2704,6 +2854,26 @@
         }
       }
     },
+    "Subagentes y resultados de herramientas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subagents and tool results"
+          }
+        }
+      }
+    },
+    "Tareas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasks"
+          }
+        }
+      }
+    },
     "Tarjetas": {
       "localizations": {
         "en": {
@@ -2814,6 +2984,16 @@
         }
       }
     },
+    "Una de las sesiones está abierta en Claude Code. Ciérrala en la terminal primero.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One of the sessions is open in Claude Code. Close it in the terminal first."
+          }
+        }
+      }
+    },
     "Usa «Elegir otra carpeta…» para abrirla igualmente.": {
       "localizations": {
         "en": {
@@ -2830,6 +3010,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "VS Code, Cursor, Windsurf, Zed, Sublime Text, Nova, Xcode or JetBrains IDEs."
+          }
+        }
+      }
+    },
+    "Va a la papelera: puedes recuperarla desde ahí.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It goes to the Trash: you can get it back from there."
+          }
+        }
+      }
+    },
+    "Vaciar archivadas…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty Archived…"
           }
         }
       }
@@ -3004,6 +3204,26 @@
         }
       }
     },
+    "¿Eliminar %lld sesiones?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %lld sessions?"
+          }
+        }
+      }
+    },
+    "¿Eliminar «%@»?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%@”?"
+          }
+        }
+      }
+    },
     "Última actividad:": {
       "localizations": {
         "en": {
@@ -3050,6 +3270,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Last 7 days"
+          }
+        }
+      }
+    },
+    "• %lld líneas del historial de lo que escribiste (flecha ↑ en Claude Code); antes se guarda una copia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "• %lld lines of what you typed (↑ in Claude Code); a copy is saved first"
+          }
+        }
+      }
+    },
+    "• En Lost & Prompt: nombre, nota, favorito y colecciones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "• In Lost & Prompt: name, note, favorite and collections"
           }
         }
       }

@@ -3,7 +3,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
-import { links, tints, type Collection, type Session, type Tint } from "../api";
+import { api, links, tints, type Collection, type DeletePreview, type Session, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
 // Sin la sombra incrustada del icono del sistema, que dentro de un diálogo se veía como un cuadrado.
@@ -240,6 +240,93 @@ export function ConfirmSheet(props: { message: string; confirmLabel: string; onC
   );
 }
 
+/** Tamaño legible: «3,2 MB». */
+function bytes(n: number, language: string) {
+  const units = ["B", "KB", "MB", "GB"];
+  let value = n;
+  let unit = 0;
+  while (value >= 1000 && unit < units.length - 1) {
+    value /= 1000;
+    unit++;
+  }
+  return `${value.toLocaleString(language, { maximumFractionDigits: unit === 0 ? 0 : 1 })} ${units[unit]}`;
+}
+
+/** Eliminar sesiones: enseña antes todo lo que se quita de Claude Code y cuánto ocupa. */
+export function DeleteSheet(props: {
+  sessions: Session[];
+  onClose: () => void;
+  onDeleted: (ids: string[], permanent: boolean) => void;
+  onError: (error: unknown) => void;
+}) {
+  const { t, language } = useApp();
+  const [preview, setPreview] = useState<DeletePreview | null>(null);
+  const [permanent, setPermanent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const ids = props.sessions.map((s) => s.id);
+  useEffect(() => {
+    api.previewDelete(props.sessions.map((s) => s.id)).then(setPreview, props.onError);
+  }, []);
+  const title =
+    props.sessions.length === 1 ? t("deleteOneTitle", { title: props.sessions[0].title }) : t("deleteManyTitle", { n: props.sessions.length });
+  const blocked = preview ? [...preview.inUse, ...preview.unsupported] : [];
+  const run = async () => {
+    setBusy(true);
+    try {
+      const deleted = await api.deleteSessions(ids.filter((id) => !blocked.includes(id)), permanent);
+      props.onClose();
+      props.onDeleted(deleted, permanent);
+    } catch (error) {
+      props.onClose();
+      props.onError(error);
+    }
+  };
+  return (
+    <Sheet title={title} onClose={props.onClose}>
+      {!preview ? (
+        <p>{t("deleteChecking")}</p>
+      ) : (
+        <>
+          <p>{t("deleteLead")}</p>
+          <ul className="delete-list">
+            {preview.kinds.map((k) => (
+              <li key={k.kind}>
+                <span>{t(`deleteKind_${k.kind}`)}</span>
+                <span className="hint">{bytes(k.bytes, language)}</span>
+              </li>
+            ))}
+            {preview.historyLines > 0 && (
+              <li>
+                <span>{t("deleteHistory", { n: preview.historyLines })}</span>
+              </li>
+            )}
+            <li>
+              <span>{t("deleteOrganization")}</span>
+            </li>
+          </ul>
+          {preview.inUse.length > 0 && <p className="warning">{t("deleteInUse", { n: preview.inUse.length })}</p>}
+          {preview.unsupported.length > 0 && <p className="warning">{t("deleteWsl", { n: preview.unsupported.length })}</p>}
+          <label className="check-row">
+            <input type="checkbox" checked={permanent} onChange={(e) => setPermanent(e.target.checked)} />
+            <span>
+              {t("deletePermanent")}
+              <span className="hint" style={{ display: "block" }}>{permanent ? t("deletePermanentHint") : t("deleteTrashHint")}</span>
+            </span>
+          </label>
+        </>
+      )}
+      <div className="buttons">
+        <button className="btn" onClick={props.onClose}>
+          {t("cancel")}
+        </button>
+        <button className="btn destructive" disabled={!preview || preview.sessions === 0 || busy} onClick={run}>
+          {preview ? t(permanent ? "deletePermanentButton" : "deleteButton", { size: bytes(preview.totalBytes, language) }) : t("deleteButtonPlain")}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 export function Welcome({ onClose, onGuide }: { onClose: () => void; onGuide: () => void }) {
   const { t, modKey } = useApp();
   const features: [React.ReactNode, string, string][] = [
@@ -359,6 +446,10 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
       <button role="menuitem" onClick={run(() => actions.toggleArchive(session))}>
         {session.isArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
         {session.isArchived ? t("unarchive") : t("archive")}
+      </button>
+      <button role="menuitem" className="destructive" onClick={run(() => actions.deleteSessions([session]))}>
+        <Trash2 size={14} />
+        {t("deleteEllipsis")}
       </button>
       <hr />
       <button role="menuitem" disabled={!session.folderExists} onClick={run(() => actions.newSession(session))}>

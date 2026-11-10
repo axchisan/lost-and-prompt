@@ -7,6 +7,24 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Delete sessions: "Delete…" (context menu, "More" menu, ⌘⌫ on the Mac, Delete on Windows and
+  Linux) removes the session and everything Claude Code keeps for it: the conversation, subagents
+  and tool results, copies of edited files, environment, tasks and its lines in `history.jsonl`
+  (backed up first). A dialog shows what goes and its size before anything is touched.
+- It goes to the system Trash by default; "Delete without a trace" removes it for good.
+- Sessions that are open in Claude Code right now can't be deleted.
+- "Empty Archived…" in the Archived view.
+
+### Añadido
+- Eliminar sesiones: «Eliminar…» (menú contextual, menú «Más», ⌘⌫ en Mac, Supr en Windows y Linux)
+  quita la sesión y todo lo que Claude Code guarda de ella: la conversación, subagentes y resultados
+  de herramientas, copias de archivos editados, entorno, tareas y sus líneas de `history.jsonl` (con
+  copia antes). Un diálogo enseña qué se quita y cuánto ocupa antes de tocar nada.
+- Va a la papelera del sistema por defecto; «Borrar sin dejar rastro» la borra del todo.
+- Las sesiones abiertas ahora mismo en Claude Code no se pueden eliminar.
+- «Vaciar archivadas…» en la vista «Archivadas».
+
 ## [0.8.0] - 2026-11-06
 
 ### Added

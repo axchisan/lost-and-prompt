@@ -13,6 +13,7 @@ use std::time::Duration;
 
 use chrono::{DateTime, Utc};
 use lap_core::accounts::{self, Account};
+use lap_core::cleanup::{self, ItemKind};
 use lap_core::model::model_name;
 use lap_core::{encode_project_dir, paths, settings, Collection, Message, Organization, SearchIndex, SessionSummary, Tint};
 use notify::{RecursiveMode, Watcher};
@@ -515,6 +516,96 @@ fn relocate(id: Uuid, new_cwd: String, state: State<'_, AppState>) -> Result<(),
     })
 }
 
+// MARK: Eliminar sesiones
+
+/// Lo que se quitaría al eliminar unas sesiones, resumido para el diálogo de confirmación.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DeletePreview {
+    /// Sesiones que se pueden borrar.
+    sessions: usize,
+    /// Abiertas ahora mismo en Claude Code: no se borran.
+    in_use: Vec<Uuid>,
+    /// Sesiones de WSL: todavía no se pueden borrar desde aquí.
+    unsupported: Vec<Uuid>,
+    /// Por tipo: cuántos elementos y cuánto ocupan.
+    kinds: Vec<KindSummary>,
+    history_lines: usize,
+    total_bytes: u64,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct KindSummary {
+    kind: ItemKind,
+    count: usize,
+    bytes: u64,
+}
+
+/// Archivos de cada sesión (con sus copias en otras carpetas de proyecto) y las de WSL aparte.
+fn delete_targets(ids: &[Uuid], state: &State<'_, AppState>) -> (Vec<cleanup::Target>, Vec<Uuid>) {
+    let summaries = state.summaries.lock().unwrap();
+    let roots = state.roots.lock().unwrap();
+    let mut targets = vec![];
+    let mut unsupported = vec![];
+    for id in ids {
+        let Some(summary) = summaries.iter().find(|s| s.id == *id) else { continue };
+        let Some(root) = root_of(&roots, summary) else { continue };
+        // En WSL no se puede saber desde Windows si Claude Code tiene la sesión abierta.
+        if root.distro.is_some() {
+            unsupported.push(*id);
+            continue;
+        }
+        let files = cleanup::find_copies(&root.dir, *id);
+        let files = if files.is_empty() { vec![PathBuf::from(&summary.path)] } else { files };
+        targets.extend(files.into_iter().map(|file| cleanup::Target { id: *id, file }));
+    }
+    (targets, unsupported)
+}
+
+#[tauri::command]
+fn preview_delete(ids: Vec<Uuid>, state: State<'_, AppState>) -> DeletePreview {
+    let (targets, unsupported) = delete_targets(&ids, &state);
+    let plan = cleanup::plan_delete(&targets);
+    let mut kinds: Vec<KindSummary> = vec![];
+    for item in &plan.items {
+        match kinds.iter_mut().find(|k| k.kind == item.kind) {
+            Some(k) => {
+                k.count += 1;
+                k.bytes += item.bytes;
+            }
+            None => kinds.push(KindSummary { kind: item.kind, count: 1, bytes: item.bytes }),
+        }
+    }
+    let mut in_use = plan.in_use.clone();
+    in_use.sort();
+    in_use.dedup();
+    let sessions = plan.items.iter().map(|i| i.session).collect::<HashSet<_>>().len();
+    DeletePreview { sessions, in_use, unsupported, kinds, history_lines: plan.history_lines(), total_bytes: plan.total_bytes }
+}
+
+/// Elimina las sesiones (a la papelera salvo `permanent`) y olvida su organización en la app.
+/// Devuelve las que se borraron.
+#[tauri::command]
+fn delete_sessions(ids: Vec<Uuid>, permanent: bool, state: State<'_, AppState>) -> Result<Vec<Uuid>, String> {
+    let (targets, _) = delete_targets(&ids, &state);
+    let plan = cleanup::plan_delete(&targets);
+    let outcome = cleanup::execute(&plan, permanent, &data_file("backups")).map_err(|e| e.to_string())?;
+    log::info!(
+        "eliminadas {} sesiones ({}), {} líneas del historial; copias: {:?}",
+        outcome.deleted.len(),
+        if permanent { "definitivo" } else { "papelera" },
+        plan.history_lines(),
+        outcome.backups
+    );
+    with_organization(&state, |org| org.forget(&outcome.deleted))?;
+    if !outcome.failures.is_empty() {
+        log::warn!("no se pudo quitar: {:?}", outcome.failures);
+        return Err(format!("No se pudo quitar todo:\n{}", outcome.failures.join("\n")));
+    }
+    Ok(outcome.deleted)
+}
+
 /// Copia el archivo de la sesión (para que otra persona la importe y la continúe).
 #[tauri::command]
 fn export_session(id: Uuid, destination: String, state: State<'_, AppState>) -> Result<(), String> {
@@ -750,6 +841,8 @@ pub fn run() {
             open_in_editor,
             relocate,
             export_session,
+            preview_delete,
+            delete_sessions,
             save_text,
             inspect_session_file,
             import_session,
