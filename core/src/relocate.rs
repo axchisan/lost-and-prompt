@@ -258,6 +258,75 @@ pub fn execute_repair(plan: &RepairPlan, backups_dir: &Path) -> Result<RepairOut
     Ok(RepairOutcome { backup_dir, folders: fresh.folders.len(), lines })
 }
 
+/// Lo que conviene saber antes de mover una carpeta en el disco.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveCheck {
+    /// Motivo por el que no se puede mover (destino ocupado, dentro de sí misma…).
+    pub error: Option<String>,
+    /// Es un *worktree* de git: el repositorio principal guarda su ruta y hay que repararlo con
+    /// `git worktree repair`.
+    pub is_worktree: bool,
+    /// Tiene *worktrees* en otras carpetas que apuntan a ella.
+    pub has_worktrees: bool,
+}
+
+/// Comprueba si `from` se puede mover a `to`.
+pub fn check_move(from: &Path, to: &Path) -> MoveCheck {
+    let mut check = MoveCheck::default();
+    if !from.is_dir() {
+        check.error = Some(format!("«{}» no existe.", from.display()));
+    } else if to.exists() {
+        check.error = Some(format!("Ya existe «{}».", to.display()));
+    } else if to.starts_with(from) {
+        check.error = Some("No se puede mover una carpeta dentro de sí misma.".into());
+    } else if !to.parent().is_some_and(Path::is_dir) {
+        check.error = Some(format!("No existe la carpeta «{}».", to.parent().unwrap_or(to).display()));
+    }
+    check.is_worktree = from.join(".git").is_file();
+    check.has_worktrees = std::fs::read_dir(from.join(".git/worktrees")).is_ok_and(|mut e| e.next().is_some());
+    check
+}
+
+/// Mueve la carpeta en el disco: `rename` y, si cambia de volumen, copia y borra el original.
+pub fn move_folder(from: &Path, to: &Path) -> Result<()> {
+    if let Some(error) = check_move(from, to).error {
+        return Err(Error::Other(error));
+    }
+    match std::fs::rename(from, to) {
+        Ok(()) => Ok(()),
+        Err(_) => {
+            // Otro volumen (EXDEV en Unix, ERROR_NOT_SAME_DEVICE en Windows).
+            if let Err(error) = copy_dir(from, to) {
+                let _ = std::fs::remove_dir_all(to);
+                return Err(error.into());
+            }
+            std::fs::remove_dir_all(from)?;
+            Ok(())
+        }
+    }
+}
+
+fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
+    std::fs::create_dir(to)?;
+    for entry in std::fs::read_dir(from)?.flatten() {
+        let source = entry.path();
+        let target = to.join(entry.file_name());
+        let kind = entry.file_type()?;
+        if kind.is_dir() {
+            copy_dir(&source, &target)?;
+        } else if kind.is_symlink() {
+            #[cfg(unix)]
+            std::os::unix::fs::symlink(std::fs::read_link(&source)?, &target)?;
+            #[cfg(windows)]
+            std::fs::copy(&source, &target).map(|_| ())?;
+        } else {
+            std::fs::copy(&source, &target)?;
+        }
+    }
+    Ok(())
+}
+
 /// Cambia `"<clave>":"<from>…"` por `"<clave>":"<to>…"` cuando el valor es `from` o está dentro.
 /// Trabaja sobre el texto para no alterar nada más de cada línea. Devuelve el texto y cuántos
 /// valores cambió.
@@ -484,6 +553,23 @@ mod tests {
         assert_eq!(plan.in_use, vec![Uuid::parse_str(B).unwrap()]);
         assert!(execute_repair(&plan, &dir.path().join("copias")).is_err());
         assert!(config.join("projects/-Users-ana-Dev-web").exists());
+    }
+
+    #[test]
+    fn mueve_la_carpeta_y_avisa_de_los_worktrees() {
+        let dir = tempfile::tempdir().unwrap();
+        let from = dir.path().join("web");
+        write(&from.join("src/main.rs"), "fn main() {}");
+        write(&from.join(".git/worktrees/rama/HEAD"), "ref");
+        let to = dir.path().join("Proyectos/web");
+        assert!(check_move(&from, &to).error.is_some(), "falta la carpeta padre");
+        std::fs::create_dir_all(dir.path().join("Proyectos")).unwrap();
+        let check = check_move(&from, &to);
+        assert!(check.error.is_none() && check.has_worktrees && !check.is_worktree);
+        assert!(check_move(&from, &from.join("dentro")).error.is_some());
+        move_folder(&from, &to).unwrap();
+        assert!(!from.exists() && to.join("src/main.rs").exists());
+        assert!(move_folder(&to, &to).is_err(), "el destino ya existe");
     }
 
     #[test]

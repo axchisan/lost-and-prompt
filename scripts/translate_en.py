@@ -15,6 +15,19 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    # 0.11.0: mover carpetas desde la app
+    "«%@» no existe.": "“%@” doesn’t exist.",
+    "Antes se guarda una copia de todo lo que se reescribe de Claude Code. Si algo falla, la carpeta vuelve a su sitio.": "Everything rewritten in Claude Code’s files is backed up first. If something fails, the folder goes back where it was.",
+    "Elige dónde mover la carpeta y con qué nombre.": "Choose where to move the folder and its name.",
+    "Es un worktree de git: después ejecuta «git worktree repair» desde el repositorio principal.": "It’s a git worktree: afterwards run “git worktree repair” from the main repository.",
+    "La carpeta se moverá en el disco y Claude Code seguirá encontrando todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):": "The folder will be moved on disk and Claude Code will keep finding everything at the new path (subfolders and every account included):",
+    "Mover": "Move",
+    "Mover carpeta": "Move Folder",
+    "Mover o renombrar": "Move or Rename",
+    "Mover o renombrar…": "Move or Rename…",
+    "No se puede mover una carpeta dentro de sí misma.": "A folder can’t be moved inside itself.",
+    "Tiene worktrees de git en otras carpetas: después ejecuta «git worktree repair» dentro de ella.": "It has git worktrees in other folders: afterwards run “git worktree repair” inside it.",
+    "Ya existe «%@».": "“%@” already exists.",
     # 0.10.0: reparar carpetas movidas
     "¿Dónde está ahora «%@»?": "Where is “%@” now?",
     "%@ → %@": "%@ → %@",

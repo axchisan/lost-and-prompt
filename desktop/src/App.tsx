@@ -31,7 +31,7 @@ type Dialog =
   | { kind: "update"; update: Update }
   | { kind: "guide"; tab: GuideTab }
   | { kind: "delete"; sessions: Session[] }
-  | { kind: "repair"; from: string; to: string }
+  | { kind: "repair"; from: string; to: string; moving?: boolean }
   | null;
 
 function loadPrefs(): Prefs {
@@ -271,6 +271,10 @@ export default function App() {
       const name = from.split(/[\\/]/).filter(Boolean).pop() ?? from;
       const to = await openDialog({ directory: true, title: t("repairChoose", { name }) });
       if (typeof to === "string") setDialog({ kind: "repair", from, to });
+    },
+    moveFolder: async (from) => {
+      const to = await saveDialog({ defaultPath: from, title: t("moveChoose") });
+      if (typeof to === "string") setDialog({ kind: "repair", from, to, moving: true });
     },
     deleteSessions: (list) => {
       if (list.length > 0) setDialog({ kind: "delete", sessions: list });
@@ -686,9 +690,10 @@ export default function App() {
         <RepairSheet
           from={dialog.from}
           to={dialog.to}
+          moving={dialog.moving ?? false}
           onClose={() => setDialog(null)}
           onRepaired={() => {
-            setToast(t("repaired"));
+            setToast(t(dialog.moving ? "moved" : "repaired"));
             if (sidebar.kind === "folder") setSidebar({ kind: "recents" });
             reload();
           }}

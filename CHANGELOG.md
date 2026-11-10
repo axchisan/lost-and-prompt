@@ -7,6 +7,19 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Move or rename a folder from the app: "Move or Rename…" in a sidebar folder's context menu moves
+  it on disk (across drives too) and moves its Claude Code sessions, memory and settings to the new
+  path in one go, subfolders and every account included. If anything fails, the folder goes back
+  where it was. Git worktrees get a reminder to run `git worktree repair`.
+
+### Añadido
+- Mover o renombrar una carpeta desde la app: «Mover o renombrar…» en el menú contextual de una
+  carpeta de la barra lateral la mueve en el disco (también a otro disco) y pasa a la vez a la ruta
+  nueva sus sesiones, su memoria y sus ajustes de Claude Code, en las subcarpetas y en todas las
+  cuentas. Si algo falla, la carpeta vuelve a su sitio. Con worktrees de git, recuerda ejecutar
+  `git worktree repair`.
+
 ## [0.10.0] - 2026-11-10
 
 ### Added

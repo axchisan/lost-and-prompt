@@ -613,8 +613,25 @@ final class AppModel {
         let id = UUID()
         var from: String
         var to: String
+        /// Mover la carpeta en el disco además de reparar.
+        var moving = false
     }
     var repairRequest: RepairRequest?
+
+    /// «Mover o renombrar…»: elegir el sitio y el nombre nuevos de la carpeta.
+    func moveFolder(_ from: String) {
+        guard usesRealData else { return }
+        let panel = NSSavePanel()
+        panel.title = String(localized: "Mover o renombrar")
+        panel.message = String(localized: "Elige dónde mover la carpeta y con qué nombre.")
+        panel.prompt = String(localized: "Mover")
+        panel.nameFieldStringValue = (from as NSString).lastPathComponent
+        panel.directoryURL = URL(filePath: (from as NSString).deletingLastPathComponent)
+        panel.canCreateDirectories = true
+        panel.showsTagField = false
+        guard panel.runModal() == .OK, let target = panel.url else { return }
+        repairRequest = RepairRequest(from: from, to: target.path(percentEncoded: false), moving: true)
+    }
 
     /// «Reparar carpeta movida…»: elegir dónde está ahora la carpeta.
     func repairFolder(_ from: String) {
@@ -638,15 +655,28 @@ final class AppModel {
         }.value
     }
 
-    /// Pasa sesiones, memoria y ajustes de `from` a `to` en todas las cuentas.
-    func applyRepair(from: String, to: String) async {
+    /// Pasa sesiones, memoria y ajustes de `from` a `to` en todas las cuentas. Con `moving`, antes
+    /// mueve la carpeta en el disco (y la devuelve a su sitio si la reparación falla).
+    func applyRepair(from: String, to: String, moving: Bool = false) async {
         let list = accounts
         do {
             try await Task.detached(priority: .userInitiated) {
                 let plans = list.map { ($0, FolderRepair.plan(account: $0, from: from, to: to)) }.filter { !$0.1.isEmpty }
                 if plans.contains(where: { !$0.1.inUse.isEmpty }) { throw FolderRepair.RepairError.inUse }
-                for (account, _) in plans {
-                    try FolderRepair.execute(account: account, from: from, to: to, backups: SessionCleanup.backupsURL)
+                if moving {
+                    if let error = FolderRepair.checkMove(from: from, to: to).error {
+                        throw NSError(domain: "LostAndPrompt", code: 1, userInfo: [NSLocalizedDescriptionKey: error])
+                    }
+                    // `moveItem` copia y borra si cambia de volumen.
+                    try FileManager.default.moveItem(atPath: from, toPath: to)
+                }
+                do {
+                    for (account, _) in plans {
+                        try FolderRepair.execute(account: account, from: from, to: to, backups: SessionCleanup.backupsURL)
+                    }
+                } catch {
+                    if moving { try? FileManager.default.moveItem(atPath: to, toPath: from) }
+                    throw error
                 }
             }.value
             renameFolderInOrganization(from: from, to: to)

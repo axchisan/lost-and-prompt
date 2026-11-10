@@ -77,6 +77,8 @@ export interface RepairPreview {
   settings: number;
   inUse: string[];
   targetMissing: boolean;
+  /** Al mover desde la app. */
+  moveCheck: { error: string | null; isWorktree: boolean; hasWorktrees: boolean } | null;
 }
 
 export interface Library {
@@ -151,7 +153,8 @@ export const api = {
   openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
   previewDelete: (ids: string[]) => invoke<DeletePreview>("preview_delete", { ids }),
   deleteSessions: (ids: string[], permanent: boolean) => invoke<string[]>("delete_sessions", { ids, permanent }),
-  previewRepair: (from: string, to: string) => invoke<RepairPreview>("preview_repair", { from, to }),
+  previewRepair: (from: string, to: string, moving = false) => invoke<RepairPreview>("preview_repair", { from, to, moving }),
+  moveFolder: (from: string, to: string) => invoke<number>("move_folder", { from, to }),
   repairFolder: (from: string, to: string) => invoke<number>("repair_folder", { from, to }),
   exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
   saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),

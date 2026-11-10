@@ -291,23 +291,27 @@ struct RepairSheet: View {
     @Environment(\.dismiss) private var dismiss
     let from: String
     let to: String
+    var moving = false
     @State private var plans: [(account: ClaudeAccount, plan: FolderRepair.Plan)]?
+    @State private var check = FolderRepair.MoveCheck()
     @State private var working = false
 
     private var inUse: Bool { plans?.contains { !$0.plan.inUse.isEmpty } ?? false }
-    private var empty: Bool { plans?.isEmpty ?? true }
+    private var empty: Bool { !moving && (plans?.isEmpty ?? true) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Reparar carpeta movida").font(.headline)
+            Text(moving ? "Mover carpeta" : "Reparar carpeta movida").font(.headline)
             Text("\(Session.abbreviate(from)) → \(Session.abbreviate(to))")
                 .font(.callout.monospaced())
                 .textSelection(.enabled)
             if let plans {
-                if plans.isEmpty {
+                if plans.isEmpty && !moving {
                     Text("No hay nada que pasar a esa carpeta.").foregroundStyle(.secondary)
                 } else {
-                    Text("Claude Code volverá a encontrar todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):")
+                    Text(moving
+                         ? "La carpeta se moverá en el disco y Claude Code seguirá encontrando todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):"
+                         : "Claude Code volverá a encontrar todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):")
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(plans, id: \.account.id) { entry in
                             ForEach(entry.plan.folders) { folder in
@@ -327,10 +331,23 @@ struct RepairSheet: View {
                         if lines > 0 { Text("• \(lines) líneas del historial de lo que escribiste (flecha ↑)") }
                     }
                     .font(.callout)
-                    Text("Antes se guarda una copia de todo lo que se reescribe. La carpeta del disco no se toca.")
+                    Text(moving
+                         ? "Antes se guarda una copia de todo lo que se reescribe de Claude Code. Si algo falla, la carpeta vuelve a su sitio."
+                         : "Antes se guarda una copia de todo lo que se reescribe. La carpeta del disco no se toca.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    if !FileManager.default.fileExists(atPath: to) {
+                    if let error = check.error {
+                        Label(error, systemImage: "xmark.octagon").font(.callout).foregroundStyle(.red)
+                    }
+                    if check.isWorktree {
+                        Label("Es un worktree de git: después ejecuta «git worktree repair» desde el repositorio principal.", systemImage: "exclamationmark.triangle")
+                            .font(.callout).foregroundStyle(.orange)
+                    }
+                    if check.hasWorktrees {
+                        Label("Tiene worktrees de git en otras carpetas: después ejecuta «git worktree repair» dentro de ella.", systemImage: "exclamationmark.triangle")
+                            .font(.callout).foregroundStyle(.orange)
+                    }
+                    if !moving && !FileManager.default.fileExists(atPath: to) {
                         Label("Esa carpeta no existe en el disco. Si todavía no la has movido, muévela antes.", systemImage: "exclamationmark.triangle")
                             .font(.callout).foregroundStyle(.orange)
                     }
@@ -349,19 +366,22 @@ struct RepairSheet: View {
                 Spacer()
                 Button("Cancelar", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Reparar") {
+                Button(moving ? "Mover" : "Reparar") {
                     working = true
                     Task {
-                        await model.applyRepair(from: from, to: to)
+                        await model.applyRepair(from: from, to: to, moving: moving)
                         dismiss()
                     }
                 }
                 .keyboardShortcut(.defaultAction)
-                .disabled(plans == nil || empty || inUse || working)
+                .disabled(plans == nil || empty || inUse || working || (moving && check.error != nil))
             }
         }
         .padding(20)
         .frame(width: 520)
-        .task { plans = await model.repairPlans(from: from, to: to) }
+        .task {
+            if moving { check = FolderRepair.checkMove(from: from, to: to) }
+            plans = await model.repairPlans(from: from, to: to)
+        }
     }
 }

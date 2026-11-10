@@ -14,7 +14,7 @@ use std::time::Duration;
 use chrono::{DateTime, Utc};
 use lap_core::accounts::{self, Account};
 use lap_core::cleanup::{self, ItemKind};
-use lap_core::relocate::{self, RepairPlan};
+use lap_core::relocate::{self, MoveCheck, RepairPlan};
 use lap_core::model::model_name;
 use lap_core::{encode_project_dir, paths, settings, Collection, Message, Organization, SearchIndex, SessionSummary, Tint};
 use notify::{RecursiveMode, Watcher};
@@ -618,6 +618,8 @@ struct RepairPreview {
     in_use: Vec<Uuid>,
     /// La carpeta nueva no existe en el disco.
     target_missing: bool,
+    /// Al mover desde la app: si se puede y qué conviene saber.
+    move_check: Option<MoveCheck>,
 }
 
 #[derive(Serialize)]
@@ -645,7 +647,7 @@ fn repair_plans(from: &str, to: &str, state: &State<'_, AppState>) -> Vec<Repair
 }
 
 #[tauri::command]
-fn preview_repair(from: String, to: String, state: State<'_, AppState>) -> RepairPreview {
+fn preview_repair(from: String, to: String, moving: Option<bool>, state: State<'_, AppState>) -> RepairPreview {
     let plans = repair_plans(&from, &to, &state);
     RepairPreview {
         folders: plans
@@ -665,6 +667,30 @@ fn preview_repair(from: String, to: String, state: State<'_, AppState>) -> Repai
         settings: plans.iter().map(|p| p.settings_keys.len()).sum(),
         in_use: plans.iter().flat_map(|p| p.in_use.clone()).collect(),
         target_missing: !Path::new(&to).is_dir(),
+        move_check: moving.unwrap_or(false).then(|| relocate::check_move(Path::new(&from), Path::new(&to))),
+    }
+}
+
+/// Mueve (o renombra) la carpeta en el disco y pasa ahí sus sesiones, memoria y ajustes. Si la
+/// reparación fallara, la carpeta vuelve a su sitio.
+#[tauri::command]
+fn move_folder(from: String, to: String, state: State<'_, AppState>) -> Result<usize, String> {
+    let plans = repair_plans(&from, &to, &state);
+    if let Some(plan) = plans.iter().find(|p| !p.in_use.is_empty()) {
+        return Err(format!("Hay una sesión abierta en «{}». Ciérrala en la terminal primero.", plan.from));
+    }
+    relocate::move_folder(Path::new(&from), Path::new(&to)).map_err(|e| e.to_string())?;
+    log::info!("carpeta movida: {from} → {to}");
+    match repair_folder(from.clone(), to.clone(), state) {
+        Ok(count) => Ok(count),
+        Err(error) => {
+            let back = relocate::move_folder(Path::new(&to), Path::new(&from));
+            log::warn!("falló la reparación tras mover {from} → {to}: {error}; vuelta atrás: {back:?}");
+            Err(format!("Se movió la carpeta pero no se pudieron pasar sus sesiones ({error}). {}", match back {
+                Ok(()) => "La carpeta volvió a su sitio.".to_owned(),
+                Err(e) => format!("Tampoco se pudo devolver la carpeta a su sitio: {e}"),
+            }))
+        }
     }
 }
 
@@ -924,6 +950,7 @@ pub fn run() {
             delete_sessions,
             preview_repair,
             repair_folder,
+            move_folder,
             save_text,
             inspect_session_file,
             import_session,

@@ -145,6 +145,8 @@ export interface AppContext {
     deleteSessions: (sessions: Session[]) => void;
     /** «Reparar carpeta movida…»: elegir dónde está ahora y pasar ahí sus sesiones. */
     repairFolder: (from: string) => void;
+    /** «Mover o renombrar…»: mueve la carpeta en el disco y pasa ahí sus sesiones. */
+    moveFolder: (from: string) => void;
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;

@@ -158,6 +158,15 @@
           }
         },
         {
+          "id": "moveFolder",
+          "since": "0.11.0",
+          "title": { "es": "Mover o renombrar una carpeta", "en": "Move or rename a folder" },
+          "body": {
+            "es": "En el menú contextual de una carpeta de la barra lateral, «Mover o renombrar…» la mueve en el disco (también a otro disco) y a la vez pasa a la ruta nueva sus sesiones, su memoria y sus ajustes de Claude Code, en las subcarpetas y en todas las cuentas. Antes ves qué cambia; si algo falla, la carpeta vuelve a su sitio. Si es un repositorio git con worktrees, te recuerda ejecutar «git worktree repair».",
+            "en": "In a sidebar folder's context menu, \"Move or Rename…\" moves it on disk (to another drive too) and moves its Claude Code sessions, memory and settings to the new path at the same time, subfolders and every account included. You see what changes first; if something fails, the folder goes back where it was. If it's a git repository with worktrees, it reminds you to run \"git worktree repair\"."
+          }
+        },
+        {
           "id": "repairFolder",
           "since": "0.10.0",
           "title": { "es": "Reparar una carpeta movida", "en": "Repair a moved folder" },

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { FolderInput, FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
 import { api, links, tints, type Collection, type DeletePreview, type RepairPreview, type Session, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
@@ -328,18 +328,26 @@ export function DeleteSheet(props: {
 }
 
 /** Reparar una carpeta movida: enseña antes qué carpetas de proyecto, ajustes e historial cambian. */
-export function RepairSheet(props: { from: string; to: string; onClose: () => void; onRepaired: () => void; onError: (error: unknown) => void }) {
+export function RepairSheet(props: {
+  from: string;
+  to: string;
+  /** Mover la carpeta en el disco además de reparar. */
+  moving: boolean;
+  onClose: () => void;
+  onRepaired: () => void;
+  onError: (error: unknown) => void;
+}) {
   const { t, accountName, accounts } = useApp();
   const [preview, setPreview] = useState<RepairPreview | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    api.previewRepair(props.from, props.to).then(setPreview, props.onError);
+    api.previewRepair(props.from, props.to, props.moving).then(setPreview, props.onError);
   }, []);
   const same = props.from.replace(/[\\/]+$/, "") === props.to.replace(/[\\/]+$/, "");
   const run = async () => {
     setBusy(true);
     try {
-      await api.repairFolder(props.from, props.to);
+      await (props.moving ? api.moveFolder(props.from, props.to) : api.repairFolder(props.from, props.to));
       props.onClose();
       props.onRepaired();
     } catch (error) {
@@ -347,9 +355,10 @@ export function RepairSheet(props: { from: string; to: string; onClose: () => vo
       props.onError(error);
     }
   };
-  const empty = !preview || (preview.folders.length === 0 && preview.historyLines === 0 && preview.settings === 0);
+  const empty = !preview || (!props.moving && preview.folders.length === 0 && preview.historyLines === 0 && preview.settings === 0);
+  const blocked = preview?.moveCheck?.error ?? null;
   return (
-    <Sheet title={t("repairTitle")} onClose={props.onClose}>
+    <Sheet title={t(props.moving ? "moveTitle" : "repairTitle")} onClose={props.onClose}>
       <p>
         <code className="selectable">{props.from}</code> → <code className="selectable">{props.to}</code>
       </p>
@@ -359,7 +368,7 @@ export function RepairSheet(props: { from: string; to: string; onClose: () => vo
         <p>{t("repairNothing")}</p>
       ) : (
         <>
-          <p>{t("repairLead")}</p>
+          <p>{t(props.moving ? "moveLead" : "repairLead")}</p>
           <ul className="delete-list">
             {preview.folders.map((f) => (
               <li key={`${f.account}|${f.fromCwd}`}>
@@ -383,8 +392,11 @@ export function RepairSheet(props: { from: string; to: string; onClose: () => vo
               </li>
             )}
           </ul>
-          <p className="hint">{t("repairBackup")}</p>
-          {preview.targetMissing && <p className="warning">{t("repairTargetMissing")}</p>}
+          <p className="hint">{t(props.moving ? "moveBackup" : "repairBackup")}</p>
+          {!props.moving && preview.targetMissing && <p className="warning">{t("repairTargetMissing")}</p>}
+          {blocked && <p className="warning">{blocked}</p>}
+          {preview.moveCheck?.isWorktree && <p className="warning">{t("moveWorktree")}</p>}
+          {preview.moveCheck?.hasWorktrees && <p className="warning">{t("moveHasWorktrees")}</p>}
           {preview.inUse.length > 0 && <p className="warning">{t("repairInUse")}</p>}
         </>
       )}
@@ -392,8 +404,8 @@ export function RepairSheet(props: { from: string; to: string; onClose: () => vo
         <button className="btn" onClick={props.onClose}>
           {t("cancel")}
         </button>
-        <button className="btn primary" disabled={!preview || same || empty || preview.inUse.length > 0 || busy} onClick={run}>
-          {t("repairButton")}
+        <button className="btn primary" disabled={!preview || same || empty || !!blocked || preview.inUse.length > 0 || busy} onClick={run}>
+          {t(props.moving ? "moveButton" : "repairButton")}
         </button>
       </div>
     </Sheet>
@@ -460,6 +472,10 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
             {t("openIn", { editor: shortEditorName(editor.name) })}
           </button>
         )}
+        <button role="menuitem" onClick={run(() => actions.moveFolder(folder.cwd))}>
+          <FolderInput size={14} />
+          {t("moveEllipsis")}
+        </button>
         <button role="menuitem" onClick={run(() => actions.repairFolder(folder.cwd))}>
           <FolderSync size={14} />
           {t("repairEllipsis")}

@@ -21,10 +21,10 @@
 | D18 | 2026-11-10 | Eliminar: **papelera por defecto** y «Borrar sin dejar rastro» como opción; se quitan también sus líneas de `history.jsonl` con copia previa. Las de WSL quedan fuera por ahora (desde Windows no se sabe si están abiertas) | Borrado definitivo por defecto; dejar el historial | Elegido por el usuario |
 | D19 | 2026-11-06 | Varias cuentas (`CLAUDE_CONFIG_DIR`): **separadas por defecto**, con selector «Cuenta» y «Todas las cuentas» (0.8.0) | Mezcladas con distintivo | Elegido por el usuario |
 | D20 | 2026-11-10 | Carpetas movidas: primero **«Reparar carpeta movida»** (el usuario mueve la carpeta en el Finder y la app pasa sesiones, memoria, ajustes de `.claude.json` e historial a la ruta nueva, en todas las cuentas). Mover la carpeta desde la propia app queda para después | Mover desde la app primero | Reparar no toca la carpeta de trabajo y cubre también lo que ya se movió a mano |
+| D21 | 2026-11-10 | **«Mover o renombrar…» desde la app**: mueve la carpeta en el disco y repara a la vez; si la reparación falla, la carpeta vuelve a su sitio. Con worktrees de git solo se avisa (no se ejecuta `git worktree repair`) | Ejecutar git por el usuario | Pedido por el usuario; tocar el repositorio git queda en sus manos |
 | D9 | 2026-10-30 | `cleanupPeriodDays` = **180** (6 meses) en `~/.claude/settings.json` (respaldo en `settings.json.bak-2026-10-30`); la app debe permitir ajustarlo | Dejar 30 días por defecto | Se estaba perdiendo historial |
 
 ## Pendientes
 
 | # | Pregunta | Opciones |
 |---|---|---|
-| P-11d | ¿Añadir también «Mover desde la app» (mover la carpeta real y reparar a la vez)? | Sí, como siguiente paso; no hace falta |

@@ -147,6 +147,35 @@ nonisolated enum FolderRepair {
         return backup
     }
 
+    // MARK: Mover en el disco
+
+    struct MoveCheck: Sendable {
+        var error: String?
+        /// Es un worktree de git (hay que ejecutar `git worktree repair`).
+        var isWorktree = false
+        /// Tiene worktrees en otras carpetas que apuntan a ella.
+        var hasWorktrees = false
+    }
+
+    static func checkMove(from: String, to: String) -> MoveCheck {
+        let fm = FileManager.default
+        let home = ClaudeAccounts.homePath
+        func short(_ path: String) -> String { path.hasPrefix(home) ? "~" + path.dropFirst(home.count) : path }
+        var check = MoveCheck()
+        var isDir: ObjCBool = false
+        if !fm.fileExists(atPath: from, isDirectory: &isDir) || !isDir.boolValue {
+            check.error = String(localized: "«\(short(from))» no existe.")
+        } else if fm.fileExists(atPath: to) {
+            check.error = String(localized: "Ya existe «\(short(to))».")
+        } else if rest(of: to, in: from) != nil {
+            check.error = String(localized: "No se puede mover una carpeta dentro de sí misma.")
+        }
+        var gitIsDir: ObjCBool = false
+        check.isWorktree = fm.fileExists(atPath: from + "/.git", isDirectory: &gitIsDir) && !gitIsDir.boolValue
+        check.hasWorktrees = !((try? fm.contentsOfDirectory(atPath: from + "/.git/worktrees")) ?? []).isEmpty
+        return check
+    }
+
     // MARK: Texto
 
     /// Lo que JSON escapa en una ruta (Claude Code no escapa `/`).

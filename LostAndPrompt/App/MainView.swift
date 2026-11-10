@@ -70,7 +70,7 @@ struct MainView: View {
             NoteSheet(session: session)
         }
         .sheet(item: $model.repairRequest) { request in
-            RepairSheet(from: request.from, to: request.to)
+            RepairSheet(from: request.from, to: request.to, moving: request.moving)
         }
         .sheet(item: $model.deleteRequest) { request in
             DeleteSheet(sessions: request.sessions)
