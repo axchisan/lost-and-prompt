@@ -70,6 +70,15 @@ export interface DeletePreview {
   totalBytes: number;
 }
 
+/** Lo que cambiaría al reparar una carpeta movida (en todas las cuentas). */
+export interface RepairPreview {
+  folders: { fromCwd: string; toCwd: string; sessions: number; merge: boolean; hasMemory: boolean; account: string }[];
+  historyLines: number;
+  settings: number;
+  inUse: string[];
+  targetMissing: boolean;
+}
+
 export interface Library {
   sessions: Session[];
   accounts: Account[];
@@ -142,6 +151,8 @@ export const api = {
   openInEditor: (editor: string, cwd: string, distro: string | null) => invoke<void>("open_in_editor", { editor, cwd, distro }),
   previewDelete: (ids: string[]) => invoke<DeletePreview>("preview_delete", { ids }),
   deleteSessions: (ids: string[], permanent: boolean) => invoke<string[]>("delete_sessions", { ids, permanent }),
+  previewRepair: (from: string, to: string) => invoke<RepairPreview>("preview_repair", { from, to }),
+  repairFolder: (from: string, to: string) => invoke<number>("repair_folder", { from, to }),
   exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
   saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),
   inspectSessionFile: (file: string) => invoke<SharedSession>("inspect_session_file", { file }),

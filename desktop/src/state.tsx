@@ -143,6 +143,8 @@ export interface AppContext {
     toggleArchive: (session: Session) => void;
     /** Abre el diálogo para eliminar estas sesiones. */
     deleteSessions: (sessions: Session[]) => void;
+    /** «Reparar carpeta movida…»: elegir dónde está ahora y pasar ahí sus sesiones. */
+    repairFolder: (from: string) => void;
     toggleMembership: (session: Session, collection: string) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;

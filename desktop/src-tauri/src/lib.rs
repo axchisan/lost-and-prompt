@@ -14,6 +14,7 @@ use std::time::Duration;
 use chrono::{DateTime, Utc};
 use lap_core::accounts::{self, Account};
 use lap_core::cleanup::{self, ItemKind};
+use lap_core::relocate::{self, RepairPlan};
 use lap_core::model::model_name;
 use lap_core::{encode_project_dir, paths, settings, Collection, Message, Organization, SearchIndex, SessionSummary, Tint};
 use notify::{RecursiveMode, Watcher};
@@ -606,6 +607,84 @@ fn delete_sessions(ids: Vec<Uuid>, permanent: bool, state: State<'_, AppState>) 
     Ok(outcome.deleted)
 }
 
+// MARK: Reparar carpetas movidas
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RepairPreview {
+    folders: Vec<RepairFolder>,
+    history_lines: usize,
+    settings: usize,
+    in_use: Vec<Uuid>,
+    /// La carpeta nueva no existe en el disco.
+    target_missing: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RepairFolder {
+    from_cwd: String,
+    to_cwd: String,
+    sessions: usize,
+    merge: bool,
+    has_memory: bool,
+    account: String,
+}
+
+/// Un plan por cada cuenta de este equipo (WSL aparte: todavía no se repara desde aquí).
+fn repair_plans(from: &str, to: &str, state: &State<'_, AppState>) -> Vec<RepairPlan> {
+    let home = dirs::home_dir().unwrap_or_default();
+    state
+        .accounts
+        .lock()
+        .unwrap()
+        .iter()
+        .map(|a| relocate::plan_repair(&a.config_dir, &relocate::claude_json_for(&a.config_dir, &home), from, to))
+        .filter(|p| !p.is_empty())
+        .collect()
+}
+
+#[tauri::command]
+fn preview_repair(from: String, to: String, state: State<'_, AppState>) -> RepairPreview {
+    let plans = repair_plans(&from, &to, &state);
+    RepairPreview {
+        folders: plans
+            .iter()
+            .flat_map(|p| {
+                p.folders.iter().map(|f| RepairFolder {
+                    from_cwd: f.from_cwd.clone(),
+                    to_cwd: f.to_cwd.clone(),
+                    sessions: f.sessions,
+                    merge: f.merge,
+                    has_memory: f.has_memory,
+                    account: p.config_dir.to_string_lossy().into_owned(),
+                })
+            })
+            .collect(),
+        history_lines: plans.iter().map(|p| p.history_lines).sum(),
+        settings: plans.iter().map(|p| p.settings_keys.len()).sum(),
+        in_use: plans.iter().flat_map(|p| p.in_use.clone()).collect(),
+        target_missing: !Path::new(&to).is_dir(),
+    }
+}
+
+/// Pasa las sesiones, la memoria y los ajustes de `from` a `to` en todas las cuentas.
+#[tauri::command]
+fn repair_folder(from: String, to: String, state: State<'_, AppState>) -> Result<usize, String> {
+    let plans = repair_plans(&from, &to, &state);
+    if let Some(plan) = plans.iter().find(|p| !p.in_use.is_empty()) {
+        return Err(format!("Hay una sesión abierta en «{}». Ciérrala en la terminal primero.", plan.from));
+    }
+    let mut folders = 0;
+    for plan in &plans {
+        let outcome = relocate::execute_repair(plan, &data_file("backups")).map_err(|e| e.to_string())?;
+        log::info!("reparada {from} → {to} en {}: {} carpetas, copia en {}", plan.config_dir.display(), outcome.folders, outcome.backup_dir.display());
+        folders += outcome.folders;
+    }
+    with_organization(&state, |org| org.rename_folder(&from, &to))?;
+    Ok(folders)
+}
+
 /// Copia el archivo de la sesión (para que otra persona la importe y la continúe).
 #[tauri::command]
 fn export_session(id: Uuid, destination: String, state: State<'_, AppState>) -> Result<(), String> {
@@ -843,6 +922,8 @@ pub fn run() {
             export_session,
             preview_delete,
             delete_sessions,
+            preview_repair,
+            repair_folder,
             save_text,
             inspect_session_file,
             import_session,

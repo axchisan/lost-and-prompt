@@ -15,7 +15,7 @@ import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
 import { Guide, type GuideTab } from "./components/Guide";
-import { About, DeleteSheet, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, DeleteSheet, RepairSheet, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
@@ -31,6 +31,7 @@ type Dialog =
   | { kind: "update"; update: Update }
   | { kind: "guide"; tab: GuideTab }
   | { kind: "delete"; sessions: Session[] }
+  | { kind: "repair"; from: string; to: string }
   | null;
 
 function loadPrefs(): Prefs {
@@ -266,6 +267,11 @@ export default function App() {
         }
         updateSession(session.id, { isArchived });
       }, showError),
+    repairFolder: async (from) => {
+      const name = from.split(/[\\/]/).filter(Boolean).pop() ?? from;
+      const to = await openDialog({ directory: true, title: t("repairChoose", { name }) });
+      if (typeof to === "string") setDialog({ kind: "repair", from, to });
+    },
     deleteSessions: (list) => {
       if (list.length > 0) setDialog({ kind: "delete", sessions: list });
     },
@@ -676,6 +682,19 @@ export default function App() {
       {dialog?.kind === "about" && <About onClose={() => setDialog(null)} />}
       {dialog?.kind === "guide" && <Guide initialTab={dialog.tab} onClose={() => setDialog(null)} />}
       {dialog?.kind === "update" && <UpdateSheet update={dialog.update} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "repair" && (
+        <RepairSheet
+          from={dialog.from}
+          to={dialog.to}
+          onClose={() => setDialog(null)}
+          onRepaired={() => {
+            setToast(t("repaired"));
+            if (sidebar.kind === "folder") setSidebar({ kind: "recents" });
+            reload();
+          }}
+          onError={showError}
+        />
+      )}
       {dialog?.kind === "delete" && (
         <DeleteSheet
           sessions={dialog.sessions}

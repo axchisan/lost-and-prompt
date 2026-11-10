@@ -7,6 +7,21 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Repair a moved folder: if you moved or renamed a project folder, "Repair Moved Folder…" (in the
+  "Folder no longer exists" notice or the folder's context menu) moves its Claude Code sessions,
+  memory, settings (trust, MCP servers, allowed tools) and `history.jsonl` entries to the new path,
+  subfolders and every account included. It shows what changes first, backs up everything it
+  rewrites and never runs while a session in that folder is open.
+
+### Añadido
+- Reparar una carpeta movida: si moviste o renombraste una carpeta de proyecto, «Reparar carpeta
+  movida…» (en el aviso «La carpeta ya no existe» o en el menú contextual de la carpeta) pasa sus
+  sesiones, su memoria, sus ajustes de Claude Code (confianza, servidores MCP, herramientas
+  permitidas) y sus líneas de `history.jsonl` a la ruta nueva, también las subcarpetas y en todas las
+  cuentas. Antes enseña qué cambia, guarda una copia de todo lo que reescribe y nunca se ejecuta con
+  una sesión abierta en esa carpeta.
+
 ## [0.9.0] - 2026-11-10
 
 ### Added

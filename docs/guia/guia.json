@@ -158,6 +158,15 @@
           }
         },
         {
+          "id": "repairFolder",
+          "since": "0.10.0",
+          "title": { "es": "Reparar una carpeta movida", "en": "Repair a moved folder" },
+          "body": {
+            "es": "Si moviste o renombraste una carpeta de proyecto, Claude Code deja de encontrar sus sesiones, su memoria y sus ajustes. Usa «Reparar carpeta movida…» en el aviso «La carpeta ya no existe» o en el menú contextual de la carpeta en la barra lateral, y elige dónde está ahora: todo pasa a la ruta nueva, también las subcarpetas y en todas tus cuentas. Antes ves qué cambia y se guarda una copia de lo que se reescribe. Así puedes ordenar tus carpetas sin perder nada.",
+            "en": "If you moved or renamed a project folder, Claude Code stops finding its sessions, memory and settings. Use \"Repair Moved Folder…\" in the \"Folder no longer exists\" notice or in the folder's context menu in the sidebar, and choose where it is now: everything moves to the new path, subfolders and every account included. You see what changes first, and whatever is rewritten is backed up. That way you can tidy up your folders without losing anything."
+          }
+        },
+        {
           "id": "chooseFolder",
           "since": "0.2.0",
           "title": { "es": "Reanudar en otra carpeta", "en": "Resume in another folder" },

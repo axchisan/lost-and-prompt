@@ -8,6 +8,7 @@ pub mod accounts;
 pub mod cleanup;
 pub mod model;
 pub mod organization;
+pub mod relocate;
 pub mod paths;
 pub mod search;
 pub mod settings;

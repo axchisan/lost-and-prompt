@@ -607,6 +607,65 @@ final class AppModel {
         persist()
     }
 
+    // MARK: Reparar carpetas movidas
+
+    struct RepairRequest: Identifiable {
+        let id = UUID()
+        var from: String
+        var to: String
+    }
+    var repairRequest: RepairRequest?
+
+    /// «Reparar carpeta movida…»: elegir dónde está ahora la carpeta.
+    func repairFolder(_ from: String) {
+        guard usesRealData else { return }
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.prompt = String(localized: "Elegir")
+        panel.message = String(localized: "¿Dónde está ahora «\((from as NSString).lastPathComponent)»?")
+        let parent = (from as NSString).deletingLastPathComponent
+        if FileManager.default.fileExists(atPath: parent) { panel.directoryURL = URL(filePath: parent) }
+        guard panel.runModal() == .OK, let folder = panel.url else { return }
+        repairRequest = RepairRequest(from: from, to: folder.path(percentEncoded: false))
+    }
+
+    /// Un plan por cuenta (las que tienen algo que cambiar).
+    func repairPlans(from: String, to: String) async -> [(account: ClaudeAccount, plan: FolderRepair.Plan)] {
+        let list = accounts
+        return await Task.detached(priority: .userInitiated) {
+            list.map { ($0, FolderRepair.plan(account: $0, from: from, to: to)) }.filter { !$0.1.isEmpty }
+        }.value
+    }
+
+    /// Pasa sesiones, memoria y ajustes de `from` a `to` en todas las cuentas.
+    func applyRepair(from: String, to: String) async {
+        let list = accounts
+        do {
+            try await Task.detached(priority: .userInitiated) {
+                let plans = list.map { ($0, FolderRepair.plan(account: $0, from: from, to: to)) }.filter { !$0.1.isEmpty }
+                if plans.contains(where: { !$0.1.inUse.isEmpty }) { throw FolderRepair.RepairError.inUse }
+                for (account, _) in plans {
+                    try FolderRepair.execute(account: account, from: from, to: to, backups: SessionCleanup.backupsURL)
+                }
+            }.value
+            renameFolderInOrganization(from: from, to: to)
+            if case .project = sidebarSelection { sidebarSelection = .recents }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        await reload()
+    }
+
+    private func renameFolderInOrganization(from: String, to: String) {
+        func moved(_ path: String) -> String? { FolderRepair.rest(of: path, in: from).map { to + $0 } }
+        for (key, folders) in organization.collectionFolders {
+            organization.collectionFolders[key] = folders.map { moved($0) ?? $0 }
+        }
+        for (id, cwd) in organization.relocations { if let new = moved(cwd) { organization.relocations[id] = new } }
+        persist()
+    }
+
     // MARK: Eliminar sesiones
 
     /// Sesiones que se quieren eliminar (abre la hoja de confirmación).

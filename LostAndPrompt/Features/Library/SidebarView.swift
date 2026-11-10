@@ -127,6 +127,7 @@ private struct ProjectRow: View {
             .help(node.path)
             .contextMenu {
                 Button("Nueva sesión en esta carpeta", systemImage: "plus.bubble") { model.startNewSession(in: node.path) }
+                Button("Reparar carpeta movida…", systemImage: "folder.badge.gearshape") { model.repairFolder(node.path) }
                 Menu("Añadir a colección", systemImage: "square.stack") {
                     ForEach(model.collections) { collection in
                         Toggle(collection.name, isOn: Binding(

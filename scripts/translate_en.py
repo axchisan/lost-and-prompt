@@ -15,6 +15,24 @@ import sys
 CATALOG = pathlib.Path(__file__).resolve().parent.parent / "LostAndPrompt/Resources/Localizable.xcstrings"
 
 EN = {
+    # 0.10.0: reparar carpetas movidas
+    "¿Dónde está ahora «%@»?": "Where is “%@” now?",
+    "%@ → %@": "%@ → %@",
+    "• %lld líneas del historial de lo que escribiste (flecha ↑)": "• %lld lines of what you typed (↑)",
+    "• Ajustes de %lld carpeta(s): confianza, servidores MCP y herramientas permitidas": "• Settings of %lld folder(s): trust, MCP servers and allowed tools",
+    "Antes se guarda una copia de todo lo que se reescribe. La carpeta del disco no se toca.": "Everything that’s rewritten is backed up first. The folder on disk isn’t touched.",
+    "Claude Code volverá a encontrar todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):": "Claude Code will find everything at the new path again (subfolders and every account included):",
+    "Comprobando qué guarda Claude Code de esta carpeta…": "Checking what Claude Code keeps for this folder…",
+    "con su memoria": "with its memory",
+    "Elegir": "Choose",
+    "Esa carpeta no existe en el disco. Si todavía no la has movido, muévela antes.": "That folder doesn’t exist on disk. If you haven’t moved it yet, move it first.",
+    "Hay una sesión abierta en esa carpeta. Ciérrala en la terminal primero.": "A session is open in that folder. Close it in the terminal first.",
+    "No hay nada que pasar a esa carpeta.": "There’s nothing to move to that folder.",
+    "Reparar": "Repair",
+    "Reparar carpeta movida": "Repair Moved Folder",
+    "Reparar carpeta movida…": "Repair Moved Folder…",
+    "se junta con la que ya existe": "merged with the existing one",
+    "Si moviste o renombraste la carpeta, elige dónde está ahora: sus sesiones, su memoria y sus ajustes de Claude Code pasan ahí.": "If you moved or renamed the folder, choose where it is now: its Claude Code sessions, memory and settings move there.",
     # 0.9.0: eliminar sesiones
     "¿Eliminar «%@»?": "Delete “%@”?",
     "¿Eliminar %lld sesiones?": "Delete %lld sessions?",

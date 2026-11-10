@@ -48,6 +48,22 @@
         }
       }
     },
+    "%@ → %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ → %2$@"
+          }
+        }
+      }
+    },
     "%lld abierta(s) ahora mismo en Claude Code: no se borra(n). Ciérrala(s) en la terminal primero.": {
       "localizations": {
         "en": {
@@ -372,6 +388,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Previous (⇧⌘G)"
+          }
+        }
+      }
+    },
+    "Antes se guarda una copia de todo lo que se reescribe. La carpeta del disco no se toca.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything that’s rewritten is backed up first. The folder on disk isn’t touched."
           }
         }
       }
@@ -877,6 +903,16 @@
         }
       }
     },
+    "Claude Code volverá a encontrar todo en la ruta nueva (también en las subcarpetas y en todas las cuentas):": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code will find everything at the new path again (subfolders and every account included):"
+          }
+        }
+      }
+    },
     "Coincidencia anterior": {
       "localizations": {
         "en": {
@@ -923,6 +959,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Share Conversation…"
+          }
+        }
+      }
+    },
+    "Comprobando qué guarda Claude Code de esta carpeta…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking what Claude Code keeps for this folder…"
           }
         }
       }
@@ -1287,6 +1333,16 @@
         }
       }
     },
+    "Elegir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose"
+          }
+        }
+      }
+    },
     "Elegir carpeta…": {
       "localizations": {
         "en": {
@@ -1463,6 +1519,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "That's the default. You can keep them longer; your settings are backed up before they change."
+          }
+        }
+      }
+    },
+    "Esa carpeta no existe en el disco. Si todavía no la has movido, muévela antes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That folder doesn’t exist on disk. If you haven’t moved it yet, move it first."
           }
         }
       }
@@ -1683,6 +1749,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Guide"
+          }
+        }
+      }
+    },
+    "Hay una sesión abierta en esa carpeta. Ciérrala en la terminal primero.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A session is open in that folder. Close it in the terminal first."
           }
         }
       }
@@ -2139,6 +2215,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Claude Code Not Found"
+          }
+        }
+      }
+    },
+    "No hay nada que pasar a esa carpeta.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There’s nothing to move to that folder."
           }
         }
       }
@@ -2663,6 +2749,36 @@
         }
       }
     },
+    "Reparar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair"
+          }
+        }
+      }
+    },
+    "Reparar carpeta movida": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Moved Folder"
+          }
+        }
+      }
+    },
+    "Reparar carpeta movida…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair Moved Folder…"
+          }
+        }
+      }
+    },
     "Sacar del archivo": {
       "localizations": {
         "en": {
@@ -2770,6 +2886,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "If it’s a work account, make sure you’re allowed to take the session out before sharing it."
+          }
+        }
+      }
+    },
+    "Si moviste o renombraste la carpeta, elige dónde está ahora: sus sesiones, su memoria y sus ajustes de Claude Code pasan ahí.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you moved or renamed the folder, choose where it is now: its Claude Code sessions, memory and settings move there."
           }
         }
       }
@@ -3124,6 +3250,16 @@
         }
       }
     },
+    "con su memoria": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "with its memory"
+          }
+        }
+      }
+    },
     "la que tienes": {
       "localizations": {
         "en": {
@@ -3164,6 +3300,16 @@
         }
       }
     },
+    "se junta con la que ya existe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "merged with the existing one"
+          }
+        }
+      }
+    },
     "tu terminal": {
       "localizations": {
         "en": {
@@ -3200,6 +3346,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep sessions for %lld days?"
+          }
+        }
+      }
+    },
+    "¿Dónde está ahora «%@»?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where is “%@” now?"
           }
         }
       }
@@ -3280,6 +3436,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "• %lld lines of what you typed (↑ in Claude Code); a copy is saved first"
+          }
+        }
+      }
+    },
+    "• %lld líneas del historial de lo que escribiste (flecha ↑)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "• %lld lines of what you typed (↑)"
+          }
+        }
+      }
+    },
+    "• Ajustes de %lld carpeta(s): confianza, servidores MCP y herramientas permitidas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "• Settings of %lld folder(s): trust, MCP servers and allowed tools"
           }
         }
       }

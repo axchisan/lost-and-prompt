@@ -215,7 +215,12 @@ pub fn find_copies(projects_dir: &Path, id: Uuid) -> Vec<PathBuf> {
 
 /// Sesiones con un proceso de Claude Code vivo (`sessions/<pid>.json`).
 pub fn open_sessions(config: &Path) -> HashSet<Uuid> {
-    let Ok(entries) = std::fs::read_dir(config.join("sessions")) else { return HashSet::new() };
+    open_sessions_with_cwd(config).into_iter().map(|(id, _)| id).collect()
+}
+
+/// Como [`open_sessions`], con la carpeta donde corre cada una (si la apunta).
+pub fn open_sessions_with_cwd(config: &Path) -> Vec<(Uuid, Option<String>)> {
+    let Ok(entries) = std::fs::read_dir(config.join("sessions")) else { return vec![] };
     entries
         .flatten()
         .filter(|e| e.path().extension().is_some_and(|x| x == "json"))
@@ -223,7 +228,8 @@ pub fn open_sessions(config: &Path) -> HashSet<Uuid> {
             let value: Value = serde_json::from_slice(&std::fs::read(e.path()).ok()?).ok()?;
             let id = Uuid::parse_str(value.get("sessionId")?.as_str()?).ok()?;
             let pid = value.get("pid")?.as_u64()? as u32;
-            process_alive(pid).then_some(id)
+            let cwd = value.get("cwd").and_then(Value::as_str).map(str::to_owned);
+            process_alive(pid).then_some((id, cwd))
         })
         .collect()
 }

@@ -131,9 +131,14 @@ export function Detail({ session }: { session: Session }) {
                 <span>{t("folderMissingHint")}</span>
               </div>
               {!session.environment && (
-                <button className="btn small" onClick={() => actions.chooseFolder(session)}>
-                  {t("chooseFolder")}
-                </button>
+                <>
+                  <button className="btn small" title={t("repairHint")} onClick={() => actions.repairFolder(session.cwd)}>
+                    {t("repairEllipsis")}
+                  </button>
+                  <button className="btn small" onClick={() => actions.chooseFolder(session)}>
+                    {t("chooseFolder")}
+                  </button>
+                </>
               )}
             </div>
           )}

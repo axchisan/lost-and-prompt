@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
-import { api, links, tints, type Collection, type DeletePreview, type Session, type Tint } from "../api";
+import { FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { api, links, tints, type Collection, type DeletePreview, type RepairPreview, type Session, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
 // Sin la sombra incrustada del icono del sistema, que dentro de un diálogo se veía como un cuadrado.
@@ -327,6 +327,79 @@ export function DeleteSheet(props: {
   );
 }
 
+/** Reparar una carpeta movida: enseña antes qué carpetas de proyecto, ajustes e historial cambian. */
+export function RepairSheet(props: { from: string; to: string; onClose: () => void; onRepaired: () => void; onError: (error: unknown) => void }) {
+  const { t, accountName, accounts } = useApp();
+  const [preview, setPreview] = useState<RepairPreview | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    api.previewRepair(props.from, props.to).then(setPreview, props.onError);
+  }, []);
+  const same = props.from.replace(/[\\/]+$/, "") === props.to.replace(/[\\/]+$/, "");
+  const run = async () => {
+    setBusy(true);
+    try {
+      await api.repairFolder(props.from, props.to);
+      props.onClose();
+      props.onRepaired();
+    } catch (error) {
+      props.onClose();
+      props.onError(error);
+    }
+  };
+  const empty = !preview || (preview.folders.length === 0 && preview.historyLines === 0 && preview.settings === 0);
+  return (
+    <Sheet title={t("repairTitle")} onClose={props.onClose}>
+      <p>
+        <code className="selectable">{props.from}</code> → <code className="selectable">{props.to}</code>
+      </p>
+      {!preview ? (
+        <p>{t("deleteChecking")}</p>
+      ) : same || empty ? (
+        <p>{t("repairNothing")}</p>
+      ) : (
+        <>
+          <p>{t("repairLead")}</p>
+          <ul className="delete-list">
+            {preview.folders.map((f) => (
+              <li key={`${f.account}|${f.fromCwd}`}>
+                <span className="selectable">
+                  {f.toCwd}
+                  {accounts.length > 1 && <span className="env">{accountName(f.account)}</span>}
+                  {f.merge && <span className="hint"> · {t("repairMerge")}</span>}
+                  {f.hasMemory && <span className="hint"> · {t("repairMemory")}</span>}
+                </span>
+                <span className="hint">{f.sessions === 1 ? t("oneSession") : t("sessions", { n: f.sessions })}</span>
+              </li>
+            ))}
+            {preview.settings > 0 && (
+              <li>
+                <span>{t("repairSettings", { n: preview.settings })}</span>
+              </li>
+            )}
+            {preview.historyLines > 0 && (
+              <li>
+                <span>{t("repairHistory", { n: preview.historyLines })}</span>
+              </li>
+            )}
+          </ul>
+          <p className="hint">{t("repairBackup")}</p>
+          {preview.targetMissing && <p className="warning">{t("repairTargetMissing")}</p>}
+          {preview.inUse.length > 0 && <p className="warning">{t("repairInUse")}</p>}
+        </>
+      )}
+      <div className="buttons">
+        <button className="btn" onClick={props.onClose}>
+          {t("cancel")}
+        </button>
+        <button className="btn primary" disabled={!preview || same || empty || preview.inUse.length > 0 || busy} onClick={run}>
+          {t("repairButton")}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 export function Welcome({ onClose, onGuide }: { onClose: () => void; onGuide: () => void }) {
   const { t, modKey } = useApp();
   const features: [React.ReactNode, string, string][] = [
@@ -387,6 +460,10 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
             {t("openIn", { editor: shortEditorName(editor.name) })}
           </button>
         )}
+        <button role="menuitem" onClick={run(() => actions.repairFolder(folder.cwd))}>
+          <FolderSync size={14} />
+          {t("repairEllipsis")}
+        </button>
         <hr />
         <div className="menu-label">{t("addFolderToCollection")}</div>
         {library.collections.map((c) => {

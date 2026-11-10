@@ -163,16 +163,21 @@ nonisolated enum SessionCleanup {
 
     /// Sesiones con un proceso de Claude Code vivo (`sessions/<pid>.json`).
     static func openSessions(in config: URL) -> Set<UUID> {
+        Set(openSessionsWithCWD(in: config).map(\.id))
+    }
+
+    /// Como `openSessions`, con la carpeta donde corre cada una (si la apunta).
+    static func openSessionsWithCWD(in config: URL) -> [(id: UUID, cwd: String?)] {
         let folder = config.appending(path: "sessions")
         let names = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
-        var result: Set<UUID> = []
+        var result: [(id: UUID, cwd: String?)] = []
         for name in names where name.hasSuffix(".json") {
             guard let data = try? Data(contentsOf: folder.appending(path: name)),
                   let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let id = (object["sessionId"] as? String).flatMap(UUID.init(uuidString:)),
                   let pid = object["pid"] as? Int else { continue }
             // kill con la señal 0 no envía nada: solo comprueba que el proceso existe.
-            if kill(pid_t(pid), 0) == 0 || errno == EPERM { result.insert(id) }
+            if kill(pid_t(pid), 0) == 0 || errno == EPERM { result.append((id, object["cwd"] as? String)) }
         }
         return result
     }

@@ -161,6 +161,27 @@ impl Organization {
         }
     }
 
+    /// La carpeta `from` (y sus subcarpetas) ahora está en `to`: colecciones por carpeta y sesiones
+    /// reubicadas pasan a la ruta nueva.
+    pub fn rename_folder(&mut self, from: &str, to: &str) {
+        let moved = |path: &str| -> Option<String> {
+            let rest = path.strip_prefix(from.trim_end_matches(['/', '\\']))?;
+            (rest.is_empty() || rest.starts_with(['/', '\\'])).then(|| format!("{}{rest}", to.trim_end_matches(['/', '\\'])))
+        };
+        for folders in self.collection_folders.values_mut() {
+            for folder in folders.iter_mut() {
+                if let Some(new) = moved(folder) {
+                    *folder = new;
+                }
+            }
+        }
+        for cwd in self.relocations.values_mut() {
+            if let Some(new) = moved(cwd) {
+                *cwd = new;
+            }
+        }
+    }
+
     /// Olvida todo lo de estas sesiones (al eliminarlas): favorito, nombre, nota, archivo,
     /// colecciones y carpeta nueva.
     pub fn forget(&mut self, sessions: &[Uuid]) {

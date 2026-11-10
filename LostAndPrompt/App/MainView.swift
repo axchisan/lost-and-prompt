@@ -69,6 +69,9 @@ struct MainView: View {
         .sheet(item: $model.editingNoteFor) { session in
             NoteSheet(session: session)
         }
+        .sheet(item: $model.repairRequest) { request in
+            RepairSheet(from: request.from, to: request.to)
+        }
         .sheet(item: $model.deleteRequest) { request in
             DeleteSheet(sessions: request.sessions)
         }

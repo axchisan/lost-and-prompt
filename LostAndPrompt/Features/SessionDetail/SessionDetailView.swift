@@ -89,7 +89,9 @@ struct SessionDetailView: View {
                 .help("Editar nota")
             }
 
-            if !session.folderExists { MissingFolderBanner { model.chooseFolder(for: session) } }
+            if !session.folderExists {
+                MissingFolderBanner(chooseFolder: { model.chooseFolder(for: session) }, repair: { model.repairFolder(session.cwd) })
+            }
 
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 10) {
@@ -210,6 +212,7 @@ struct SessionDetailView: View {
 
 struct MissingFolderBanner: View {
     var chooseFolder: () -> Void = {}
+    var repair: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 10) {
@@ -220,6 +223,8 @@ struct MissingFolderBanner: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            Button("Reparar carpeta movida…", action: repair)
+                .help("Si moviste o renombraste la carpeta, elige dónde está ahora: sus sesiones, su memoria y sus ajustes de Claude Code pasan ahí.")
             Button("Elegir carpeta…", action: chooseFolder)
         }
         .font(.callout)
