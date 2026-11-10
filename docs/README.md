@@ -19,7 +19,8 @@ importar en qué directorio se abrieron. Nativa en SwiftUI en macOS; Tauri 2 + R
 | 8 | [Distribución](08-distribucion.md) | Versiones, publicación automática, actualizaciones y canales en las tres plataformas |
 | 9 | [Pendientes](09-pendientes.md) | Qué falta: funciones, plataformas, canales y difusión |
 | 10 | [Siguiente sesión](10-siguiente-sesion.md) | Fallo del aviso en Windows, guía «Aprende a usarla», historial de versiones y vídeo: estado y plan |
-| 11 | [Siguiente sesión](11-siguiente-sesion.md) | Eliminar sesiones, mover carpetas sin romperlas y varias cuentas de Claude Code (Migozz): análisis y plan |
+| 11 | [Siguiente sesión](11-siguiente-sesion.md) | Eliminar sesiones, mover carpetas sin romperlas y varias cuentas de Claude Code (Migozz): terminado (0.8.0–0.11.0) |
+| 12 | [Siguiente sesión](12-siguiente-sesion.md) | Probar reparar y mover con carpetas reales, pulir lo que quedó fuera y distribución |
 | — | [Promoción](promocion.md) | Textos listos para Reddit, Hacker News, X, Product Hunt… |
 | — | [QA](QA.md) | Lista de comprobación manual antes de cada versión |
 | — | [Decisiones](decisiones.md) | Registro de decisiones tomadas (y pendientes) |
@@ -43,7 +44,9 @@ Para regenerar el proyecto de Xcode: `xcodegen generate` en la raíz. La app ace
 - [x] Versiones para Windows y Linux (Tauri 2 + núcleo Rust compartido), probada en Windows
 - [x] Publicación automática, actualizaciones firmadas (Sparkle y Tauri), Homebrew y Scoop — 0.2.2
 - [x] Sitio web, README en español e inglés, guía de contribución y plantillas
+- [x] 0.3.0–0.7.0: buscar en la conversación, Markdown, exportar e importar, accesibilidad, guía «Aprende a usarla»
+- [x] 0.8.0–0.11.0: varias cuentas, eliminar sesiones, reparar y mover carpetas
 - [ ] winget (en revisión) y AUR (registro cerrado)
-- [ ] **0.3.0**: buscar en la conversación, Markdown completo, nueva sesión, abrir en el editor ← siguiente
+- [ ] Probar reparar y mover con carpetas reales y en Windows ← siguiente
 
 Detalle en [Pendientes](09-pendientes.md).

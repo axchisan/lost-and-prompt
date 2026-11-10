@@ -1,3 +1,8 @@
+> **Terminado** (6–10 de noviembre de 2026). Las tres funciones están publicadas: varias cuentas
+> (0.8.0), eliminar sesiones (0.9.0), reparar carpetas movidas (0.10.0) y mover o renombrar desde la
+> app (0.11.0). Decisiones D17–D21 en [`decisiones.md`](decisiones.md). Lo que quedó fuera y lo
+> siguiente está en [`12-siguiente-sesion.md`](12-siguiente-sesion.md).
+
 # Siguiente sesión: eliminar sesiones, mover carpetas sin romperlas y varias cuentas de Claude Code
 
 Punto de partida para una sesión nueva de Claude Code abierta en la raíz del repo
