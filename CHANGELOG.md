@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-13
+
 ### Added
 - Share a session as a `.lap` file: "Export to Continue in Claude Code…" now saves one package with
   the session, its subagents, the long tool outputs Claude Code saves aside, its title and note, the
@@ -449,7 +451,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.8.0...v0.9.0
