@@ -18,6 +18,8 @@ nonisolated enum SessionPackage {
     static let redactedMark = "[CLAVE-TAPADA]"
     static let type = UTType(exportedAs: "com.axchisan.lostandprompt.session", conformingTo: .zip)
     static let jsonlType = UTType(filenameExtension: "jsonl") ?? .json
+    /// WhatsApp renombra los `.lap` a `.zip` al recibirlos (mira el contenido): se aceptan igual.
+    static let openableExtensions: Set<String> = [fileExtension, "zip", "jsonl"]
     private static let maxUnpacked: Int64 = 2 << 30
     private static let maxEntries = 20_000
 

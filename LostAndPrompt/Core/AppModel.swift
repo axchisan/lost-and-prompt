@@ -1028,8 +1028,8 @@ final class AppModel {
     func importSession() {
         guard usesRealData else { return }
         let open = NSOpenPanel()
-        open.message = String(localized: "Elige la sesión que te compartieron (.lap o .jsonl).")
-        open.allowedContentTypes = [SessionPackage.type, SessionPackage.jsonlType]
+        open.message = String(localized: "Elige la sesión que te compartieron (.lap, .zip o .jsonl).")
+        open.allowedContentTypes = [SessionPackage.type, .zip, SessionPackage.jsonlType]
         guard open.runModal() == .OK, let file = open.url else { return }
         openShared(file)
     }

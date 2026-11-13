@@ -844,7 +844,8 @@ fn shared_files(args: impl IntoIterator<Item = String>) -> Vec<String> {
     args.into_iter()
         .filter(|a| {
             let lower = a.to_lowercase();
-            (lower.ends_with(".lap") || lower.ends_with(".jsonl")) && Path::new(a).is_file()
+            // WhatsApp renombra los .lap a .zip al recibirlos: el contenido decide.
+            (lower.ends_with(".lap") || lower.ends_with(".jsonl") || lower.ends_with(".zip")) && Path::new(a).is_file()
         })
         .collect()
 }

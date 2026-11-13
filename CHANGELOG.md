@@ -7,6 +7,16 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Fixed
+- WhatsApp saves a received `.lap` as `.zip`: "Import Session…" now accepts it, and on Mac it shows
+  up in "Open With". You can also drag a `.lap` or `.zip` onto the window to import it.
+- The import sheet on Mac showed the git branch between backticks.
+
+### Corregido
+- WhatsApp guarda como `.zip` los `.lap` que recibe: «Importar sesión…» ahora los acepta, y en Mac
+  aparecen en «Abrir con». También puedes arrastrar un `.lap` o un `.zip` a la ventana para importarlo.
+- La hoja de importar en Mac mostraba la rama de git entre comillas invertidas.
+
 ## [0.12.0] - 2026-11-13
 
 ### Added

@@ -494,7 +494,7 @@ struct ImportSheet: View {
         }
         if let model = manifest.model, !model.isEmpty, model != "—" { list.append(AppModel.modelName(model)) }
         if manifest.messages > 0 { list.append(manifest.messages == 1 ? String(localized: "1 mensaje") : String(localized: "\(manifest.messages) mensajes")) }
-        if let branch = manifest.gitBranch { list.append(String(localized: "Rama de git: `\(branch)`")) }
+        if let branch = manifest.gitBranch { list.append(String(localized: "Rama de git: \(branch)")) }
         return list.joined(separator: " · ")
     }
 

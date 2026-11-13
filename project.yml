@@ -64,6 +64,11 @@ targets:
             CFBundleTypeRole: Viewer
             LSHandlerRank: Owner
             LSItemContentTypes: [com.axchisan.lostandprompt.session]
+          # WhatsApp entrega los .lap como .zip: «Abrir con» los ofrece sin quitarle los zip a nadie.
+          - CFBundleTypeName: Zip Archive
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [public.zip-archive]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.axchisan.LostAndPrompt

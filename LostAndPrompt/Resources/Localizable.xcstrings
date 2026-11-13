@@ -1565,12 +1565,12 @@
         }
       }
     },
-    "Elige la sesión que te compartieron (.lap o .jsonl).": {
+    "Elige la sesión que te compartieron (.lap, .zip o .jsonl).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose the session you were sent (.lap or .jsonl)."
+            "value": "Choose the session you were sent (.lap, .zip or .jsonl)."
           }
         }
       }
@@ -2943,6 +2943,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Git branch"
+          }
+        }
+      }
+    },
+    "Rama de git: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Git branch: %@"
           }
         }
       }

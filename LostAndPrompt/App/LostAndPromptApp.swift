@@ -101,7 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     static let openedFilesNotification = Notification.Name("LostAndPromptOpenedFiles")
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        let files = urls.filter { $0.isFileURL && ["lap", "jsonl"].contains($0.pathExtension.lowercased()) }
+        let files = urls.filter { $0.isFileURL && SessionPackage.openableExtensions.contains($0.pathExtension.lowercased()) }
         guard !files.isEmpty else { return }
         AppModel.openedFiles.append(contentsOf: files)
         NSApp.activate()

@@ -81,6 +81,14 @@ struct MainView: View {
         .sheet(item: $model.importRequest) { request in
             ImportSheet(request: request)
         }
+        // Arrastrar un .lap (o el .zip en que lo convierte WhatsApp) a la ventana lo importa.
+        .dropDestination(for: URL.self) { urls, _ in
+            guard model.usesRealData, model.importRequest == nil,
+                  let file = urls.first(where: { $0.isFileURL && SessionPackage.openableExtensions.contains($0.pathExtension.lowercased()) })
+            else { return false }
+            model.openShared(file)
+            return true
+        }
         .sheet(isPresented: Binding(get: { model.usesRealData && !didShowWelcome }, set: { if !$0 { didShowWelcome = true } })) {
             WelcomeSheet()
         }

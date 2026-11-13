@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { api, type Account, type Collection, type EditorInfo, type Library, type Message, type Session, type SharedSession, type TerminalInfo, type Tint } from "./api";
@@ -272,8 +273,15 @@ export default function App() {
         .catch(showError);
     take();
     const off = listen("opened-files", take);
+    // Arrastrar un .lap (o el .zip en que lo convierte WhatsApp) a la ventana lo importa.
+    const offDrop = getCurrentWebview().onDragDropEvent((e) => {
+      if (e.payload.type !== "drop") return;
+      const file = e.payload.paths.find((p) => /\.(lap|zip|jsonl)$/i.test(p));
+      if (file) openSharedRef.current(file).catch(showError);
+    });
     return () => {
       off.then((f) => f());
+      offDrop.then((f) => f());
     };
   }, [libraryReady, showError]);
 
@@ -441,7 +449,7 @@ export default function App() {
     exportSession: (session) => setDialog({ kind: "share", session }),
     importSession: async () => {
       try {
-        const file = await openDialog({ title: t("importSession"), filters: [{ name: t("sharedFile"), extensions: ["lap", "jsonl"] }] });
+        const file = await openDialog({ title: t("importSession"), filters: [{ name: t("sharedFile"), extensions: ["lap", "zip", "jsonl"] }] });
         if (typeof file === "string") await openShared(file);
       } catch (error) {
         showError(error);
