@@ -411,6 +411,8 @@ final class AppModel {
         if selectedSessionID == nil || selectedSession == nil {
             selectedSessionID = visibleSessions.first?.id
         }
+        didLoadOnce = true
+        openPendingFiles()
     }
 
     /// Vigila la carpeta `projects` de cada cuenta que se lee.
@@ -972,68 +974,116 @@ final class AppModel {
         }
     }
 
-    /// El `.jsonl` tal cual, para que otra persona lo importe y lo continúe en Claude Code. Antes se
-    /// avisa de lo que contiene: lleva también lo que leyeron y devolvieron las herramientas.
+    /// Sesión que se va a exportar para continuarla en otro equipo (abre la hoja con las opciones).
+    var sharingSession: Session?
+
     func exportForClaudeCode(_ session: Session) {
-        guard let source = session.filePath, confirmOtherAccount(session) else { return }
-        let alert = NSAlert()
-        alert.messageText = String(localized: "Exportar para continuar en Claude Code")
-        alert.informativeText = String(localized: "El archivo lleva la sesión completa: tus mensajes, las respuestas y lo que leyeron y devolvieron las herramientas (archivos, comandos, variables de entorno). Revisa que no haya contraseñas ni claves antes de compartirlo. Quien lo reciba la abre con «Importar sesión…» en Lost & Prompt y la continúa en Claude Code.")
-        alert.addButton(withTitle: String(localized: "Exportar…"))
-        alert.addButton(withTitle: String(localized: "Cancelar"))
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        guard session.filePath != nil else { return }
+        sharingSession = session
+    }
+
+    /// Crea el paquete `.lap` y lo enseña en el Finder, listo para enviarlo.
+    func exportPackage(_ session: Session, toolOutput: Bool, redact: Bool) {
+        guard let source = session.filePath else { return }
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = SessionExport.fileName(session, extension: "jsonl")
-        panel.allowedContentTypes = [UTType(filenameExtension: "jsonl") ?? .json]
+        panel.nameFieldStringValue = SessionExport.fileName(session, extension: SessionPackage.fileExtension)
+        panel.allowedContentTypes = [SessionPackage.type]
         guard panel.runModal() == .OK, let url = panel.url else { return }
+        var manifest = SessionPackage.Manifest(sessionId: session.id)
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        manifest.app = "Lost & Prompt \(version)"
+        manifest.title = session.title
+        manifest.note = session.note
+        manifest.cwd = session.cwd
+        manifest.gitBranch = session.gitBranch
+        manifest.model = session.model
+        manifest.messages = session.userMessages
+        manifest.startedAt = session.startedAt
+        manifest.lastActivity = session.lastActivity
+        let prepared = manifest
+        Task {
+            let markdown = SessionExport.markdown(session, messages: await conversation(of: session))
+            do {
+                try await Task.detached(priority: .userInitiated) {
+                    _ = try SessionPackage.export(session: URL(filePath: source), to: url, manifest: prepared, markdown: markdown,
+                                                  toolOutput: toolOutput, redact: redact)
+                }.value
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    /// Una sesión compartida a punto de importarse (abre la hoja con lo que trae).
+    struct ImportRequest: Identifiable {
+        let id = UUID()
+        var file: URL
+        var shared: SessionPackage.Shared
+        var suggestion: String?
+    }
+    var importRequest: ImportRequest?
+
+    /// «Importar sesión…»: elegir el `.lap` (o un `.jsonl` de versiones anteriores).
+    func importSession() {
+        guard usesRealData else { return }
+        let open = NSOpenPanel()
+        open.message = String(localized: "Elige la sesión que te compartieron (.lap o .jsonl).")
+        open.allowedContentTypes = [SessionPackage.type, SessionPackage.jsonlType]
+        guard open.runModal() == .OK, let file = open.url else { return }
+        openShared(file)
+    }
+
+    /// Archivos abiertos con la app (doble clic en un `.lap`) antes de que la biblioteca estuviera lista.
+    static var openedFiles: [URL] = []
+    private var didLoadOnce = false
+
+    func openPendingFiles() {
+        guard didLoadOnce, usesRealData, let file = Self.openedFiles.first else { return }
+        Self.openedFiles.removeAll()
+        openShared(file)
+    }
+
+    /// Lee lo que trae un archivo compartido y abre la hoja para importarlo. Si ya está, la selecciona.
+    func openShared(_ file: URL) {
         do {
-            if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
-            try FileManager.default.copyItem(at: URL(filePath: source), to: url)
+            let shared = try SessionPackage.inspect(file)
+            if let existing = sessions.first(where: { $0.id == shared.manifest.sessionId }) {
+                if currentAccount != nil, existing.accountID != currentAccount?.id { accountSelection = existing.accountID }
+                sidebarSelection = .recents
+                selectedSessionID = existing.id
+                throw SessionPackage.PackageError.alreadyThere
+            }
+            let known = Array(Set(sessions.map(\.cwd)))
+            importRequest = ImportRequest(file: file, shared: shared, suggestion: SessionPackage.suggestFolder(shared.manifest, known: known))
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    /// Abre una sesión que alguien exportó: se elige la carpeta del proyecto donde continuarla y el
-    /// archivo se copia donde Claude Code la busca para esa carpeta.
-    func importSession() {
-        guard usesRealData else { return }
-        let open = NSOpenPanel()
-        open.message = String(localized: "Elige la sesión de Claude Code (.jsonl) que te compartieron.")
-        open.allowedContentTypes = [UTType(filenameExtension: "jsonl") ?? .json]
-        guard open.runModal() == .OK, let file = open.url else { return }
+    /// Copia la sesión donde Claude Code la busca para `folder`, en la cuenta elegida, y le pone el
+    /// título y la nota que trae.
+    func performImport(_ request: ImportRequest, folder: String, accountID: String?) async {
+        let projects = (accountID.flatMap(account) ?? accounts.first)?.projectsURL ?? ClaudeStore.projectsURL
+        let file = request.file
         do {
-            let shared = try SessionExport.inspect(file)
-            if let existing = sessions.first(where: { $0.id == shared.id }) {
-                if let account = currentAccount, existing.accountID != account.id { accountSelection = existing.accountID }
-                sidebarSelection = .recents
-                selectedSessionID = shared.id
-                throw SessionExport.ExportError.alreadyThere
+            let shared = try await Task.detached(priority: .userInitiated) {
+                try SessionPackage.importFile(file, into: projects, folder: folder)
+            }.value
+            let manifest = shared.manifest
+            let id = manifest.sessionId
+            if folder != manifest.cwd { organization.relocations[id] = folder }
+            if let title = manifest.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty, shared.packaged {
+                organization.customTitles[id] = title
             }
-            let folderPanel = NSOpenPanel()
-            folderPanel.canChooseDirectories = true
-            folderPanel.canChooseFiles = false
-            folderPanel.prompt = String(localized: "Importar aquí")
-            folderPanel.message = String(localized: "Elige la carpeta del proyecto donde continuarla.")
-            if let cwd = shared.cwd, FileManager.default.fileExists(atPath: cwd) { folderPanel.directoryURL = URL(filePath: cwd) }
-            guard folderPanel.runModal() == .OK, let folder = folderPanel.url else { return }
-            let encoded = folder.path.replacing(/[^A-Za-z0-9]/, with: "-")
-            // En la cuenta que se ve (la principal si se ven todas).
-            let projects = (currentAccount ?? accounts.first)?.projectsURL ?? ClaudeStore.projectsURL
-            let destination = projects.appending(path: encoded, directoryHint: .isDirectory)
-            try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
-            let target = destination.appending(path: shared.id.uuidString.lowercased() + ".jsonl")
-            guard !FileManager.default.fileExists(atPath: target.path) else { throw SessionExport.ExportError.alreadyThere }
-            try FileManager.default.copyItem(at: file, to: target)
-            if folder.path != shared.cwd {
-                organization.relocations[shared.id] = folder.path
-                persist()
+            if let note = manifest.note?.trimmingCharacters(in: .whitespacesAndNewlines), !note.isEmpty {
+                organization.notes[id] = note
             }
-            Task {
-                await reload()
-                sidebarSelection = .recents
-                selectedSessionID = shared.id
-            }
+            persist()
+            await reload()
+            if let accountID, currentAccount != nil { accountSelection = accountID }
+            sidebarSelection = .recents
+            selectedSessionID = id
         } catch {
             errorMessage = error.localizedDescription
         }

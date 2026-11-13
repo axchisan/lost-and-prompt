@@ -113,10 +113,22 @@ export interface TerminalInfo {
   installed: boolean;
 }
 
-/** Un `.jsonl` de sesión que alguien compartió: su id y la carpeta donde se trabajó. */
+/** Una sesión que alguien compartió (paquete `.lap` o `.jsonl` suelto): lo que trae su manifiesto. */
 export interface SharedSession {
-  id: string;
+  sessionId: string;
+  title: string | null;
+  note: string | null;
   cwd: string | null;
+  os: string;
+  exportedAt: string | null;
+  gitBranch: string | null;
+  model: string | null;
+  messages: number;
+  toolOutput: boolean;
+  redacted: number;
+  packaged: boolean;
+  /** Carpeta propuesta para continuarla en este equipo. */
+  suggestion: string | null;
   cwdExists: boolean;
 }
 
@@ -156,7 +168,10 @@ export const api = {
   previewRepair: (from: string, to: string, moving = false) => invoke<RepairPreview>("preview_repair", { from, to, moving }),
   moveFolder: (from: string, to: string) => invoke<number>("move_folder", { from, to }),
   repairFolder: (from: string, to: string) => invoke<number>("repair_folder", { from, to }),
-  exportSession: (id: string, destination: string) => invoke<void>("export_session", { id, destination }),
+  scanSecrets: (id: string, toolOutput: boolean) => invoke<Record<string, number>>("scan_secrets", { id, toolOutput }),
+  exportPackage: (id: string, destination: string, markdown: string, toolOutput: boolean, redact: boolean) =>
+    invoke<number>("export_package", { id, destination, markdown, toolOutput, redact }),
+  takeOpenedFiles: () => invoke<string[]>("take_opened_files"),
   saveText: (path: string, text: string) => invoke<void>("save_text", { path, text }),
   inspectSessionFile: (file: string) => invoke<SharedSession>("inspect_session_file", { file }),
   importSession: (file: string, folder: string, account: string | null) => invoke<string>("import_session", { file, folder, account }),

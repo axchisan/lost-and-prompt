@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tipo de archivo de las sesiones compartidas con Lost & Prompt (.lap), para que el doble clic
+     las abra con la app. -->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-lostandprompt-session">
+    <comment>Lost &amp; Prompt session</comment>
+    <comment xml:lang="es">Sesión de Lost &amp; Prompt</comment>
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.lap" weight="80"/>
+  </mime-type>
+</mime-info>

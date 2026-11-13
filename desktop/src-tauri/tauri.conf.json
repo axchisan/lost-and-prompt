@@ -42,9 +42,36 @@
     ],
     "linux": {
       "deb": {
-        "section": "devel"
+        "section": "devel",
+        "files": {
+          "/usr/share/mime/packages/lost-and-prompt.xml": "linux/lost-and-prompt-mime.xml"
+        }
+      },
+      "rpm": {
+        "files": {
+          "/usr/share/mime/packages/lost-and-prompt.xml": "linux/lost-and-prompt-mime.xml"
+        }
       }
-    }
+    },
+    "fileAssociations": [
+      {
+        "ext": [
+          "lap"
+        ],
+        "name": "Lost & Prompt Session",
+        "description": "Claude Code session shared with Lost & Prompt",
+        "role": "Viewer",
+        "rank": "Owner",
+        "mimeType": "application/x-lostandprompt-session",
+        "exportedType": {
+          "identifier": "com.axchisan.lostandprompt.session",
+          "conformsTo": [
+            "public.zip-archive",
+            "public.data"
+          ]
+        }
+      }
+    ]
   },
   "plugins": {
     "updater": {

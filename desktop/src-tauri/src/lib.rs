@@ -15,6 +15,7 @@ use chrono::{DateTime, Utc};
 use lap_core::accounts::{self, Account};
 use lap_core::cleanup::{self, ItemKind};
 use lap_core::relocate::{self, MoveCheck, RepairPlan};
+use lap_core::share;
 use lap_core::model::model_name;
 use lap_core::{encode_project_dir, paths, settings, Collection, Message, Organization, SearchIndex, SessionSummary, Tint};
 use notify::{RecursiveMode, Watcher};
@@ -38,6 +39,8 @@ struct AppState {
     watched: Mutex<HashSet<PathBuf>>,
     /// Cuentas de Claude Code de este equipo, también las ocultas.
     accounts: Mutex<Vec<Account>>,
+    /// Archivos `.lap` abiertos con la app que la interfaz aún no ha recogido.
+    opened: Mutex<Vec<String>>,
 }
 
 fn data_file(name: &str) -> PathBuf {
@@ -711,11 +714,58 @@ fn repair_folder(from: String, to: String, state: State<'_, AppState>) -> Result
     Ok(folders)
 }
 
-/// Copia el archivo de la sesión (para que otra persona la importe y la continúe).
+// MARK: Compartir
+
+/// Claves que hay en la sesión, por tipo, para avisar antes de exportarla.
 #[tauri::command]
-fn export_session(id: Uuid, destination: String, state: State<'_, AppState>) -> Result<(), String> {
-    let path = state.summaries.lock().unwrap().iter().find(|s| s.id == id).map(|s| s.path.clone()).ok_or("No se encontró la sesión")?;
-    std::fs::copy(&path, &destination).map(|_| ()).map_err(|e| e.to_string())
+fn scan_secrets(id: Uuid, tool_output: bool, state: State<'_, AppState>) -> Result<std::collections::BTreeMap<String, u32>, String> {
+    let path = session_path(id, &state)?;
+    Ok(share::scan_secrets(Path::new(&path), tool_output))
+}
+
+fn session_path(id: Uuid, state: &State<'_, AppState>) -> Result<String, String> {
+    state.summaries.lock().unwrap().iter().find(|s| s.id == id).map(|s| s.path.clone()).ok_or_else(|| "No se encontró la sesión".into())
+}
+
+/// Crea el paquete `.lap` de la sesión para que otra persona la importe y la continúe.
+#[tauri::command]
+fn export_package(
+    id: Uuid,
+    destination: String,
+    markdown: String,
+    tool_output: bool,
+    redact: bool,
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<u32, String> {
+    let manifest = {
+        let summaries = state.summaries.lock().unwrap();
+        let org = state.organization.lock().unwrap();
+        let summary = summaries.iter().find(|s| s.id == id).ok_or("No se encontró la sesión")?;
+        let roots = state.roots.lock().unwrap();
+        // La carpeta tal como la ve este sistema (en WSL, con la ruta de Windows) para leer su git.
+        let cwd = session_cwd(summary, &org);
+        let native = cwd.as_deref().and_then(|c| root_of(&roots, summary).map(|r| r.native_path(c)));
+        share::Manifest {
+            app: format!("Lost & Prompt {}", app.package_info().version),
+            session_id: id,
+            title: Some(org.custom_titles.get(&id).cloned().or_else(|| summary.display_title()).unwrap_or_default()).filter(|t| !t.is_empty()),
+            note: org.notes.get(&id).cloned(),
+            git_remote: native.as_deref().and_then(share::git_remote),
+            cwd,
+            git_branch: summary.git_branch.clone(),
+            model: summary.model.clone(),
+            messages: summary.user_messages,
+            started_at: summary.started_at,
+            last_activity: Some(summary.modified),
+            ..share::Manifest::default()
+        }
+    };
+    let path = session_path(id, &state)?;
+    let options = share::ExportOptions { tool_output, redact };
+    let manifest = share::export(Path::new(&path), Path::new(&destination), manifest, &markdown, options)?;
+    log::info!("sesión {id} exportada en {destination} (salidas: {tool_output}, claves tapadas: {})", manifest.redacted);
+    Ok(manifest.redacted)
 }
 
 /// Guarda texto en un archivo elegido por el usuario (exportar como Markdown).
@@ -727,37 +777,87 @@ fn save_text(path: String, text: String) -> Result<(), String> {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SharedSession {
-    id: Uuid,
-    cwd: Option<String>,
+    #[serde(flatten)]
+    manifest: share::Manifest,
+    packaged: bool,
+    /// Carpeta propuesta para continuarla aquí.
+    suggestion: Option<String>,
     /// Si la carpeta original existe en este equipo.
     cwd_exists: bool,
 }
 
 #[tauri::command]
-fn inspect_session_file(file: String) -> Result<SharedSession, String> {
-    let session = lap_core::share::inspect(Path::new(&file))?;
-    let cwd_exists = session.cwd.as_deref().is_some_and(|c| Path::new(c).is_dir());
-    Ok(SharedSession { id: session.id, cwd: session.cwd, cwd_exists })
+fn inspect_session_file(file: String, state: State<'_, AppState>) -> Result<SharedSession, String> {
+    let shared = share::inspect(Path::new(&file))?;
+    let known: Vec<String> = {
+        let summaries = state.summaries.lock().unwrap();
+        let org = state.organization.lock().unwrap();
+        let mut folders: Vec<String> = summaries.iter().filter_map(|s| session_cwd(s, &org)).collect();
+        folders.sort();
+        folders.dedup();
+        folders
+    };
+    let cwd_exists = shared.manifest.cwd.as_deref().is_some_and(|c| Path::new(c).is_dir());
+    let suggestion = share::suggest_folder(&shared.manifest, &known);
+    let mut manifest = shared.manifest;
+    manifest.model = manifest.model.map(|m| model_name(Some(&m))).filter(|m| m != "—");
+    Ok(SharedSession { manifest, packaged: shared.packaged, suggestion, cwd_exists })
 }
 
 /// Importa una sesión compartida en `folder`. Si no es su carpeta original, se recuerda la nueva
-/// para reanudarla ahí (como «Elegir carpeta…»).
+/// para reanudarla ahí (como «Elegir carpeta…»). El título y la nota del paquete pasan a la sesión.
 #[tauri::command]
 fn import_session(file: String, folder: String, account: Option<String>, state: State<'_, AppState>) -> Result<Uuid, String> {
-    // En la cuenta elegida en la barra lateral (la principal si se ven todas).
+    // En la cuenta elegida (la principal si no se elige ninguna).
     let projects = {
         let accounts = state.accounts.lock().unwrap();
         account.and_then(|id| accounts.iter().find(|a| a.id == id)).or(accounts.first()).map(Account::projects_dir)
     }
     .unwrap_or_else(paths::projects_dir);
-    let (session, _) = lap_core::share::import(&projects, Path::new(&file), &folder)?;
-    log::info!("sesión {} importada en {folder}", session.id);
-    if session.cwd.as_deref() != Some(folder.as_str()) {
-        with_organization(&state, |org| {
-            org.relocations.insert(session.id, folder.clone());
-        })?;
+    let (shared, _) = share::import(&projects, Path::new(&file), &folder)?;
+    let manifest = shared.manifest;
+    let id = manifest.session_id;
+    log::info!("sesión {id} importada en {folder}");
+    with_organization(&state, |org| {
+        if manifest.cwd.as_deref() != Some(folder.as_str()) {
+            org.relocations.insert(id, folder.clone());
+        }
+        if let Some(title) = manifest.title.as_deref().filter(|t| !t.trim().is_empty()) {
+            org.custom_titles.insert(id, title.trim().to_owned());
+        }
+        if let Some(note) = manifest.note.as_deref().filter(|n| !n.trim().is_empty()) {
+            org.notes.insert(id, note.trim().to_owned());
+        }
+    })?;
+    Ok(id)
+}
+
+/// Archivos que se abrieron con la app (doble clic en un `.lap`) antes de que la interfaz estuviera
+/// lista para recibirlos.
+#[tauri::command]
+fn take_opened_files(state: State<'_, AppState>) -> Vec<String> {
+    std::mem::take(&mut *state.opened.lock().unwrap())
+}
+
+/// Los archivos compartidos entre los argumentos o las rutas con que se abrió la app.
+fn shared_files(args: impl IntoIterator<Item = String>) -> Vec<String> {
+    args.into_iter()
+        .filter(|a| {
+            let lower = a.to_lowercase();
+            (lower.ends_with(".lap") || lower.ends_with(".jsonl")) && Path::new(a).is_file()
+        })
+        .collect()
+}
+
+/// Entrega a la interfaz los archivos abiertos con la app y la muestra.
+fn open_shared(app: &AppHandle, files: Vec<String>) {
+    if files.is_empty() {
+        return;
     }
-    Ok(session.id)
+    log::info!("abriendo {} archivo(s) compartido(s)", files.len());
+    app.state::<AppState>().opened.lock().unwrap().extend(files);
+    tray::show_main(app);
+    let _ = app.emit("opened-files", ());
 }
 
 #[tauri::command]
@@ -880,8 +980,13 @@ pub fn run() {
     use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
     tauri::Builder::default()
-        // Abrir la app otra vez enfoca la ventana que ya está abierta.
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| tray::show_main(app)))
+        // Abrir la app otra vez enfoca la ventana que ya está abierta; si se abrió con un `.lap`
+        // (doble clic), lo importa.
+        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+            tray::show_main(app);
+            let files = args.into_iter().skip(1).map(|a| if Path::new(&a).is_relative() { Path::new(&cwd).join(&a).to_string_lossy().into_owned() } else { a });
+            open_shared(app, shared_files(files));
+        }))
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([Target::new(TargetKind::Stdout), Target::new(TargetKind::LogDir { file_name: Some("lost-and-prompt".into()) })])
@@ -911,6 +1016,8 @@ pub fn run() {
                 }
             }
             log::info!("Lost & Prompt {} en {}", app.package_info().version, std::env::consts::OS);
+            // Windows y Linux pasan el archivo abierto con doble clic como argumento.
+            app.state::<AppState>().opened.lock().unwrap().extend(shared_files(std::env::args().skip(1)));
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -945,7 +1052,8 @@ pub fn run() {
             editors,
             open_in_editor,
             relocate,
-            export_session,
+            export_package,
+            scan_secrets,
             preview_delete,
             delete_sessions,
             preview_repair,
@@ -954,6 +1062,7 @@ pub fn run() {
             save_text,
             inspect_session_file,
             import_session,
+            take_opened_files,
             reveal,
             update_tray,
             autostart_enabled,
@@ -962,6 +1071,14 @@ pub fn run() {
             open_logs,
             write_log
         ])
-        .run(tauri::generate_context!())
-        .expect("no se pudo iniciar Lost & Prompt");
+        .build(tauri::generate_context!())
+        .expect("no se pudo iniciar Lost & Prompt")
+        .run(|_app, _event| {
+            // En macOS, el doble clic en un `.lap` llega como evento, no como argumento.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Opened { urls } = _event {
+                let files = urls.into_iter().filter_map(|u| u.to_file_path().ok()).map(|p| p.to_string_lossy().into_owned());
+                open_shared(_app, shared_files(files));
+            }
+        });
 }

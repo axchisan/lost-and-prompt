@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { api, type Account, type Collection, type EditorInfo, type Library, type Message, type Session, type TerminalInfo, type Tint } from "./api";
+import { api, type Account, type Collection, type EditorInfo, type Library, type Message, type Session, type SharedSession, type TerminalInfo, type Tint } from "./api";
 import { makeT, systemLanguage, type Language } from "./i18n";
 import { Ctx, defaultPrefs, inCollection, noFilter, resumeCommand, type AppContext, type CollectionTarget, type FindState, type ListFilter, type MenuState, type Prefs, type SidebarItem } from "./state";
 import { exportFileName, sessionMarkdown } from "./sessionExport";
@@ -15,7 +15,7 @@ import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
 import { UpdateSheet } from "./components/Update";
 import { Guide, type GuideTab } from "./components/Guide";
-import { About, DeleteSheet, RepairSheet, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
+import { About, DeleteSheet, ImportSheet, RepairSheet, ShareSheet, ConfirmSheet, ContextMenu, CollectionSheet, NewSessionSheet, NoteSheet, RenameSheet, Welcome, ErrorSheet, Toast } from "./components/Dialogs";
 
 type Dialog =
   | { kind: "rename"; session: Session }
@@ -32,6 +32,8 @@ type Dialog =
   | { kind: "guide"; tab: GuideTab }
   | { kind: "delete"; sessions: Session[] }
   | { kind: "repair"; from: string; to: string; moving?: boolean }
+  | { kind: "share"; session: Session }
+  | { kind: "import"; file: string; shared: SharedSession }
   | null;
 
 function loadPrefs(): Prefs {
@@ -231,6 +233,50 @@ export default function App() {
   const updateSession = (id: string, change: Partial<Session>) =>
     setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.map((s) => (s.id === id ? { ...s, ...change } : s)) });
 
+  const exportPackage = async (session: Session, toolOutput: boolean, redact: boolean) => {
+    try {
+      const path = await saveDialog({ defaultPath: exportFileName(session, "lap"), filters: [{ name: t("sharedFile"), extensions: ["lap"] }] });
+      if (!path) return;
+      const markdown = sessionMarkdown(session, await api.messages(session.id), t, language);
+      const hidden = await api.exportPackage(session.id, path, markdown, toolOutput, redact);
+      setToast(hidden > 0 ? t("exportedRedacted", { path, n: hidden }) : t("exportedTo", { path }));
+    } catch (error) {
+      showError(error);
+    }
+  };
+
+  /** Abre una sesión compartida (desde «Importar sesión…» o con doble clic en un .lap). */
+  const openShared = async (file: string) => {
+    const shared = await api.inspectSessionFile(file);
+    const existing = fullLibrary?.sessions.find((s) => s.id === shared.sessionId);
+    if (existing) {
+      if (account && existing.account !== account.id) setPrefs({ account: existing.account });
+      setSidebar({ kind: "recents" });
+      setSelectedId(existing.id);
+      return showError(t("importAlreadyHave"));
+    }
+    setDialog({ kind: "import", file, shared });
+  };
+  const openSharedRef = useRef(openShared);
+  openSharedRef.current = openShared;
+
+  // Archivos abiertos con la app (doble clic en un .lap): se recogen cuando la biblioteca ya está
+  // cargada, para saber si la sesión ya estaba.
+  const libraryReady = fullLibrary !== null;
+  useEffect(() => {
+    if (!libraryReady) return;
+    const take = () =>
+      api
+        .takeOpenedFiles()
+        .then((files) => (files[0] ? openSharedRef.current(files[0]) : undefined))
+        .catch(showError);
+    take();
+    const off = listen("opened-files", take);
+    return () => {
+      off.then((f) => f());
+    };
+  }, [libraryReady, showError]);
+
   const actions: AppContext["actions"] = {
     resume: (session) => {
       if (!terminal) return showError(t("noTerminal"));
@@ -391,48 +437,12 @@ export default function App() {
         showError(error);
       }
     },
-    // El .jsonl tal cual, para que otro lo importe y lo continúe; antes se avisa de lo que contiene.
-    exportSession: (session) =>
-      setDialog({
-        kind: "confirm",
-        message: session.accountEnv
-          ? `${t("otherAccountExport", { account: accountName(session.account) })}\n\n${t("exportForClaudeWarning")}`
-          : t("exportForClaudeWarning"),
-        confirmLabel: t("exportForClaudeTitle"),
-        action: async () => {
-          try {
-            const path = await saveDialog({ defaultPath: exportFileName(session, "jsonl"), filters: [{ name: t("sessionFile"), extensions: ["jsonl"] }] });
-            if (!path) return;
-            await api.exportSession(session.id, path);
-            setToast(t("exportedTo", { path }));
-          } catch (error) {
-            showError(error);
-          }
-        },
-      }),
+    // Paquete .lap para que otro lo importe y lo continúe: antes se eligen las opciones.
+    exportSession: (session) => setDialog({ kind: "share", session }),
     importSession: async () => {
       try {
-        const file = await openDialog({ title: t("importSession"), filters: [{ name: t("sessionFile"), extensions: ["jsonl"] }] });
-        if (typeof file !== "string") return;
-        const shared = await api.inspectSessionFile(file);
-        if (fullLibrary?.sessions.some((s) => s.id === shared.id)) {
-          const existing = fullLibrary.sessions.find((s) => s.id === shared.id);
-          if (existing && account && existing.account !== account.id) setPrefs({ account: existing.account });
-          setSidebar({ kind: "recents" });
-          setSelectedId(shared.id);
-          return showError(t("importAlreadyHave"));
-        }
-        const folder = await openDialog({
-          directory: true,
-          title: t("importChooseFolder"),
-          defaultPath: shared.cwdExists && shared.cwd ? shared.cwd : undefined,
-        });
-        if (typeof folder !== "string") return;
-        const id = await api.importSession(file, folder, account?.id ?? null);
-        await reload();
-        setSidebar({ kind: "recents" });
-        setSelectedId(id);
-        setToast(t("imported"));
+        const file = await openDialog({ title: t("importSession"), filters: [{ name: t("sharedFile"), extensions: ["lap", "jsonl"] }] });
+        if (typeof file === "string") await openShared(file);
       } catch (error) {
         showError(error);
       }
@@ -713,6 +723,23 @@ export default function App() {
             setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.filter((s) => !ids.includes(s.id)) });
             setToast(t(permanent ? "deletedPermanently" : "movedToTrash", { n: ids.length }));
             reload();
+          }}
+          onError={showError}
+        />
+      )}
+      {dialog?.kind === "share" && (
+        <ShareSheet session={dialog.session} onClose={() => setDialog(null)} onExport={(toolOutput, redact) => exportPackage(dialog.session, toolOutput, redact)} onError={showError} />
+      )}
+      {dialog?.kind === "import" && (
+        <ImportSheet
+          file={dialog.file}
+          shared={dialog.shared}
+          onClose={() => setDialog(null)}
+          onImported={async (id) => {
+            await reload();
+            setSidebar({ kind: "recents" });
+            setSelectedId(id);
+            setToast(t("imported"));
           }}
           onError={showError}
         />

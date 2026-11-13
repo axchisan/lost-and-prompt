@@ -178,6 +178,9 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 .delete-list li::before { content: "•"; color: var(--fg-3); margin-right: 6px; }
 .delete-list li span:first-child { flex: 1; }
 .sheet .warning { color: #c93400; font-size: 13px; }
+.sheet .field-label { display: block; margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: var(--fg-2); }
+.import-folder { display: flex; gap: 8px; align-items: center; }
+.import-folder code { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .check-row { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 4px; font-size: 13px; }
 .btn.primary { background: var(--accent); color: var(--accent-fg); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
 .btn.small { padding: 4px 10px; font-size: 12px; }

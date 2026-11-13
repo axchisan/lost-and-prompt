@@ -2310,6 +2310,7 @@ dependencies = [
  "memchr",
  "memmap2",
  "rayon",
+ "regex",
  "rusqlite",
  "serde",
  "serde_json",
@@ -2317,6 +2318,7 @@ dependencies = [
  "thiserror 2.0.21",
  "trash",
  "uuid",
+ "zip",
 ]
 
 [[package]]
@@ -5905,6 +5907,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f5b58784007ff6e5f280ec82c8596686a3b9b5dd5836c63288d4479f84728b9"
 dependencies = [
  "crc32fast",
+ "flate2",
  "getrandom 0.4.3",
  "indexmap 2.14.2",
  "memchr",

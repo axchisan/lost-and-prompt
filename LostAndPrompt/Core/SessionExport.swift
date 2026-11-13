@@ -37,31 +37,27 @@ enum SessionExport {
 
     nonisolated static let markdownType = UTType("net.daringfireball.markdown") ?? .plainText
 
-    /// Lee el `.jsonl` de una sesión compartida: su id y la carpeta donde se trabajó.
-    static func inspect(_ url: URL) throws -> (id: UUID, cwd: String?) {
+    /// Lee el `.jsonl` de una sesión compartida: su id, la carpeta donde se trabajó y su título.
+    nonisolated static func inspect(_ url: URL) throws -> (id: UUID, cwd: String?, title: String?) {
         let handle = try FileHandle(forReadingFrom: url)
         defer { try? handle.close() }
         let data = try handle.read(upToCount: 4 << 20) ?? Data()
         var id: UUID?
         var cwd: String?
+        var title: String?
         for line in data.split(separator: UInt8(ascii: "\n")).prefix(400) {
             guard let object = try? JSONSerialization.jsonObject(with: Data(line)) as? [String: Any] else { continue }
             if id == nil, let value = object["sessionId"] as? String { id = UUID(uuidString: value) }
             if cwd == nil, let value = object["cwd"] as? String, !value.isEmpty { cwd = value }
-            if id != nil, cwd != nil { break }
+            if title == nil, object["type"] as? String == "ai-title" { title = object["aiTitle"] as? String }
         }
         guard let id else { throw ExportError.notASession }
-        return (id, cwd)
+        return (id, cwd, title)
     }
 
-    enum ExportError: LocalizedError {
-        case notASession, alreadyThere
-        var errorDescription: String? {
-            switch self {
-            case .notASession: String(localized: "El archivo no es una sesión de Claude Code.")
-            case .alreadyThere: String(localized: "Ya tienes esta sesión en tu biblioteca.")
-            }
-        }
+    nonisolated enum ExportError: LocalizedError {
+        case notASession
+        var errorDescription: String? { String(localized: "El archivo no es una sesión de Claude Code.") }
     }
 }
 

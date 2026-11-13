@@ -7,6 +7,36 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Share a session as a `.lap` file: "Export to Continue in Claude Code…" now saves one package with
+  the session, its subagents, the long tool outputs Claude Code saves aside, its title and note, the
+  git repository and a readable copy of the conversation. Whoever gets it double-clicks it on Mac,
+  Windows or Linux and Lost & Prompt opens it to import it.
+- Before exporting: choose whether to include what the tools read and returned (on by default), and
+  the app looks for keys (Anthropic, OpenAI, GitHub, AWS, Google, Slack, Stripe, Resend, npm, Hugging
+  Face, private keys, JWTs and database passwords) and offers to hide them.
+- Importing shows what the session brings (from which system, when, original folder), suggests the
+  folder to continue it in (same path, same git repository or same name) and lets you pick the
+  account. References to saved outputs are moved to their new place.
+
+### Changed
+- "Import Session…" still opens the `.jsonl` files exported by earlier versions.
+
+### Añadido
+- Compartir una sesión como archivo `.lap`: «Exportar para continuar en Claude Code…» ahora guarda un
+  paquete con la sesión, sus subagentes, las salidas largas que Claude Code guarda aparte, su título
+  y su nota, el repositorio de git y una copia legible de la conversación. Quien lo recibe le hace
+  doble clic en Mac, Windows o Linux y Lost & Prompt lo abre para importarlo.
+- Antes de exportar: eliges si incluir lo que leyeron y devolvieron las herramientas (sí por
+  defecto), y la app busca claves (Anthropic, OpenAI, GitHub, AWS, Google, Slack, Stripe, Resend,
+  npm, Hugging Face, claves privadas, tokens JWT y contraseñas de bases de datos) y ofrece taparlas.
+- Al importar se ve lo que trae la sesión (desde qué sistema, cuándo, carpeta original), se propone
+  la carpeta donde continuarla (la misma ruta, el mismo repositorio de git o el mismo nombre) y se
+  elige la cuenta. Las referencias a las salidas guardadas pasan a su sitio nuevo.
+
+### Cambiado
+- «Importar sesión…» sigue abriendo los `.jsonl` que exportaban las versiones anteriores.
+
 ## [0.11.0] - 2026-11-10
 
 ### Added

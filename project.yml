@@ -51,6 +51,19 @@ targets:
         SUScheduledCheckInterval: 86400
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        # Sesiones compartidas (.lap): el doble clic las abre con la app para importarlas.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.axchisan.lostandprompt.session
+            UTTypeDescription: Lost & Prompt Session
+            UTTypeConformsTo: [public.zip-archive, public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [lap]
+              public.mime-type: [application/x-lostandprompt-session]
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Lost & Prompt Session
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes: [com.axchisan.lostandprompt.session]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.axchisan.LostAndPrompt

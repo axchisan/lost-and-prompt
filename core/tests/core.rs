@@ -210,12 +210,13 @@ fn importa_una_sesion_compartida() {
     let projects = dir.path().join("projects");
     let id = uuid::Uuid::parse_str(ID).unwrap();
 
-    let session = lap_core::share::inspect(&fixture_file()).unwrap();
-    assert_eq!(session.id, id);
-    assert!(session.cwd.is_some(), "trae la carpeta original");
+    let shared = lap_core::share::inspect(&fixture_file()).unwrap();
+    assert_eq!(shared.manifest.session_id, id);
+    assert!(!shared.packaged, "un .jsonl suelto, como exportaban las versiones anteriores");
+    assert!(shared.manifest.cwd.is_some(), "trae la carpeta original");
 
     let (imported, target) = lap_core::share::import(&projects, &fixture_file(), "/Users/luis/proyectos/acme").unwrap();
-    assert_eq!(imported.id, id);
+    assert_eq!(imported.manifest.session_id, id);
     assert_eq!(target, projects.join("-Users-luis-proyectos-acme").join(format!("{ID}.jsonl")));
     assert_eq!(scan(&projects, None).len(), 1, "Claude Code (y la app) la encuentran ahí");
     assert!(lap_core::share::import(&projects, &fixture_file(), "/Users/luis/proyectos/acme").is_err(), "no sobrescribe");
@@ -223,4 +224,135 @@ fn importa_una_sesion_compartida() {
     let other = dir.path().join("notas.jsonl");
     std::fs::write(&other, "{\"hola\": 1}\n").unwrap();
     assert!(lap_core::share::inspect(&other).is_err(), "un JSONL cualquiera no es una sesión");
+}
+
+/// Una sesión con subagente, una salida guardada en `tool-results` y una clave de GitHub, tal como
+/// la deja Claude Code en el equipo de origen.
+fn session_with_extras(root: &Path) -> PathBuf {
+    let folder = root.join("projects").join("C--Users-braya-figuras");
+    let session = folder.join(format!("{ID}.jsonl"));
+    let saved = folder.join(ID).join("tool-results").join("abc.txt");
+    std::fs::create_dir_all(saved.parent().unwrap()).unwrap();
+    std::fs::create_dir_all(folder.join(ID).join("subagents")).unwrap();
+    std::fs::write(&saved, "salida larga").unwrap();
+    std::fs::write(folder.join(ID).join("subagents").join("agent-1.jsonl"), format!("{{\"sessionId\":\"{ID}\",\"isSidechain\":true}}\n")).unwrap();
+    let saved_text = saved.to_string_lossy();
+    let lines = [
+        serde_json::json!({"type": "user", "sessionId": ID, "cwd": "C:\\Users\\braya\\figuras", "message": {"role": "user", "content": "lee el .env"}}),
+        serde_json::json!({"type": "assistant", "sessionId": ID, "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "t1", "name": "Read", "input": {}}]}}),
+        serde_json::json!({"type": "user", "sessionId": ID, "toolUseResult": {"stdout": "GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789"},
+            "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t1", "content": format!("GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789\nOutput saved to: {saved_text}")}]}}),
+        serde_json::json!({"type": "api-request-blob", "sessionId": ID, "message": "copia de la petición"}),
+        serde_json::json!({"type": "ai-title", "sessionId": ID, "aiTitle": "Figuras 3D"}),
+    ];
+    std::fs::write(&session, lines.iter().map(|l| l.to_string() + "\n").collect::<String>()).unwrap();
+    session
+}
+
+fn manifest_for(_session: &Path) -> lap_core::share::Manifest {
+    lap_core::share::Manifest {
+        session_id: uuid::Uuid::parse_str(ID).unwrap(),
+        title: Some("Mis figuras".into()),
+        note: Some("Para Brayan".into()),
+        cwd: Some(r"C:\Users\braya\figuras".into()),
+        app: "Lost & Prompt prueba".into(),
+        messages: 1,
+        ..lap_core::share::Manifest::default()
+    }
+}
+
+#[test]
+fn exporta_e_importa_un_paquete_lap() {
+    use lap_core::share::{self, ExportOptions};
+    let origin = tempfile::tempdir().unwrap();
+    let session = session_with_extras(origin.path());
+
+    let found = share::scan_secrets(&session, true);
+    assert_eq!(found.get("github"), Some(&2), "en la salida y en toolUseResult");
+    assert!(share::scan_secrets(&session, false).is_empty(), "sin las salidas no queda ninguna");
+
+    let package = origin.path().join("figuras.lap");
+    let manifest = share::export(&session, &package, manifest_for(&session), "# Figuras", ExportOptions::default()).unwrap();
+    assert_eq!(manifest.redacted, 2);
+    assert!(manifest.tool_output);
+    assert!(manifest.source_dir.is_some(), "tiene archivos al lado");
+
+    let shared = share::inspect(&package).unwrap();
+    assert!(shared.packaged);
+    assert_eq!(shared.manifest.title.as_deref(), Some("Mis figuras"));
+    assert_eq!(shared.manifest.note.as_deref(), Some("Para Brayan"));
+
+    let here = tempfile::tempdir().unwrap();
+    let projects = here.path().join("projects");
+    let (_, target) = share::import(&projects, &package, "/Users/luis/figuras").unwrap();
+    let text = std::fs::read_to_string(&target).unwrap();
+    assert!(!text.contains("ghp_abc"), "la clave va tapada");
+    assert!(text.contains(share::REDACTED));
+    let new_saved = target.with_extension("").join("tool-results").join("abc.txt");
+    assert!(new_saved.is_file(), "las salidas guardadas viajan");
+    assert!(target.with_extension("").join("subagents").join("agent-1.jsonl").is_file(), "y los subagentes");
+    let escaped = serde_json::to_string(&new_saved.to_string_lossy()).unwrap();
+    assert!(text.contains(escaped.trim_matches('"')), "la referencia apunta al sitio nuevo");
+    assert_eq!(scan(&projects, None).len(), 1);
+    assert!(share::import(&projects, &package, "/Users/luis/figuras").is_err(), "no sobrescribe");
+}
+
+#[test]
+fn exporta_sin_las_salidas_de_las_herramientas() {
+    use lap_core::share::{self, ExportOptions};
+    let origin = tempfile::tempdir().unwrap();
+    let session = session_with_extras(origin.path());
+    let package = origin.path().join("figuras.lap");
+    let options = ExportOptions { tool_output: false, redact: false };
+    let manifest = share::export(&session, &package, manifest_for(&session), "", options).unwrap();
+    assert!(!manifest.tool_output);
+    assert_eq!(manifest.redacted, 0);
+
+    let here = tempfile::tempdir().unwrap();
+    let (_, target) = share::import(&here.path().join("projects"), &package, "/Users/luis/figuras").unwrap();
+    let text = std::fs::read_to_string(&target).unwrap();
+    assert!(!text.contains("ghp_"), "sin la salida no va la clave");
+    assert!(!text.contains("api-request-blob"), "ni las copias de las peticiones");
+    assert!(text.contains(share::OMITTED));
+    assert!(text.contains("\"tool_use_id\":\"t1\""), "el resultado sigue emparejado con su llamada");
+    assert!(!target.with_extension("").join("tool-results").exists());
+    assert!(target.with_extension("").join("subagents").join("agent-1.jsonl").is_file());
+}
+
+#[test]
+fn rechaza_paquetes_con_rutas_tramposas() {
+    use std::io::Write;
+    let dir = tempfile::tempdir().unwrap();
+    let package = dir.path().join("malo.lap");
+    let mut zip = zip::ZipWriter::new(std::fs::File::create(&package).unwrap());
+    let options = zip::write::SimpleFileOptions::default();
+    let manifest = format!("{{\"format\":1,\"sessionId\":\"{ID}\"}}");
+    for (name, data) in [("manifest.json", manifest.as_str()), ("session.jsonl", "{}\n"), ("files/../../../fuera.txt", "x"), ("files//abs.txt", "x")] {
+        zip.start_file(name, options).unwrap();
+        zip.write_all(data.as_bytes()).unwrap();
+    }
+    zip.finish().unwrap();
+    let projects = dir.path().join("projects");
+    lap_core::share::import(&projects, &package, "/tmp/x").unwrap();
+    assert!(!dir.path().join("fuera.txt").exists() && !Path::new("/fuera.txt").exists(), "lo de fuera se ignora");
+}
+
+#[test]
+fn propone_la_carpeta_donde_importar() {
+    use lap_core::share::{normalize_remote, suggest_folder, Manifest};
+    assert_eq!(normalize_remote("git@github.com:Axchisan/Figuras.git"), normalize_remote("https://tok@github.com/axchisan/figuras/"));
+    let dir = tempfile::tempdir().unwrap();
+    let repo = dir.path().join("otro-nombre");
+    std::fs::create_dir_all(repo.join(".git")).unwrap();
+    std::fs::write(repo.join(".git/config"), "[core]\n\tbare = false\n[remote \"origin\"]\n\turl = git@github.com:braya/figuras.git\n").unwrap();
+    let same_name = dir.path().join("figuras");
+    std::fs::create_dir_all(&same_name).unwrap();
+    let known = vec![same_name.to_string_lossy().into_owned(), repo.to_string_lossy().into_owned()];
+
+    let mut manifest = Manifest { cwd: Some(r"C:\Users\braya\figuras".into()), ..Manifest::default() };
+    assert_eq!(suggest_folder(&manifest, &known), Some(known[0].clone()), "mismo nombre");
+    manifest.git_remote = Some("https://github.com/braya/figuras".into());
+    assert_eq!(suggest_folder(&manifest, &known), Some(known[1].clone()), "el mismo repositorio pesa más");
+    manifest.cwd = Some(same_name.to_string_lossy().into_owned());
+    assert_eq!(suggest_folder(&manifest, &known), Some(known[0].clone()), "la original, si existe aquí");
 }

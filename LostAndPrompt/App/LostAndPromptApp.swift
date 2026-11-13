@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct LostAndPromptApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = LostAndPromptApp.makeModel()
     @State private var updater = AppUpdater()
     @AppStorage("showMenuBarExtra") private var showMenuBarExtra = true
@@ -14,6 +15,9 @@ struct LostAndPromptApp: App {
                 .task { await model.reload() }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                     Task { await model.reload() }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: AppDelegate.openedFilesNotification)) { _ in
+                    model.openPendingFiles()
                 }
         }
         .defaultSize(width: 1180, height: 740)
@@ -89,6 +93,19 @@ struct LostAndPromptApp: App {
         } else {
             AppAppearance.saved.apply()
         }
+    }
+}
+
+/// Recibe los `.lap` abiertos con doble clic (o arrastrados al icono del Dock).
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    static let openedFilesNotification = Notification.Name("LostAndPromptOpenedFiles")
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        let files = urls.filter { $0.isFileURL && ["lap", "jsonl"].contains($0.pathExtension.lowercased()) }
+        guard !files.isEmpty else { return }
+        AppModel.openedFiles.append(contentsOf: files)
+        NSApp.activate()
+        NotificationCenter.default.post(name: Self.openedFilesNotification, object: nil)
     }
 }
 

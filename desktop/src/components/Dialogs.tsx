@@ -3,7 +3,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { FolderInput, FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
-import { api, links, tints, type Collection, type DeletePreview, type RepairPreview, type Session, type Tint } from "../api";
+import { api, links, tints, type Collection, type DeletePreview, type RepairPreview, type Session, type SharedSession, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
 // Sin la sombra incrustada del icono del sistema, que dentro de un diálogo se veía como un cuadrado.
@@ -406,6 +406,151 @@ export function RepairSheet(props: {
         </button>
         <button className="btn primary" disabled={!preview || same || empty || !!blocked || preview.inUse.length > 0 || busy} onClick={run}>
           {t(props.moving ? "moveButton" : "repairButton")}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
+const secretNames: Record<string, string> = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  github: "GitHub",
+  aws: "AWS",
+  google: "Google",
+  slack: "Slack",
+  stripe: "Stripe",
+  resend: "Resend",
+  npm: "npm",
+  huggingface: "Hugging Face",
+};
+
+/** «Exportar para continuar en Claude Code»: opciones del paquete `.lap` y claves encontradas. */
+export function ShareSheet(props: {
+  session: Session;
+  onClose: () => void;
+  onExport: (toolOutput: boolean, redact: boolean) => void;
+  onError: (error: unknown) => void;
+}) {
+  const { t, accountName } = useApp();
+  const [toolOutput, setToolOutput] = useState(true);
+  const [redact, setRedact] = useState(true);
+  const [secrets, setSecrets] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    setSecrets(null);
+    api.scanSecrets(props.session.id, toolOutput).then(setSecrets, props.onError);
+  }, [toolOutput]);
+  const label = (kind: string) =>
+    kind === "privateKey" ? t("secretPrivateKey") : kind === "jwt" ? t("secretJwt") : kind === "databaseUrl" ? t("secretDatabaseUrl") : secretNames[kind] ?? kind;
+  const found = secrets ? Object.entries(secrets) : [];
+  return (
+    <Sheet title={t("exportForClaudeTitle")} onClose={props.onClose}>
+      {props.session.accountEnv && <p className="warning">{t("otherAccountExport", { account: accountName(props.session.account) })}</p>}
+      <p>{t("shareLead")}</p>
+      <label className="check-row">
+        <input type="checkbox" checked={toolOutput} onChange={(e) => setToolOutput(e.target.checked)} />
+        <span>
+          {t("shareToolOutput")}
+          <span className="hint" style={{ display: "block" }}>{t("shareToolOutputHint")}</span>
+        </span>
+      </label>
+      {!secrets ? (
+        <p className="hint">{t("shareChecking")}</p>
+      ) : found.length === 0 ? (
+        <p className="hint">{t("shareNoSecrets")}</p>
+      ) : (
+        <>
+          <p className="warning">{t("shareSecrets", { list: found.map(([kind, n]) => `${label(kind)} (${n})`).join(", ") })}</p>
+          <label className="check-row">
+            <input type="checkbox" checked={redact} onChange={(e) => setRedact(e.target.checked)} />
+            <span>{t("shareRedact")}</span>
+          </label>
+        </>
+      )}
+      <div className="buttons">
+        <button className="btn" onClick={props.onClose}>
+          {t("cancel")}
+        </button>
+        <button className="btn primary" disabled={!secrets} onClick={() => (props.onClose(), props.onExport(toolOutput, redact && found.length > 0))}>
+          {t("shareButton")}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
+const osNames: Record<string, string> = { macos: "macOS", windows: "Windows", linux: "Linux" };
+
+/** Importar una sesión compartida: qué trae, dónde continuarla y con qué cuenta. */
+export function ImportSheet(props: { file: string; shared: SharedSession; onClose: () => void; onImported: (id: string) => void; onError: (error: unknown) => void }) {
+  const { t, language, accounts, account, accountName } = useApp();
+  const { shared } = props;
+  const [folder, setFolder] = useState<string | null>(shared.suggestion);
+  const [target, setTarget] = useState<string | null>(account?.id ?? accounts[0]?.id ?? null);
+  const [busy, setBusy] = useState(false);
+  const choose = async () => {
+    const picked = await openDialog({ directory: true, title: t("importChooseFolder"), defaultPath: folder ?? (shared.cwdExists ? shared.cwd ?? undefined : undefined) });
+    if (typeof picked === "string") setFolder(picked);
+  };
+  const run = async () => {
+    if (!folder) return;
+    setBusy(true);
+    try {
+      const id = await api.importSession(props.file, folder, target);
+      props.onClose();
+      props.onImported(id);
+    } catch (error) {
+      props.onClose();
+      props.onError(error);
+    }
+  };
+  const date = shared.exportedAt ? new Date(shared.exportedAt).toLocaleDateString(language, { dateStyle: "long" }) : null;
+  const origin = [shared.os ? t("importFromOs", { os: osNames[shared.os] ?? shared.os }) : null, date ? t("importOn", { date }) : null].filter(Boolean).join(" ");
+  const facts = [origin, shared.model, shared.messages ? (shared.messages === 1 ? t("message") : `${shared.messages} ${t("messages")}`) : null, shared.gitBranch ? `${t("gitBranch")}: ${shared.gitBranch}` : null].filter(Boolean);
+  return (
+    <Sheet title={t("importTitle")} onClose={props.onClose}>
+      <p>
+        <strong className="selectable">{shared.title || props.file.split(/[\\/]/).pop()}</strong>
+        {facts.length > 0 && <span className="hint" style={{ display: "block" }}>{facts.join(" · ")}</span>}
+      </p>
+      {shared.note && <p className="selectable">{shared.note}</p>}
+      {!shared.packaged && <p className="hint">{t("importLegacy")}</p>}
+      {shared.cwd && (
+        <p className="hint">
+          {t("importOriginal")}: <code className="selectable">{shared.cwd}</code>
+        </p>
+      )}
+      <p className="field-label">{t("importFolder")}</p>
+      <div className="import-folder">
+        <code className="selectable">{folder ?? "—"}</code>
+        <button className="btn" onClick={choose}>
+          {t("importChangeFolder")}
+        </button>
+      </div>
+      <p className="hint">{folder && folder === shared.suggestion ? t("importSuggested") : !folder ? t("importChooseFolderHint") : ""}</p>
+      {accounts.length > 1 && (
+        <>
+          <label className="field-label" htmlFor="import-account">
+            {t("importAccount")}
+          </label>
+          <select id="import-account" className="field" value={target ?? ""} onChange={(e) => setTarget(e.target.value)}>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {accountName(a.id)}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      {shared.packaged && !shared.toolOutput && <p className="hint">{t("importNoTools")}</p>}
+      {shared.redacted > 0 && <p className="hint">{t("importRedacted", { n: shared.redacted })}</p>}
+      <p className="warning">{t("importWarning")}</p>
+      <div className="buttons">
+        <button className="btn" onClick={props.onClose}>
+          {t("cancel")}
+        </button>
+        <button className="btn primary" disabled={!folder || busy} onClick={run}>
+          {t("importButton")}
         </button>
       </div>
     </Sheet>

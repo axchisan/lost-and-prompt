@@ -75,6 +75,12 @@ struct MainView: View {
         .sheet(item: $model.deleteRequest) { request in
             DeleteSheet(sessions: request.sessions)
         }
+        .sheet(item: $model.sharingSession) { session in
+            ShareSheet(session: session)
+        }
+        .sheet(item: $model.importRequest) { request in
+            ImportSheet(request: request)
+        }
         .sheet(isPresented: Binding(get: { model.usesRealData && !didShowWelcome }, set: { if !$0 { didShowWelcome = true } })) {
             WelcomeSheet()
         }

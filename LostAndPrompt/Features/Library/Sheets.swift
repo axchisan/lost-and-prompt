@@ -385,3 +385,200 @@ struct RepairSheet: View {
         }
     }
 }
+
+/// «Exportar para continuar en Claude Code»: opciones del paquete `.lap` y claves encontradas.
+struct ShareSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let session: Session
+    @State private var toolOutput = true
+    @State private var redact = true
+    @State private var secrets: [String: Int]?
+
+    private static let names = ["anthropic": "Anthropic", "openai": "OpenAI", "github": "GitHub", "aws": "AWS", "google": "Google",
+                                "slack": "Slack", "stripe": "Stripe", "resend": "Resend", "npm": "npm", "huggingface": "Hugging Face"]
+
+    private func label(_ kind: String) -> String {
+        switch kind {
+        case "privateKey": String(localized: "clave privada")
+        case "jwt": String(localized: "token JWT")
+        case "databaseUrl": String(localized: "contraseña de base de datos")
+        default: Self.names[kind] ?? kind
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Exportar para continuar en Claude Code").font(.headline)
+            if session.accountEnvironment != nil {
+                Label("Es de la cuenta «\(model.accountName(session.accountID))». Si es del trabajo, comprueba que puedes sacar la sesión de ahí antes de compartirla.",
+                      systemImage: "exclamationmark.triangle")
+                    .font(.callout)
+                    .foregroundStyle(.orange)
+            }
+            Text("Se guarda un archivo .lap. Quien lo reciba, con Lost & Prompt instalada en Mac, Windows o Linux, lo abre con doble clic y continúa la sesión en Claude Code.")
+                .fixedSize(horizontal: false, vertical: true)
+            Toggle(isOn: $toolOutput) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Incluir lo que leyeron y devolvieron las herramientas")
+                    Text("Archivos, comandos y sus salidas. Sin ellos, Claude recuerda la conversación pero no lo que vio, y el archivo es más pequeño y más seguro.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .toggleStyle(.checkbox)
+            if let secrets {
+                if secrets.isEmpty {
+                    Text("No se encontraron claves conocidas. Aun así, revisa que no haya contraseñas antes de compartirla.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    let list = secrets.sorted { $0.key < $1.key }.map { "\(label($0.key)) (\($0.value))" }.joined(separator: ", ")
+                    Label("Posibles claves en la sesión: \(list).", systemImage: "key")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                    Toggle("Taparlas en el archivo", isOn: $redact).toggleStyle(.checkbox)
+                }
+            } else {
+                HStack {
+                    ProgressView().controlSize(.small)
+                    Text("Buscando claves…").foregroundStyle(.secondary)
+                }
+            }
+            HStack {
+                Spacer()
+                Button("Cancelar", role: .cancel) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button("Exportar…") {
+                    let hide = redact && !(secrets ?? [:]).isEmpty
+                    dismiss()
+                    model.exportPackage(session, toolOutput: toolOutput, redact: hide)
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(secrets == nil)
+            }
+        }
+        .padding(20)
+        .frame(width: 480)
+        .task(id: toolOutput) {
+            secrets = nil
+            guard let path = session.filePath else { secrets = [:]; return }
+            let include = toolOutput
+            secrets = await Task.detached(priority: .userInitiated) {
+                SessionPackage.scanSecrets(URL(filePath: path), toolOutput: include)
+            }.value
+        }
+    }
+}
+
+/// Importar una sesión compartida: qué trae, dónde continuarla y con qué cuenta.
+struct ImportSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let request: AppModel.ImportRequest
+    @State private var folder: String?
+    @State private var accountID: String?
+    @State private var working = false
+
+    private var manifest: SessionPackage.Manifest { request.shared.manifest }
+
+    private var facts: String {
+        var list: [String] = []
+        let os = ["macos": "macOS", "windows": "Windows", "linux": "Linux"][manifest.os] ?? manifest.os
+        switch (os.isEmpty, manifest.exportedAt) {
+        case (false, let date?): list.append(String(localized: "Exportada desde \(os) el \(date.formatted(date: .long, time: .omitted))"))
+        case (false, nil): list.append(String(localized: "Exportada desde \(os)"))
+        default: break
+        }
+        if let model = manifest.model, !model.isEmpty, model != "—" { list.append(AppModel.modelName(model)) }
+        if manifest.messages > 0 { list.append(manifest.messages == 1 ? String(localized: "1 mensaje") : String(localized: "\(manifest.messages) mensajes")) }
+        if let branch = manifest.gitBranch { list.append(String(localized: "Rama de git: `\(branch)`")) }
+        return list.joined(separator: " · ")
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Importar sesión").font(.headline)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(manifest.title ?? request.file.deletingPathExtension().lastPathComponent)
+                    .fontWeight(.semibold)
+                    .textSelection(.enabled)
+                if !facts.isEmpty { Text(facts).font(.caption).foregroundStyle(.secondary) }
+            }
+            if let note = manifest.note, !note.isEmpty {
+                Text(note).font(.callout).textSelection(.enabled)
+            }
+            if !request.shared.packaged {
+                Text("Archivo .jsonl suelto (de una versión anterior): se importa la conversación, sin título ni nota.")
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+            if let cwd = manifest.cwd {
+                LabeledContent("Carpeta original") {
+                    Text(cwd).font(.callout.monospaced()).textSelection(.enabled).lineLimit(1).truncationMode(.middle)
+                }
+            }
+            LabeledContent("Continuarla en") {
+                HStack {
+                    Text(folder.map(Session.abbreviate) ?? "—").font(.callout.monospaced()).lineLimit(1).truncationMode(.middle)
+                    Spacer()
+                    Button("Elegir otra…", action: choose)
+                }
+            }
+            Text(folder == nil ? "Elige la carpeta del proyecto donde continuarla." : folder == request.suggestion ? "Propuesta según la carpeta original, su repositorio de git o su nombre." : "")
+                .font(.caption).foregroundStyle(.secondary)
+            if model.accounts.count > 1 {
+                Picker("Cuenta", selection: $accountID) {
+                    ForEach(model.accounts) { account in
+                        Text(model.accountName(account.id)).tag(Optional(account.id))
+                    }
+                }
+            }
+            if request.shared.packaged && !manifest.toolOutput {
+                Text("Se exportó sin lo que leyeron y devolvieron las herramientas.").font(.callout).foregroundStyle(.secondary)
+            }
+            if manifest.redacted > 0 {
+                Text("Al exportarla se taparon \(manifest.redacted) claves.").font(.callout).foregroundStyle(.secondary)
+            }
+            Label("Al continuarla, Claude leerá todo lo que trae. Importa solo sesiones de personas de confianza.", systemImage: "exclamationmark.shield")
+                .font(.callout)
+                .foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Spacer()
+                Button("Cancelar", role: .cancel) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button("Importar") {
+                    guard let folder else { return }
+                    working = true
+                    Task {
+                        await model.performImport(request, folder: folder, accountID: accountID)
+                        dismiss()
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(folder == nil || working)
+            }
+        }
+        .padding(20)
+        .frame(width: 500)
+        .onAppear {
+            folder = request.suggestion
+            accountID = model.currentAccount?.id ?? model.accounts.first?.id
+        }
+    }
+
+    private func choose() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.prompt = String(localized: "Importar aquí")
+        panel.message = String(localized: "Elige la carpeta del proyecto donde continuarla.")
+        if let start = folder ?? manifest.cwd, FileManager.default.fileExists(atPath: start) { panel.directoryURL = URL(filePath: start) }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        var path = url.path(percentEncoded: false)
+        if path.count > 1, path.hasSuffix("/") { path.removeLast() }
+        folder = path
+    }
+}
