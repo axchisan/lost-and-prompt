@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-11-13
+
 ### Fixed
 - WhatsApp saves a received `.lap` as `.zip`: "Import Session…" now accepts it, and on Mac it shows
   up in "Open With". You can also drag a `.lap` or `.zip` onto the window to import it.
@@ -461,7 +463,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.1...HEAD
+[0.12.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.9.0...v0.10.0
