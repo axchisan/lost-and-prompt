@@ -7,6 +7,8 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-11-14
+
 ### Fixed
 - The new version notice took several seconds to show after opening the app. It now checks as
   soon as the app starts (on Mac, as soon as Sparkle is ready), so the notice shows up in about two
@@ -505,7 +507,8 @@ activity and history retention.
 
 Primera versión pública para macOS.
 
-[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/axchisan/lost-and-prompt/compare/v0.13.1...HEAD
+[0.13.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/axchisan/lost-and-prompt/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/axchisan/lost-and-prompt/compare/v0.11.0...v0.12.0
