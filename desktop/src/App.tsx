@@ -581,18 +581,19 @@ export default function App() {
       .catch(() => {});
   }, [library, prefs.showInTray, t]);
 
-  // Actualizaciones: al abrir (con unos segundos de margen), cada pocas horas y al volver a la
-  // ventana. En Windows la app vive en la bandeja durante días: abrirla desde el acceso directo
-  // solo muestra la ventana que ya existía, así que comprobar al arrancar no basta.
+  // Actualizaciones: nada más abrir (la consulta tarda menos de un segundo y no frena la carga de
+  // las sesiones), cada pocas horas y al volver a la ventana. En Windows la app vive en la bandeja
+  // durante días: abrirla desde el acceso directo solo muestra la ventana que ya existía, así que
+  // comprobar al arrancar no basta.
   const checkRef = useRef(actions.checkForUpdates);
   checkRef.current = actions.checkForUpdates;
   useEffect(() => {
     if (!prefs.autoUpdate) return;
     const HOUR = 60 * 60 * 1000;
     const ifStale = () => {
-      if (Date.now() - lastCheckRef.current > HOUR) checkRef.current(false);
+      if (Date.now() - lastCheckRef.current > 10 * 60 * 1000) checkRef.current(false);
     };
-    const first = setTimeout(() => checkRef.current(false), 5000);
+    const first = setTimeout(() => checkRef.current(false), 0);
     const every = setInterval(() => checkRef.current(false), 4 * HOUR);
     const shown = listen("window-shown", ifStale);
     const focus = getCurrentWindow()

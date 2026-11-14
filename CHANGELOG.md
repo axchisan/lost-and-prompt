@@ -7,6 +7,22 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Fixed
+- The new version notice took several seconds to show after opening the app. It now checks as
+  soon as the app starts (on Mac, as soon as Sparkle is ready), so the notice shows up in about two
+  seconds, and on Mac it opens directly instead of going through a fallback.
+- An app left running for days (in the menu bar or the system tray) noticed a new version late: it
+  now checks every 4 hours on Mac too, and again when you come back to it if the last check was
+  more than 10 minutes ago.
+
+### Corregido
+- El aviso de versión nueva tardaba varios segundos en salir al abrir la app. Ahora se comprueba
+  nada más arrancar (en Mac, en cuanto Sparkle está listo), así que el aviso aparece en unos dos
+  segundos, y en Mac se abre directamente en lugar de dar un rodeo.
+- Una app abierta durante días (en la barra de menús o en la bandeja) se enteraba tarde de una
+  versión nueva: ahora también en Mac se comprueba cada 4 horas, y otra vez al volver a ella si
+  hace más de 10 minutos de la última.
+
 ## [0.13.0] - 2026-11-14
 
 ### Added

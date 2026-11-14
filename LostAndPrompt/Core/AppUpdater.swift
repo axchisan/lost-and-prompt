@@ -21,10 +21,43 @@ final class AppUpdater {
         reporter.showInFocus = { [weak controller] in controller?.checkForUpdates(nil) }
         // Sparkle por sí solo mira como mucho una vez cada 24 horas, y no al abrir: una versión
         // publicada justo después de su última comprobación tardaba hasta un día en aparecer.
-        // Como en Windows y Linux, se comprueba también al arrancar (sin aviso si no hay nada).
-        if let updater = controller?.updater, updater.automaticallyChecksForUpdates {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { updater.checkForUpdatesInBackground() }
+        // Como en Windows y Linux: al arrancar (sin esperar: la consulta tarda menos de un segundo,
+        // y si llega «recién abierta» Sparkle enseña el aviso él mismo), cada 4 horas y al volver a
+        // la app si hace más de 10 minutos de la última (vive días en la barra de menús).
+        guard let updater = controller?.updater else { return }
+        updater.updateCheckInterval = 4 * 60 * 60
+        // Al arrancar, Sparkle abre un par de sesiones cortas y mientras tanto no deja comprobar:
+        // se comprueba en cuanto termina, en lugar de esperar un tiempo fijo a ciegas.
+        let tryLaunchCheck: (SPUUpdater) -> Void = { [weak self] updater in
+            DispatchQueue.main.async {
+                guard let self, !self.launchObservations.isEmpty, updater.canCheckForUpdates, !updater.sessionInProgress else { return }
+                self.launchObservations = []
+                Self.checkInBackground(updater)
+            }
         }
+        launchObservations = [
+            updater.observe(\.canCheckForUpdates, options: [.initial, .new]) { updater, _ in tryLaunchCheck(updater) },
+            updater.observe(\.sessionInProgress, options: [.new]) { updater, _ in tryLaunchCheck(updater) },
+        ]
+        activation = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            guard let last = updater.lastUpdateCheckDate, Date.now.timeIntervalSince(last) > 10 * 60 else { return }
+            Self.checkInBackground(updater)
+        }
+    }
+
+    @ObservationIgnored private var activation: NSObjectProtocol?
+    @ObservationIgnored private var launchObservations: [NSKeyValueObservation] = []
+
+    private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "LostAndPrompt", category: "updates")
+
+    private static func checkInBackground(_ updater: SPUUpdater) {
+        guard updater.automaticallyChecksForUpdates, updater.canCheckForUpdates, !updater.sessionInProgress else {
+            log.notice("Comprobación saltada: automática \(updater.automaticallyChecksForUpdates, privacy: .public), posible \(updater.canCheckForUpdates, privacy: .public), en curso \(updater.sessionInProgress, privacy: .public)")
+            return
+        }
+        log.notice("Comprobando en segundo plano")
+        updater.checkForUpdatesInBackground()
     }
 
     var isAvailable: Bool { controller != nil }
