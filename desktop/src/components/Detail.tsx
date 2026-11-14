@@ -409,3 +409,92 @@ function MoreMenu({ session }: { session: Session }) {
     </Dropdown>
   );
 }
+
+/** En lugar del detalle cuando hay varias sesiones seleccionadas: qué se eligió y qué hacer con todas. */
+export function BulkPanel({ sessions }: { sessions: Session[] }) {
+  const { t, language, actions, library, modKey, clickSession, clearSelection } = useApp();
+  const allFavorite = sessions.every((s) => s.isFavorite);
+  const allArchived = sessions.every((s) => s.isArchived);
+  const folders = new Set(sessions.map((s) => s.cwd)).size;
+  const messages = sessions.reduce((sum, s) => sum + s.userMessages, 0);
+  const shown = sessions.slice(0, 200);
+  return (
+    <main className="column" aria-label={t("nSelected", { n: sessions.length })}>
+      <div className="detail bulk">
+        <div className="head">
+          <h1>{t("nSelected", { n: sessions.length })}</h1>
+          <p className="muted">
+            {t(folders === 1 ? "bulkSummaryOneFolder" : "bulkSummary", { folders, messages: grouped(messages, language) })}
+          </p>
+        </div>
+        <div className="bulk-actions">
+          <button className="btn" onClick={() => actions.setFavorite(sessions, !allFavorite)}>
+            <Star size={14} className={allFavorite ? "star" : ""} />
+            {allFavorite ? t("removeFavorite") : t("addFavorite")}
+          </button>
+          <button className="btn" onClick={() => actions.setArchived(sessions, !allArchived)}>
+            {allArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+            {allArchived ? t("unarchive") : t("archive")}
+          </button>
+          <BulkCollections sessions={sessions} />
+          <button className="btn destructive" onClick={() => actions.deleteSessions(sessions)}>
+            <Trash2 size={14} />
+            {t("deleteNEllipsis", { n: sessions.length })}
+          </button>
+          <button className="btn" onClick={clearSelection} title="Esc">
+            {t("deselect")}
+          </button>
+        </div>
+        <ul className="bulk-list">
+          {shown.map((s) => (
+            <li key={s.id}>
+              <span className="title">{s.title}</span>
+              <span className="muted">
+                {s.isHome ? t("home") : s.folderName} · {relativeDay(s.lastActivity, language, t)}
+              </span>
+              <button
+                className="icon-btn"
+                title={t("removeFromSelection")}
+                aria-label={t("removeFromSelection")}
+                onClick={() => clickSession(s.id, { ctrlKey: library.platform !== "macos", metaKey: library.platform === "macos", shiftKey: false })}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+          {sessions.length > shown.length && <li className="muted">{t("andNMore", { n: sessions.length - shown.length })}</li>}
+        </ul>
+        <p className="muted bulk-hint">{t("selectionHint", { mod: modKey })}</p>
+      </div>
+    </main>
+  );
+}
+
+function BulkCollections({ sessions }: { sessions: Session[] }) {
+  const { t, actions, open, library } = useApp();
+  return (
+      <span className="bulk-collections">
+        <Dropdown icon={<><Layers size={14} /> {t("collections")}</>} title={t("collections")} align="left">
+          {(close) => (
+            <>
+              {library.collections.map((c) => {
+                const inside = sessions.filter((s) => s.collectionIds.includes(c.id)).length;
+                const state = inside === 0 ? "none" : inside === sessions.length ? "all" : "some";
+                return (
+                  <button key={c.id} role="menuitemcheckbox" aria-checked={state === "all" ? true : state === "some" ? "mixed" : false} onClick={() => (actions.setMembership(sessions, c.id, state !== "all"), close())}>
+                    <span className="check">{state === "all" ? <Check size={14} /> : state === "some" ? "–" : null}</span>
+                    {c.name}
+                  </button>
+                );
+              })}
+              {library.collections.length > 0 && <hr />}
+              <button role="menuitem" onClick={() => (open.newCollection({ sessions }), close())}>
+                <span className="check" />
+                {t("newCollectionWith", { n: sessions.length })}
+              </button>
+            </>
+          )}
+        </Dropdown>
+      </span>
+    );
+}

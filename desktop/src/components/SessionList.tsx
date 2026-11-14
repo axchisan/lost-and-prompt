@@ -210,7 +210,7 @@ function Meta({ session }: { session: Session }) {
 
 export function SessionList() {
   const app = useApp();
-  const { t, visible, selected, select, language, search, contentHits, library } = app;
+  const { t, visible, selected, language, search, contentHits, library } = app;
   const showBanner = library.retentionDays === null && library.claudeFolderExists && !search;
   return (
     <section className="column" aria-label={sectionTitle(app)}>
@@ -227,7 +227,7 @@ export function SessionList() {
       ) : (
         <div className="list">
           {showBanner && <RetentionBanner />}
-          <div role="listbox" aria-label={sectionTitle(app)} tabIndex={0} aria-activedescendant={selected ? `session-${selected.id}` : undefined}>
+          <div role="listbox" aria-multiselectable="true" aria-label={sectionTitle(app)} tabIndex={0} aria-activedescendant={selected ? `session-${selected.id}` : undefined}>
           {dayGroups(visible, t).map((group, index) => (
             <div key={group.title} role="group" aria-labelledby={`day-${index}`}>
               <div className="group-title" id={`day-${index}`}>{group.title}</div>
@@ -238,14 +238,14 @@ export function SessionList() {
                   draggable
                   onDragStart={(e) => e.dataTransfer.setData("text/plain", `session:${session.id}`)}
                   role="option"
-                  aria-selected={selected?.id === session.id}
-                  className={`row${selected?.id === session.id ? " on" : ""}`}
-                  onClick={() => select(session.id)}
-                  onDoubleClick={() => app.actions.resume(session)}
+                  aria-selected={app.isSelected(session.id)}
+                  className={`row${app.isSelected(session.id) ? " on" : ""}`}
+                  onMouseDown={(e) => e.shiftKey && e.preventDefault()}
+                  onClick={(e) => app.clickSession(session.id, e)}
+                  onDoubleClick={(e) => !e.shiftKey && !e.ctrlKey && !e.metaKey && app.actions.resume(session)}
                   onContextMenu={(e) => {
                     e.preventDefault();
-                    select(session.id);
-                    app.open.menu({ x: e.clientX, y: e.clientY, session });
+                    app.sessionMenu(e, session);
                   }}
                 >
                   <div className="top">
@@ -267,7 +267,7 @@ export function SessionList() {
 
 export function SessionCards() {
   const app = useApp();
-  const { t, visible, selected, select, language } = app;
+  const { t, visible, language } = app;
   return (
     <section className="column" aria-label={sectionTitle(app)}>
       <Head />
@@ -285,15 +285,15 @@ export function SessionCards() {
                 {group.sessions.map((session) => (
                   <div
                     key={session.id}
-                    className={`card${selected?.id === session.id ? " on" : ""}`}
+                    className={`card${app.isSelected(session.id) ? " on" : ""}`}
                     draggable
                     onDragStart={(e) => e.dataTransfer.setData("text/plain", `session:${session.id}`)}
-                    onClick={() => select(session.id)}
-                    onDoubleClick={() => app.actions.resume(session)}
+                    onMouseDown={(e) => e.shiftKey && e.preventDefault()}
+                    onClick={(e) => app.clickSession(session.id, e)}
+                    onDoubleClick={(e) => !e.shiftKey && !e.ctrlKey && !e.metaKey && app.actions.resume(session)}
                     onContextMenu={(e) => {
                       e.preventDefault();
-                      select(session.id);
-                      app.open.menu({ x: e.clientX, y: e.clientY, session });
+                      app.sessionMenu(e, session);
                     }}
                   >
                     <div className="top">

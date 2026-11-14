@@ -264,13 +264,23 @@
           }
         },
         {
+          "id": "select",
+          "since": "0.13.0",
+          "keys": { "mac": "⌘A", "win": "Ctrl+A" },
+          "title": { "es": "Seleccionar varias sesiones", "en": "Select several sessions" },
+          "body": {
+            "es": "⌘+clic (Ctrl+clic en Windows y Linux) añade o quita una sesión de la selección, Mayús+clic elige todas las que hay entre dos, Mayús+flechas la amplía con el teclado y ⌘A (Ctrl+A) elige todas las de la lista; combínalo con una carpeta, una búsqueda o un filtro de fecha para elegir justo las que quieres. Con varias elegidas, en lugar de la conversación ves cuántas son y qué hacer con todas: favoritos, archivar o sacar del archivo, meterlas o sacarlas de una colección (o crear una nueva con ellas) y eliminarlas. Lo mismo está en el menú contextual de cualquiera de ellas y en los atajos de siempre (favorito, archivar, eliminar). Arrastrar una de las elegidas a una colección lleva todas. Esc suelta la selección.",
+            "en": "⌘-click (Ctrl+click on Windows and Linux) adds or removes a session from the selection, Shift-click picks everything between two, Shift+arrows grow it from the keyboard and ⌘A (Ctrl+A) selects the whole list; combine it with a folder, a search or a date filter to pick exactly the ones you want. With several selected, instead of the conversation you see how many there are and what to do with all of them: favorite, archive or unarchive, add them to or remove them from a collection (or create a new one with them) and delete them. The same is in the context menu of any of them and in the usual shortcuts (favorite, archive, delete). Dragging one of the selected sessions onto a collection takes all of them. Esc clears the selection."
+          }
+        },
+        {
           "id": "delete",
           "since": "0.9.0",
           "keys": { "mac": "⌘⌫", "win": "Supr" },
           "title": { "es": "Eliminar sesiones", "en": "Delete sessions" },
           "body": {
-            "es": "«Eliminar…» (menú contextual, menú «Más» o el atajo) quita la sesión y todo lo que Claude Code guarda de ella: la conversación, sus subagentes, las copias de archivos editados, el entorno, las tareas y sus líneas en el historial de lo que escribiste (con una copia antes). Antes ves qué se quita y cuánto ocupa. Va a la papelera, de donde puedes recuperarla; marca «Borrar sin dejar rastro» para borrarla del todo. Una sesión abierta en Claude Code no se puede eliminar. En «Archivadas», «Vaciar archivadas…» las elimina todas.",
-            "en": "\"Delete…\" (context menu, \"More\" menu or the shortcut) removes the session and everything Claude Code keeps for it: the conversation, its subagents, the copies of edited files, the environment, the tasks and its lines in the history of what you typed (backed up first). You see what goes and how much space it takes before confirming. It goes to the Trash, where you can get it back; tick \"Delete without a trace\" to remove it for good. A session that's open in Claude Code can't be deleted. In \"Archived\", \"Empty Archived…\" deletes them all."
+            "es": "«Eliminar…» (menú contextual, menú «Más» o el atajo) quita la sesión y todo lo que Claude Code guarda de ella: la conversación, sus subagentes, las copias de archivos editados, el entorno, las tareas y sus líneas en el historial de lo que escribiste (con una copia antes). Antes ves qué se quita y cuánto ocupa. Va a la papelera, de donde puedes recuperarla; marca «Borrar sin dejar rastro» para borrarla del todo. Una sesión abierta en Claude Code no se puede eliminar. Selecciona varias para eliminarlas de una vez. En «Archivadas», «Vaciar archivadas…» las elimina todas.",
+            "en": "\"Delete…\" (context menu, \"More\" menu or the shortcut) removes the session and everything Claude Code keeps for it: the conversation, its subagents, the copies of edited files, the environment, the tasks and its lines in the history of what you typed (backed up first). You see what goes and how much space it takes before confirming. It goes to the Trash, where you can get it back; tick \"Delete without a trace\" to remove it for good. A session that's open in Claude Code can't be deleted. Select several to delete them at once. In \"Archived\", \"Empty Archived…\" deletes them all."
           }
         }
       ]
@@ -421,6 +431,17 @@
         { "label": { "es": "Copiar como Markdown", "en": "Copy as Markdown" }, "mac": "⌥⌘C" },
         { "label": { "es": "Exportar como Markdown…", "en": "Export as Markdown…" }, "mac": "⇧⌘E" },
         { "label": { "es": "Moverse por la lista", "en": "Move through the list" }, "mac": "↑ ↓", "win": "↑ ↓" }
+      ]
+    },
+    {
+      "title": { "es": "Varias sesiones", "en": "Several sessions" },
+      "items": [
+        { "label": { "es": "Añadir o quitar de la selección", "en": "Add to or remove from the selection" }, "mac": "⌘+clic", "win": "Ctrl+clic" },
+        { "label": { "es": "Elegir un tramo", "en": "Pick a range" }, "mac": "⇧+clic", "win": "Mayús+clic" },
+        { "label": { "es": "Ampliar con el teclado", "en": "Grow it from the keyboard" }, "mac": "⇧↑ ⇧↓", "win": "Mayús+↑ Mayús+↓" },
+        { "label": { "es": "Todas las de la lista", "en": "The whole list" }, "mac": "⌘A", "win": "Ctrl+A" },
+        { "label": { "es": "Eliminar las elegidas", "en": "Delete the selected ones" }, "mac": "⌘⌫", "win": "Supr" },
+        { "label": { "es": "Soltar la selección", "en": "Clear the selection" }, "mac": "Esc", "win": "Esc" }
       ]
     },
     {

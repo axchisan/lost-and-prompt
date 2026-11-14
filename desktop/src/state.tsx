@@ -56,13 +56,15 @@ export interface Place {
 
 /** Menú contextual de una sesión, de una carpeta o de una colección de la barra lateral. */
 export type MenuState = { x: number; y: number } & (
-  | { session: Session; folder?: undefined; collection?: undefined }
-  | { folder: Place; session?: undefined; collection?: undefined }
-  | { collection: Collection; session?: undefined; folder?: undefined }
+  | { session: Session; folder?: undefined; collection?: undefined; sessions?: undefined }
+  | { folder: Place; session?: undefined; collection?: undefined; sessions?: undefined }
+  | { collection: Collection; session?: undefined; folder?: undefined; sessions?: undefined }
+  /** Varias sesiones seleccionadas: el menú actúa sobre todas. */
+  | { sessions: Session[]; session?: undefined; folder?: undefined; collection?: undefined }
 );
 
 /** Qué entra en una colección nueva al crearla desde el menú de una sesión o de una carpeta. */
-export type CollectionTarget = { session: Session } | { folder: string };
+export type CollectionTarget = { session: Session } | { sessions: Session[] } | { folder: string };
 
 /** `true` si la sesión está en la colección, por sí misma o por su carpeta. */
 export function inCollection(session: Session, collection: string) {
@@ -124,6 +126,15 @@ export interface AppContext {
   setSidebar: (item: SidebarItem) => void;
   selected: Session | null;
   select: (id: string | null) => void;
+  /** Sesiones seleccionadas cuando hay más de una (vacío con una sola). */
+  selection: Session[];
+  isSelected: (id: string) => boolean;
+  /** Clic en una sesión: con Ctrl/⌘ la añade o la quita; con Mayús, selecciona el tramo. */
+  clickSession: (id: string, event: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) => void;
+  selectAll: () => void;
+  clearSelection: () => void;
+  /** Clic derecho: si la sesión está entre las seleccionadas, el menú es para todas. */
+  sessionMenu: (event: { clientX: number; clientY: number }, session: Session) => void;
   search: string;
   setSearch: (value: string) => void;
   contentHits: Record<string, string>;
@@ -148,6 +159,10 @@ export interface AppContext {
     /** «Mover o renombrar…»: mueve la carpeta en el disco y pasa ahí sus sesiones. */
     moveFolder: (from: string) => void;
     toggleMembership: (session: Session, collection: string) => void;
+    /** En lote: deja todas como favoritas (o ninguna). */
+    setFavorite: (sessions: Session[], on: boolean) => void;
+    setArchived: (sessions: Session[], on: boolean) => void;
+    setMembership: (sessions: Session[], collection: string, on: boolean) => void;
     rename: (session: Session, title: string) => void;
     setNote: (session: Session, text: string) => void;
     createCollection: (name: string, tint: Tint, target?: CollectionTarget) => void;

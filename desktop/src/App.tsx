@@ -10,7 +10,7 @@ import { Ctx, defaultPrefs, inCollection, noFilter, resumeCommand, type AppConte
 import { exportFileName, sessionMarkdown } from "./sessionExport";
 import { Sidebar } from "./components/Sidebar";
 import { SessionList, SessionCards } from "./components/SessionList";
-import { Detail, NoSelection } from "./components/Detail";
+import { BulkPanel, Detail, NoSelection } from "./components/Detail";
 import { Activity } from "./components/Activity";
 import { QuickOpen } from "./components/QuickOpen";
 import { Settings } from "./components/Settings";
@@ -55,6 +55,10 @@ export default function App() {
   const [showThinking, setShowThinking] = useState(false);
   const [sidebar, setSidebar] = useState<SidebarItem>({ kind: "recents" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Selección múltiple: con más de una, `multi` las guarda en orden de clic y `selectedId` es la última.
+  const [multi, setMulti] = useState<string[]>([]);
+  const anchorRef = useRef<string | null>(null);
+  const cursorRef = useRef<string | null>(null);
   const [search, setSearch] = useState("");
   const [contentHits, setContentHits] = useState<Record<string, string>>({});
   const [indexProgress, setIndexProgress] = useState<{ done: number; total: number } | null>(null);
@@ -216,6 +220,47 @@ export default function App() {
   }, [sessions, active, sidebar, prefs.hideEmpty, search, contentHits, filter]);
 
   const selected = sessions.find((s) => s.id === selectedId) ?? null;
+  /** Elige una sola sesión y suelta las demás. */
+  const selectOne = useCallback((id: string | null) => {
+    setSelectedId(id);
+    setMulti([]);
+    anchorRef.current = id;
+    cursorRef.current = id;
+  }, []);
+  // Solo cuentan las que se ven: una búsqueda o un filtro nunca deja acciones sobre sesiones ocultas.
+  const selection = useMemo(() => (multi.length > 1 ? visible.filter((s) => multi.includes(s.id)) : []), [multi, visible]);
+  const isSelected = (id: string) => (multi.length > 1 ? multi.includes(id) : selectedId === id);
+  const selectRange = (from: string | null, to: string) => {
+    const a = visible.findIndex((s) => s.id === from);
+    const b = visible.findIndex((s) => s.id === to);
+    if (a < 0 || b < 0 || a === b) return selectOne(to);
+    setMulti(visible.slice(Math.min(a, b), Math.max(a, b) + 1).map((s) => s.id));
+    cursorRef.current = to;
+  };
+  const clickSession: AppContext["clickSession"] = (id, event) => {
+    const toggle = library?.platform === "macos" ? event.metaKey : event.ctrlKey;
+    if (event.shiftKey) return selectRange(anchorRef.current ?? selectedId, id);
+    if (!toggle) return selectOne(id);
+    const base = multi.length > 1 ? multi : selectedId ? [selectedId] : [];
+    const next = base.includes(id) ? base.filter((x) => x !== id) : [...base, id];
+    if (next.length <= 1) return selectOne(next[0] ?? null);
+    setMulti(next);
+    if (!base.includes(id)) setSelectedId(id);
+    else if (id === selectedId) setSelectedId(next[next.length - 1]);
+    anchorRef.current = id;
+    cursorRef.current = id;
+  };
+  const selectAll = () => {
+    if (visible.length > 1) setMulti(visible.map((s) => s.id));
+    else if (visible.length === 1) selectOne(visible[0].id);
+  };
+  /** Tras quitar `ids` de la vista, la selección pasa a la siguiente que queda. */
+  const selectNextAfter = (ids: string[]) => {
+    const hit = visible.findIndex((s) => ids.includes(s.id) && isSelected(s.id));
+    if (hit < 0) return;
+    const rest = visible.filter((s) => !ids.includes(s.id));
+    selectOne(rest.length ? rest[Math.min(hit, rest.length - 1)].id : null);
+  };
   const setFind = useCallback((change: Partial<FindState>) => setFindState((f) => ({ ...f, ...change })), []);
   const moveFind = useCallback(
     (step: number) => setFindState((f) => (f.total > 0 ? { ...f, index: (f.index + step + f.total) % f.total } : f)),
@@ -223,8 +268,8 @@ export default function App() {
   );
   useEffect(() => setFind({ index: 0 }), [selectedId, setFind]);
   useEffect(() => {
-    if (!selectedId && visible.length > 0 && sidebar.kind !== "activity") setSelectedId(visible[0].id);
-  }, [visible, selectedId, sidebar.kind]);
+    if (!selectedId && visible.length > 0 && sidebar.kind !== "activity") selectOne(visible[0].id);
+  }, [visible, selectedId, sidebar.kind, selectOne]);
 
   const resumeRef = useRef<(id: string) => void>(() => {});
   const otherAccountConfirmed = useRef(new Set<string>());
@@ -253,7 +298,7 @@ export default function App() {
     if (existing) {
       if (account && existing.account !== account.id) setPrefs({ account: existing.account });
       setSidebar({ kind: "recents" });
-      setSelectedId(existing.id);
+      selectOne(existing.id);
       return showError(t("importAlreadyHave"));
     }
     setDialog({ kind: "import", file, shared });
@@ -314,11 +359,7 @@ export default function App() {
     toggleArchive: (session) =>
       api.toggleArchive(session.id).then((isArchived) => {
         // Al archivar la elegida, pasa a la siguiente de la lista.
-        if (session.id === selectedId) {
-          const position = visible.findIndex((s) => s.id === session.id);
-          const rest = visible.filter((s) => s.id !== session.id);
-          setSelectedId(rest.length ? rest[Math.min(position, rest.length - 1)].id : null);
-        }
+        selectNextAfter([session.id]);
         updateSession(session.id, { isArchived });
       }, showError),
     repairFolder: async (from) => {
@@ -332,6 +373,45 @@ export default function App() {
     },
     deleteSessions: (list) => {
       if (list.length > 0) setDialog({ kind: "delete", sessions: list });
+    },
+    setFavorite: async (list, on) => {
+      try {
+        for (const s of list.filter((s) => s.isFavorite !== on)) {
+          await api.toggleFavorite(s.id);
+          updateSession(s.id, { isFavorite: on });
+        }
+        if (list.length > 1) setToast(t(on ? "bulkFavorited" : "bulkUnfavorited", { n: list.length }));
+      } catch (error) {
+        showError(error);
+      }
+    },
+    setArchived: async (list, on) => {
+      const changed = list.filter((s) => s.isArchived !== on);
+      try {
+        for (const s of changed) {
+          await api.toggleArchive(s.id);
+          updateSession(s.id, { isArchived: on });
+        }
+        // Salen de la lista en la que estaban: la selección pasa a la siguiente.
+        selectNextAfter(changed.map((s) => s.id));
+        if (list.length > 1) setToast(t(on ? "bulkArchived" : "bulkUnarchived", { n: list.length }));
+      } catch (error) {
+        showError(error);
+        reload();
+      }
+    },
+    setMembership: async (list, collection, on) => {
+      try {
+        for (const s of list.filter((s) => s.collectionIds.includes(collection) !== on)) {
+          await api.toggleMembership(s.id, collection);
+          updateSession(s.id, { collectionIds: on ? [...s.collectionIds, collection] : s.collectionIds.filter((c) => c !== collection) });
+        }
+        const name = library?.collections.find((c) => c.id === collection)?.name ?? "";
+        if (list.length > 1) setToast(t(on ? "bulkAddedTo" : "bulkRemovedFrom", { n: list.length, name }));
+      } catch (error) {
+        showError(error);
+        reload();
+      }
     },
     toggleMembership: (session, collection) =>
       api.toggleMembership(session.id, collection).then((inside) => {
@@ -349,6 +429,7 @@ export default function App() {
       api.createCollection(name, tint).then(async (collection) => {
         setLibrary((lib) => lib && { ...lib, collections: [...lib.collections, collection] });
         if (target && "session" in target) await api.toggleMembership(target.session.id, collection.id);
+        if (target && "sessions" in target) for (const s of target.sessions) await api.toggleMembership(s.id, collection.id);
         if (target && "folder" in target) await api.toggleFolderMembership(collection.id, target.folder);
         if (target) await reload();
         setSidebar({ kind: "collection", id: collection.id });
@@ -366,7 +447,9 @@ export default function App() {
         if (!(library?.collectionFolders[collection] ?? []).includes(folder)) actions.toggleFolder(collection, folder);
       } else if (data.startsWith("session:")) {
         const session = sessions.find((s) => s.id === data.slice("session:".length));
-        if (session && !session.collectionIds.includes(collection)) actions.toggleMembership(session, collection);
+        // Arrastrar una de las seleccionadas lleva todas.
+        if (session && selection.length > 1 && multi.includes(session.id)) actions.setMembership(selection, collection, true);
+        else if (session && !session.collectionIds.includes(collection)) actions.toggleMembership(session, collection);
       }
     },
     deleteCollection: (id) =>
@@ -390,7 +473,7 @@ export default function App() {
     setAccount: (id) => {
       setPrefs({ account: id });
       setSidebar({ kind: "recents" });
-      setSelectedId(null);
+      selectOne(null);
     },
     renameAccount: (id, name) => api.setAccountName(id, name).then(() => reload(), showError),
     setAccountHidden: (id, hidden) => api.setAccountHidden(id, hidden).then(() => reload(), showError),
@@ -547,6 +630,7 @@ export default function App() {
         setMenu(null);
         if (dialog) setDialog(null);
         else if (find.open) setFind({ open: false });
+        else if (multi.length > 1) setMulti([]);
         return;
       }
       const findNext = event.key === "F3" || (mod && event.key.toLowerCase() === "g");
@@ -586,9 +670,20 @@ export default function App() {
       } else if (!dialog && mod && !event.shiftKey && event.key.toLowerCase() === "n") {
         event.preventDefault();
         setDialog({ kind: "newSession" });
-      } else if (!dialog && !typing && selected && (event.key === "Delete" || (mod && event.key === "Backspace"))) {
+      } else if (!dialog && !typing && mod && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "a" && sidebar.kind !== "activity") {
         event.preventDefault();
-        actions.deleteSessions([selected]);
+        selectAll();
+      } else if (!dialog && !typing && (selection.length > 0 || selected) && (event.key === "Delete" || (mod && event.key === "Backspace"))) {
+        event.preventDefault();
+        actions.deleteSessions(selection.length > 0 ? selection : [selected!]);
+      } else if (!dialog && selection.length > 0 && mod && event.shiftKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        actions.setArchived(selection, !selection.every((s) => s.isArchived));
+      } else if (!dialog && selection.length > 0 && mod && event.key.toLowerCase() === "d") {
+        event.preventDefault();
+        actions.setFavorite(selection, !selection.every((s) => s.isFavorite));
+      } else if (!dialog && selection.length > 0 && event.key === "Enter") {
+        // Con varias seleccionadas, Intro no reanuda ninguna.
       } else if (!dialog && selected && mod && event.shiftKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
         actions.toggleArchive(selected);
@@ -599,9 +694,11 @@ export default function App() {
         actions.resume(selected);
       } else if (!dialog && !typing && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
         event.preventDefault();
-        const index = visible.findIndex((s) => s.id === selectedId);
+        const index = visible.findIndex((s) => s.id === (cursorRef.current ?? selectedId));
         const next = visible[Math.max(0, Math.min(visible.length - 1, index + (event.key === "ArrowDown" ? 1 : -1)))];
-        if (next) setSelectedId(next.id);
+        // Con Mayús, la selección crece o encoge desde donde empezó.
+        if (next && event.shiftKey) selectRange(anchorRef.current ?? selectedId, next.id);
+        else if (next) selectOne(next.id);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -641,10 +738,20 @@ export default function App() {
     sidebar,
     setSidebar: (item) => {
       setSidebar(item);
-      setSelectedId(null);
+      selectOne(null);
     },
     selected,
-    select: setSelectedId,
+    select: selectOne,
+    selection,
+    isSelected,
+    clickSession,
+    selectAll,
+    clearSelection: () => setMulti([]),
+    sessionMenu: (event, session) => {
+      if (selection.length > 1 && multi.includes(session.id)) return setMenu({ x: event.clientX, y: event.clientY, sessions: selection });
+      selectOne(session.id);
+      setMenu({ x: event.clientX, y: event.clientY, session });
+    },
     search,
     setSearch,
     contentHits,
@@ -671,7 +778,7 @@ export default function App() {
     pendingUpdate: pendingUpdate?.version ?? null,
   };
 
-  const layout = sidebar.kind === "activity" ? "two" : prefs.listStyle === "cards" ? (selected ? "cards-open" : "two") : "";
+  const layout = sidebar.kind === "activity" ? "two" : prefs.listStyle === "cards" ? (selected || selection.length > 1 ? "cards-open" : "two") : "";
 
   return (
     <Ctx.Provider value={context}>
@@ -682,12 +789,12 @@ export default function App() {
         ) : prefs.listStyle === "cards" ? (
           <>
             <SessionCards />
-            {selected && <Detail session={selected} />}
+            {selection.length > 1 ? <BulkPanel sessions={selection} /> : selected && <Detail session={selected} />}
           </>
         ) : (
           <>
             <SessionList />
-            {selected ? <Detail session={selected} /> : <NoSelection />}
+            {selection.length > 1 ? <BulkPanel sessions={selection} /> : selected ? <Detail session={selected} /> : <NoSelection />}
           </>
         )}
       </div>
@@ -723,11 +830,7 @@ export default function App() {
           sessions={dialog.sessions}
           onClose={() => setDialog(null)}
           onDeleted={(ids, permanent) => {
-            if (selectedId && ids.includes(selectedId)) {
-              const rest = visible.filter((s) => !ids.includes(s.id));
-              const position = visible.findIndex((s) => s.id === selectedId);
-              setSelectedId(rest.length ? rest[Math.min(position, rest.length - 1)].id : null);
-            }
+            selectNextAfter(ids);
             setLibrary((lib) => lib && { ...lib, sessions: lib.sessions.filter((s) => !ids.includes(s.id)) });
             setToast(t(permanent ? "deletedPermanently" : "movedToTrash", { n: ids.length }));
             reload();
@@ -746,7 +849,7 @@ export default function App() {
           onImported={async (id) => {
             await reload();
             setSidebar({ kind: "recents" });
-            setSelectedId(id);
+            selectOne(id);
             setToast(t("imported"));
           }}
           onError={showError}

@@ -7,6 +7,30 @@ Todos los cambios importantes de Lost & Prompt. Cada versión trae las notas en 
 
 ## [Unreleased]
 
+### Added
+- Select several sessions: ⌘-click (Ctrl+click on Windows and Linux) adds or removes one,
+  Shift-click picks a range, Shift+arrows grow it from the keyboard and ⌘A (Ctrl+A) selects the
+  whole list. Esc clears the selection.
+- With several selected, the detail pane shows how many there are and what to do with all of them:
+  favorite, archive or unarchive, add to or remove from a collection (or create a new one with
+  them) and delete. The context menu and the favorite, archive and delete shortcuts act on all of
+  them too, and dragging one onto a collection takes all of them.
+
+### Fixed
+- The repair sheet on Windows and Linux said "this session" while checking a folder.
+
+### Añadido
+- Seleccionar varias sesiones: ⌘+clic (Ctrl+clic en Windows y Linux) añade o quita una,
+  Mayús+clic elige un tramo, Mayús+flechas la amplía con el teclado y ⌘A (Ctrl+A) elige todas las
+  de la lista. Esc suelta la selección.
+- Con varias elegidas, el panel del detalle muestra cuántas son y qué hacer con todas: favoritos,
+  archivar o sacar del archivo, meterlas o sacarlas de una colección (o crear una nueva con ellas)
+  y eliminarlas. El menú contextual y los atajos de favorito, archivar y eliminar también actúan
+  sobre todas, y arrastrar una a una colección lleva todas.
+
+### Corregido
+- La hoja de reparar carpeta en Windows y Linux decía «esta sesión» mientras revisaba una carpeta.
+
 ## [0.12.1] - 2026-11-13
 
 ### Fixed

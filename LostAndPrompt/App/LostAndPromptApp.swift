@@ -72,6 +72,9 @@ struct LostAndPromptApp: App {
         case "filtered":
             model.filterFavoritesOnly = true
             model.showThinking = true
+        case "selection", "cardselection":
+            if defaults.string(forKey: "LPScreen") == "cardselection" { model.listStyle = .cards }
+            model.selectedSessionIDs = Set(model.visibleSessions.prefix(4).map(\.id))
         case "missing":
             if let index = model.sessions.firstIndex(where: { $0.id == MockData.featuredID }) {
                 model.sessions[index].folderExists = false
@@ -135,19 +138,26 @@ struct AppCommands: Commands {
             Button("Copiar comando") { if let s = model.selectedSession { model.copyResumeCommand(s) } }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
                 .disabled(model.selectedSession == nil)
-            Button("Favorito") { if let id = model.selectedSessionID { model.toggleFavorite(id) } }
-                .keyboardShortcut("d")
-                .disabled(model.selectedSession == nil)
+            // Con varias seleccionadas, Favorito, Archivar y Eliminar actúan sobre todas.
+            Button("Favorito") {
+                let list = model.sessionsToActOn
+                model.setFavorite(list, !list.allSatisfy(\.isFavorite))
+            }
+            .keyboardShortcut("d")
+            .disabled(model.sessionsToActOn.isEmpty)
             Button("Renombrar…") { model.renamingSession = model.selectedSession }
                 .disabled(model.selectedSession == nil)
-            Button(model.selectedSession?.isArchived == true ? "Sacar del archivo" : "Archivar") {
-                if let id = model.selectedSessionID { model.toggleArchive(id) }
+            Button(!model.sessionsToActOn.isEmpty && model.sessionsToActOn.allSatisfy(\.isArchived) ? "Sacar del archivo" : "Archivar") {
+                let list = model.sessionsToActOn
+                model.setArchived(list, !list.allSatisfy(\.isArchived))
             }
             .keyboardShortcut("a", modifiers: [.command, .control])
-            .disabled(model.selectedSession == nil)
-            Button("Eliminar…") { if let s = model.selectedSession { model.requestDelete([s]) } }
+            .disabled(model.sessionsToActOn.isEmpty)
+            Button("Eliminar…") { model.requestDelete(model.sessionsToActOn) }
                 .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(model.selectedSession == nil || model.deleteRequest != nil)
+                .disabled(model.sessionsToActOn.isEmpty || model.deleteRequest != nil)
+            Button("Seleccionar todas") { model.selectAllVisible() }
+                .disabled(model.visibleSessions.count < 2 || model.sidebarSelection == .activity)
             Button("Vaciar archivadas…") { model.requestDelete(model.visibleSessions) }
                 .disabled(model.sidebarSelection != .archived || model.visibleSessions.isEmpty)
             Divider()

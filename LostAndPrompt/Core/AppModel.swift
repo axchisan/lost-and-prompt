@@ -13,7 +13,15 @@ final class AppModel {
     var now: Date
 
     var sidebarSelection: SidebarItem? = .recents
-    var selectedSessionID: Session.ID? { didSet { if oldValue != selectedSessionID { findIndex = 0 } } }
+    /// Sesiones seleccionadas en la lista (⌘ o Mayús + clic para varias).
+    var selectedSessionIDs: Set<Session.ID> = [] { didSet { if oldValue != selectedSessionIDs { findIndex = 0 } } }
+    /// La sesión elegida cuando hay una sola; con varias, nil (el detalle muestra el panel de varias).
+    var selectedSessionID: Session.ID? {
+        get { selectedSessionIDs.count == 1 ? selectedSessionIDs.first : nil }
+        set { selectedSessionIDs = newValue.map { [$0] } ?? [] }
+    }
+    /// Desde dónde se extiende la selección con Mayús + clic en las tarjetas.
+    @ObservationIgnored private var selectionAnchor: Session.ID?
     var listStyle: SessionListStyle = .rows { didSet { save(listStyle.rawValue, "listStyle") } }
     var searchText = "" { didSet { scheduleContentSearch() } }
 
@@ -408,7 +416,10 @@ final class AppModel {
         // verla (loadMessages compara la versión) y mientras tanto sigue mostrando la anterior.
         sessions = summaries.compactMap(makeSession)
         updateIndex(with: summaries)
-        if selectedSessionID == nil || selectedSession == nil {
+        // Las seleccionadas que ya no existen salen de la selección; sin ninguna, la primera.
+        let existing = Set(sessions.map(\.id))
+        if !selectedSessionIDs.isSubset(of: existing) { selectedSessionIDs.formIntersection(existing) }
+        if selectedSessionIDs.isEmpty {
             selectedSessionID = visibleSessions.first?.id
         }
         didLoadOnce = true
@@ -741,11 +752,7 @@ final class AppModel {
                 try SessionCleanup.execute(SessionCleanup.plan(targets), permanent: permanent)
             }.value
             forget(deleted)
-            if let selected = selectedSessionID, deleted.contains(selected) {
-                let rest = visibleBefore.filter { !deleted.contains($0.id) }
-                let position = visibleBefore.firstIndex { $0.id == selected } ?? 0
-                selectedSessionID = rest.isEmpty ? nil : rest[min(position, rest.count - 1)].id
-            }
+            selectNext(after: deleted, in: visibleBefore)
             sessions.removeAll { deleted.contains($0.id) }
         } catch {
             errorMessage = error.localizedDescription
@@ -772,10 +779,88 @@ final class AppModel {
         sessions[index].isArchived.toggle()
         if sessions[index].isArchived { organization.archived.insert(id) } else { organization.archived.remove(id) }
         persist()
-        if selectedSessionID == id, let position = list.firstIndex(where: { $0.id == id }) {
-            let remaining = list.filter { $0.id != id }
-            selectedSessionID = remaining.isEmpty ? nil : remaining[min(position, remaining.count - 1)].id
+        selectNext(after: [id], in: list)
+    }
+
+    // MARK: Selección múltiple
+
+    /// Las seleccionadas cuando hay varias, en el orden de la lista. Solo cuentan las que se ven: una
+    /// búsqueda o un filtro nunca deja acciones sobre sesiones ocultas.
+    var selectedSessions: [Session] {
+        guard selectedSessionIDs.count > 1 else { return [] }
+        return visibleSessions.filter { selectedSessionIDs.contains($0.id) }
+    }
+
+    /// Con lo que hay que actuar desde el menú: las seleccionadas, o la elegida si es una sola.
+    var sessionsToActOn: [Session] {
+        let several = selectedSessions
+        return several.isEmpty ? (selectedSession.map { [$0] } ?? []) : several
+    }
+
+    /// Clic en una tarjeta: con ⌘ la añade o la quita, con Mayús elige el tramo desde la anterior.
+    func click(_ id: Session.ID, modifiers: NSEvent.ModifierFlags) {
+        let list = visibleSessions
+        if modifiers.contains(.shift), let anchor = selectionAnchor ?? selectedSessionIDs.first,
+           let from = list.firstIndex(where: { $0.id == anchor }), let to = list.firstIndex(where: { $0.id == id }) {
+            selectedSessionIDs = Set(list[min(from, to)...max(from, to)].map(\.id))
+        } else if modifiers.contains(.command) {
+            if selectedSessionIDs.contains(id) { selectedSessionIDs.remove(id) } else { selectedSessionIDs.insert(id) }
+            selectionAnchor = id
+        } else {
+            selectedSessionIDs = [id]
+            selectionAnchor = id
         }
+    }
+
+    func selectAllVisible() {
+        selectedSessionIDs = Set(visibleSessions.map(\.id))
+    }
+
+    /// Esc: deja solo la primera de las seleccionadas.
+    func collapseSelection() {
+        guard selectedSessionIDs.count > 1 else { return }
+        selectedSessionID = visibleSessions.first { selectedSessionIDs.contains($0.id) }?.id
+    }
+
+    /// Si alguna de las seleccionadas sale de la lista, la selección pasa a la siguiente que queda.
+    private func selectNext(after removed: Set<Session.ID>, in list: [Session]) {
+        guard let hit = list.firstIndex(where: { removed.contains($0.id) && selectedSessionIDs.contains($0.id) }) else { return }
+        let remaining = list.filter { !removed.contains($0.id) }
+        selectedSessionID = remaining.isEmpty ? nil : remaining[min(hit, remaining.count - 1)].id
+    }
+
+    func setFavorite(_ list: [Session], _ on: Bool) {
+        for session in list {
+            guard let index = sessions.firstIndex(where: { $0.id == session.id }) else { continue }
+            sessions[index].isFavorite = on
+            if on { organization.favorites.insert(session.id) } else { organization.favorites.remove(session.id) }
+        }
+        persist()
+    }
+
+    func setArchived(_ list: [Session], _ on: Bool) {
+        let before = visibleSessions
+        for session in list {
+            guard let index = sessions.firstIndex(where: { $0.id == session.id }), sessions[index].isArchived != on else { continue }
+            sessions[index].isArchived = on
+            if on { organization.archived.insert(session.id) } else { organization.archived.remove(session.id) }
+        }
+        persist()
+        // Las que salen de la lista en la que estaban dejan la selección en la siguiente.
+        selectNext(after: Set(before.map(\.id)).subtracting(visibleSessions.map(\.id)), in: before)
+    }
+
+    /// Mete todas en la colección, o las saca (solo las que están por sí mismas, no por su carpeta).
+    func setMembership(_ list: [Session], in collectionID: SessionCollection.ID, _ on: Bool) {
+        for session in list where session.collectionIDs.contains(collectionID) != on {
+            toggle(session.id, in: collectionID)
+        }
+    }
+
+    /// Cómo está una colección para varias sesiones: todas dentro, algunas o ninguna.
+    func membership(_ list: [Session], in collectionID: SessionCollection.ID) -> Bool? {
+        let inside = list.filter { $0.collectionIDs.contains(collectionID) }.count
+        return inside == 0 ? false : inside == list.count ? true : nil
     }
 
     func toggle(_ id: Session.ID, in collectionID: SessionCollection.ID) {
@@ -850,6 +935,10 @@ final class AppModel {
             if item.hasPrefix("folder:") {
                 let path = String(item.dropFirst("folder:".count))
                 if !isFolder(path, in: collectionID) { toggleFolder(path, in: collectionID); changed = true }
+            } else if let id = UUID(uuidString: item), selectedSessionIDs.count > 1, selectedSessionIDs.contains(id) {
+                // Arrastrar una de las seleccionadas lleva todas.
+                setMembership(selectedSessions, in: collectionID, true)
+                changed = true
             } else if let id = UUID(uuidString: item), let session = sessions.first(where: { $0.id == id }),
                       !session.collectionIDs.contains(collectionID) {
                 toggle(id, in: collectionID)
@@ -884,6 +973,7 @@ final class AppModel {
     /// Qué añadir a la colección que se cree con la hoja de «Nueva colección…».
     enum CollectionTarget: Equatable {
         case session(Session.ID)
+        case sessions([Session.ID])
         case folder(String)
     }
 

@@ -37,8 +37,8 @@ Solo se han probado con carpetas falsas. Plan seguro:
 
 Por orden de utilidad (detalle en `09-pendientes.md`):
 
-1. **Eliminar varias a la vez**: selección múltiple en la lista (⌘/Mayús + clic) y «Eliminar…»
-   con todas. `DeleteSheet` ya acepta varias sesiones.
+1. ~~**Eliminar varias a la vez**~~: hecho en la 0.13.0 (selección múltiple con favoritos,
+   archivar, colecciones y eliminar en lote).
 2. **Sugerencias al reparar**: proponer la carpeta nueva por mismo nombre en las recientes, mismo
    `remote` de git (`.git/config`) o Spotlight (`mdfind`) en Mac.
 3. **Limpiar copias viejas** de `backups/` (por ejemplo, conservar las de los últimos 30 días).
@@ -54,6 +54,5 @@ Por orden de utilidad (detalle en `09-pendientes.md`):
 
 ## Preguntas para el usuario al empezar
 
-- ¿Selección múltiple para eliminar, o basta con «Vaciar archivadas»?
 - ¿Cuántos días conservar las copias de `backups/` antes de limpiarlas?
 - ¿Qué hacer con `promo/edit/lanzamiento.blend` (guardar o descartar)?

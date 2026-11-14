@@ -32,6 +32,22 @@
         }
       }
     },
+    "%@ · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "%@ · %lld sesiones": {
       "localizations": {
         "en": {
@@ -116,6 +132,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld sessions"
+          }
+        }
+      }
+    },
+    "%lld sesiones seleccionadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sessions selected"
           }
         }
       }
@@ -1053,6 +1079,16 @@
         }
       }
     },
+    "Comprobando qué guarda Claude Code de estas sesiones…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking what Claude Code keeps for these sessions…"
+          }
+        }
+      }
+    },
     "Conservar 6 meses": {
       "localizations": {
         "en": {
@@ -1303,12 +1339,48 @@
         }
       }
     },
+    "De %lld carpetas · %@ mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %lld folders · %@ messages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "De %1$lld carpetas · %2$@ mensajes"
+          }
+        }
+      }
+    },
+    "De una carpeta · %@ mensajes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From one folder · %@ messages"
+          }
+        }
+      }
+    },
     "Del primer al último mensaje": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "From the first to the last message"
+          }
+        }
+      }
+    },
+    "Deseleccionar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect"
           }
         }
       }
@@ -1585,6 +1657,16 @@
         }
       }
     },
+    "Eliminar %lld…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %lld…"
+          }
+        }
+      }
+    },
     "Eliminar colección": {
       "localizations": {
         "en": {
@@ -1691,6 +1773,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "That folder doesn’t exist on disk. If you haven’t moved it yet, move it first."
+          }
+        }
+      }
+    },
+    "Esc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esc"
           }
         }
       }
@@ -2067,6 +2159,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "It will include the session “%@”."
+          }
+        }
+      }
+    },
+    "Incluirá las %lld sesiones seleccionadas.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It will include the %lld selected sessions."
           }
         }
       }
@@ -2647,6 +2749,16 @@
         }
       }
     },
+    "Nueva colección con las %lld…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Collection with the %lld…"
+          }
+        }
+      }
+    },
     "Nueva colección…": {
       "localizations": {
         "en": {
@@ -2927,6 +3039,16 @@
         }
       }
     },
+    "Quitar de la selección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Selection"
+          }
+        }
+      }
+    },
     "Quitar filtros": {
       "localizations": {
         "en": {
@@ -3178,12 +3300,32 @@
         }
       }
     },
+    "Se quita todo lo que Claude Code guarda de ellas:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything Claude Code keeps for them is removed:"
+          }
+        }
+      }
+    },
     "Sección": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Section"
+          }
+        }
+      }
+    },
+    "Seleccionar todas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select All Sessions"
           }
         }
       }
@@ -3884,6 +4026,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "• In Lost & Prompt: name, note, favorite and collections"
+          }
+        }
+      }
+    },
+    "⌘ + clic añade o quita una sesión · Mayús + clic elige un tramo · ⌘A todas las de la lista · Esc suelta la selección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘-click adds or removes a session · Shift-click picks a range · ⌘A selects the whole list · Esc clears the selection"
           }
         }
       }

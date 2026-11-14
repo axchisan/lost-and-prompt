@@ -27,7 +27,7 @@ importar en qué directorio se abrieron. Nativa en SwiftUI en macOS; Tauri 2 + R
 
 Las capturas de la app, con datos de ejemplo ficticios, están en [`screenshots/`](screenshots/) (`es` y `en`); se regeneran con `scripts/screenshots.sh`.
 
-Para regenerar el proyecto de Xcode: `xcodegen generate` en la raíz. La app acepta `-LPScreen cards|quickopen|activity|empty|search|missing|settings` y `-LPDark YES|NO` para capturas.
+Para regenerar el proyecto de Xcode: `xcodegen generate` en la raíz. La app acepta `-LPScreen cards|quickopen|activity|empty|search|missing|selection|cardselection|settings` y `-LPDark YES|NO` para capturas.
 
 ## Estado
 

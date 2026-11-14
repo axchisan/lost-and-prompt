@@ -19,9 +19,16 @@ struct SessionCardsView: View {
                         }
                         LazyVGrid(columns: columns, alignment: .leading, spacing: 14) {
                             ForEach(group.sessions) { session in
-                                SessionCard(session: session, isSelected: model.selectedSessionID == session.id)
-                                    .onTapGesture { model.selectedSessionID = session.id }
-                                    .contextMenu { SessionContextMenu(session: session) }
+                                SessionCard(session: session, isSelected: model.selectedSessionIDs.contains(session.id))
+                                    .onTapGesture { model.click(session.id, modifiers: NSEvent.modifierFlags) }
+                                    .contextMenu {
+                                        // Sobre una de las seleccionadas, el menú es para todas.
+                                        if model.selectedSessionIDs.count > 1 && model.selectedSessionIDs.contains(session.id) {
+                                            BulkContextMenu(sessions: model.selectedSessions)
+                                        } else {
+                                            SessionContextMenu(session: session)
+                                        }
+                                    }
                                     .onDrag { NSItemProvider(object: session.id.uuidString as NSString) }
                             }
                         }
@@ -29,6 +36,13 @@ struct SessionCardsView: View {
                 }
             }
             .padding(24)
+        }
+        .focusable()
+        .focusEffectDisabled()
+        .onKeyPress(.escape) {
+            guard model.selectedSessionIDs.count > 1 else { return .ignored }
+            model.collapseSelection()
+            return .handled
         }
         .navigationTitle(model.sectionTitle)
         .navigationSubtitle(sessions.count == 1 ? "1 sesión" : "\(sessions.count) sesiones")

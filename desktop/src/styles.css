@@ -474,3 +474,17 @@ kbd { font: 500 11px var(--font); background: var(--field); border-radius: 4px; 
 .welcome .link-btn { all: unset; color: var(--accent); font-size: 13px; margin-top: -10px; cursor: pointer; }
 .welcome .link-btn:hover { text-decoration: underline; }
 .welcome .link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+/* Varias sesiones seleccionadas */
+.detail.bulk .head { gap: 4px; padding-top: 28px; border-bottom: 0; }
+.detail.bulk .head p { margin: 0; }
+.bulk-actions, .bulk-list, .bulk-hint { margin-left: 32px; margin-right: 32px; max-width: 796px; }
+.bulk-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; margin-bottom: 20px; }
+.bulk-collections .icon-btn { width: auto; padding: 7px 14px; gap: 7px; display: inline-flex; background: var(--field); color: var(--fg); font-weight: 500; }
+.bulk-list { list-style: none; margin: 0 32px; max-width: 796px; padding: 0; border-top: 1px solid var(--sep); }
+.bulk-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--sep); }
+.bulk-list .title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.bulk-list .icon-btn { width: 24px; height: 22px; }
+.bulk-hint { margin-top: 16px; margin-bottom: 24px; font-size: 12px; }
+.row, .card { user-select: none; -webkit-user-select: none; }
+.detail.bulk .muted { color: var(--fg-2); }

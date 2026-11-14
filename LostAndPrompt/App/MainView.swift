@@ -20,8 +20,11 @@ struct MainView: View {
                     SidebarView()
                 } detail: {
                     SessionCardsView()
-                        .inspector(isPresented: .constant(model.selectedSession != nil)) {
-                            if let session = model.selectedSession {
+                        .inspector(isPresented: .constant(model.selectedSession != nil || model.selectedSessionIDs.count > 1)) {
+                            if model.selectedSessionIDs.count > 1 {
+                                BulkSelectionView(sessions: model.selectedSessions)
+                                    .inspectorColumnWidth(min: 400, ideal: 480, max: 600)
+                            } else if let session = model.selectedSession {
                                 SessionDetailView(session: session)
                                     .inspectorColumnWidth(min: 400, ideal: 480, max: 600)
                             }
@@ -35,7 +38,9 @@ struct MainView: View {
                     SessionListView()
                         .toolbar { listStylePicker; filterMenu; newSessionButton }
                 } detail: {
-                    if let session = model.selectedSession {
+                    if model.selectedSessionIDs.count > 1 {
+                        BulkSelectionView(sessions: model.selectedSessions)
+                    } else if let session = model.selectedSession {
                         SessionDetailView(session: session)
                     } else {
                         ContentUnavailableView("Elige una sesión", systemImage: "bubble.left.and.text.bubble.right",

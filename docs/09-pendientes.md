@@ -23,7 +23,6 @@ pruebas: **falta probarlos con una carpeta de verdad**.
 
 | Qué | Detalle |
 |---|---|
-| Eliminar varias a la vez | Hoy se borra de una en una o con «Vaciar archivadas». Falta selección múltiple en la lista |
 | «Deshacer» tras eliminar | El plan lo proponía en el aviso; hoy la vuelta atrás es la papelera del sistema |
 | WSL | Eliminar, reparar y mover no funcionan con sesiones de WSL: desde Windows no se sabe si están abiertas (D18) |
 | `lastSessionId` en `.claude.json` | Al eliminar no se toca; queda apuntando a una sesión borrada. Inofensivo, pero sin decidir |

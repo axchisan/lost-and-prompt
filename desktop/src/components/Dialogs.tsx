@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { FolderInput, FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote } from "lucide-react";
+import { FolderInput, FolderSync, Archive, ArchiveRestore, Check, ClipboardCopy, CodeXml, Copy, FileDown, Share, FolderMinus, House, Trash2, Folder, Layers, Lock, MessageSquarePlus, Pencil, Search, SquareTerminal, Star, StickyNote, Minus } from "lucide-react";
 import { api, links, tints, type Collection, type DeletePreview, type RepairPreview, type Session, type SharedSession, type Tint } from "../api";
 import { useApp, type CollectionTarget, type MenuState } from "../state";
 import { shortEditorName } from "./Detail";
@@ -79,7 +79,13 @@ export function CollectionSheet({ editing, target, onClose }: { editing?: Collec
     else actions.createCollection(name.trim(), tint, target);
     onClose();
   };
-  const hint = target && ("session" in target ? t("collectionIncludesSession", { title: target.session.title }) : t("collectionIncludesFolder", { folder: target.folder }));
+  const hint =
+    target &&
+    ("session" in target
+      ? t("collectionIncludesSession", { title: target.session.title })
+      : "sessions" in target
+        ? t("collectionIncludesSessions", { n: target.sessions.length })
+        : t("collectionIncludesFolder", { folder: target.folder }));
   return (
     <Sheet title={editing ? t("editCollection") : t("newCollection")} onClose={onClose}>
       {!editing && hint && <p>{hint}</p>}
@@ -284,10 +290,10 @@ export function DeleteSheet(props: {
   return (
     <Sheet title={title} onClose={props.onClose}>
       {!preview ? (
-        <p>{t("deleteChecking")}</p>
+        <p>{t(ids.length === 1 ? "deleteChecking" : "deleteCheckingMany")}</p>
       ) : (
         <>
-          <p>{t("deleteLead")}</p>
+          <p>{t(ids.length === 1 ? "deleteLead" : "deleteLeadMany")}</p>
           <ul className="delete-list">
             {preview.kinds.map((k) => (
               <li key={k.kind}>
@@ -363,7 +369,7 @@ export function RepairSheet(props: {
         <code className="selectable">{props.from}</code> → <code className="selectable">{props.to}</code>
       </p>
       {!preview ? (
-        <p>{t("deleteChecking")}</p>
+        <p>{t("repairChecking")}</p>
       ) : same || empty ? (
         <p>{t("repairNothing")}</p>
       ) : (
@@ -597,6 +603,7 @@ export function Welcome({ onClose, onGuide }: { onClose: () => void; onGuide: ()
 export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () => void }) {
   const { t, terminalName, actions, open, library, editor } = useApp();
   if (state.collection) return <CollectionMenu state={state} collection={state.collection} onClose={onClose} />;
+  if (state.sessions) return <BulkMenu state={state} sessions={state.sessions} onClose={onClose} />;
   const run = (action: () => void) => () => {
     action();
     onClose();
@@ -716,6 +723,56 @@ export function ContextMenu({ state, onClose }: { state: MenuState; onClose: () 
       <button role="menuitem" onClick={run(() => actions.exportSession(session))}>
         <Share size={14} />
         {t("exportForClaude")}
+      </button>
+    </div>
+  );
+}
+
+/** Cómo está una colección para varias sesiones: todas dentro, algunas o ninguna. */
+export function membership(sessions: Session[], collection: string): "all" | "some" | "none" {
+  const inside = sessions.filter((s) => s.collectionIds.includes(collection)).length;
+  return inside === 0 ? "none" : inside === sessions.length ? "all" : "some";
+}
+
+/** Menú contextual con varias sesiones seleccionadas: las acciones se aplican a todas. */
+function BulkMenu({ state, sessions, onClose }: { state: MenuState; sessions: Session[]; onClose: () => void }) {
+  const { t, actions, open, library } = useApp();
+  const run = (action: () => void) => () => {
+    action();
+    onClose();
+  };
+  const allFavorite = sessions.every((s) => s.isFavorite);
+  const allArchived = sessions.every((s) => s.isArchived);
+  return (
+    <div className="menu" role="menu" aria-label={t("nSelected", { n: sessions.length })} style={{ left: Math.min(state.x, window.innerWidth - 260), top: Math.max(8, Math.min(state.y, window.innerHeight - 360)) }} onClick={(e) => e.stopPropagation()}>
+      <div className="menu-label">{t("nSelected", { n: sessions.length })}</div>
+      <button role="menuitem" onClick={run(() => actions.setFavorite(sessions, !allFavorite))}>
+        <Star size={14} />
+        {allFavorite ? t("removeFavorite") : t("addFavorite")}
+      </button>
+      <button role="menuitem" onClick={run(() => actions.setArchived(sessions, !allArchived))}>
+        {allArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+        {allArchived ? t("unarchive") : t("archive")}
+      </button>
+      <hr />
+      <div className="menu-label">{t("collections")}</div>
+      {library.collections.map((c) => {
+        const state = membership(sessions, c.id);
+        return (
+          <button key={c.id} role="menuitemcheckbox" aria-checked={state === "all" ? true : state === "some" ? "mixed" : false} onClick={run(() => actions.setMembership(sessions, c.id, state !== "all"))}>
+            <span className="check">{state === "all" ? <Check size={14} /> : state === "some" ? <Minus size={14} /> : <span className="dot sm" style={{ background: tints[c.tint] }} />}</span>
+            {c.name}
+          </button>
+        );
+      })}
+      <button role="menuitem" onClick={run(() => open.newCollection({ sessions }))}>
+        <span className="check" />
+        {t("newCollectionWith", { n: sessions.length })}
+      </button>
+      <hr />
+      <button role="menuitem" className="destructive" onClick={run(() => actions.deleteSessions(sessions))}>
+        <Trash2 size={14} />
+        {t("deleteNEllipsis", { n: sessions.length })}
       </button>
     </div>
   );

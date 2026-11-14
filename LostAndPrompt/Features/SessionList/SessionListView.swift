@@ -11,7 +11,7 @@ struct SessionListView: View {
             if sessions.isEmpty {
                 emptyState
             } else {
-                List(selection: $model.selectedSessionID) {
+                List(selection: $model.selectedSessionIDs) {
                     if model.usesRealData && model.currentRetentionDays == nil && model.searchText.isEmpty {
                         RetentionBanner()
                     }
@@ -20,15 +20,23 @@ struct SessionListView: View {
                             ForEach(group.sessions) { session in
                                 SessionRow(session: session)
                                     .tag(session.id)
-                                    .contextMenu { SessionContextMenu(session: session) }
                                     .onDrag { NSItemProvider(object: session.id.uuidString as NSString) }
                             }
                         }
                     }
                 }
+                // Clic derecho sobre una de las seleccionadas: el menú es para todas.
+                .contextMenu(forSelectionType: Session.ID.self) { ids in
+                    SelectionContextMenu(ids: ids)
+                }
                 .listStyle(.inset)
                 .accessibilityLabel(model.sectionTitle)
                 .scrollContentBackground(.hidden)
+                .onKeyPress(.escape) {
+                    guard model.selectedSessionIDs.count > 1 else { return .ignored }
+                    model.collapseSelection()
+                    return .handled
+                }
                 .onKeyPress(.return) {
                     guard let session = model.selectedSession else { return .ignored }
                     model.resume(session)
@@ -198,6 +206,70 @@ struct SessionContextMenu: View {
         Button("Mostrar en Finder", systemImage: "folder") { model.revealInFinder(session) }
         Divider()
         ExportMenu(session: session)
+    }
+}
+
+/// Menú contextual de la lista: el de la sesión si es una, el de varias si se hizo clic sobre la selección.
+struct SelectionContextMenu: View {
+    @Environment(AppModel.self) private var model
+    var ids: Set<Session.ID>
+
+    var body: some View {
+        let list = model.visibleSessions.filter { ids.contains($0.id) }
+        if list.count == 1, let session = list.first {
+            SessionContextMenu(session: session)
+        } else if list.count > 1 {
+            BulkContextMenu(sessions: list)
+        }
+    }
+}
+
+/// Acciones para varias sesiones a la vez (menú contextual y menú de colecciones del panel).
+struct BulkContextMenu: View {
+    @Environment(AppModel.self) private var model
+    var sessions: [Session]
+
+    var body: some View {
+        let allFavorite = sessions.allSatisfy(\.isFavorite)
+        let allArchived = sessions.allSatisfy(\.isArchived)
+        Text("\(sessions.count) sesiones seleccionadas")
+        Button(allFavorite ? "Quitar de favoritos" : "Añadir a favoritos", systemImage: allFavorite ? "star.slash" : "star") {
+            model.setFavorite(sessions, !allFavorite)
+        }
+        Button(allArchived ? "Sacar del archivo" : "Archivar", systemImage: allArchived ? "tray.and.arrow.up" : "archivebox") {
+            model.setArchived(sessions, !allArchived)
+        }
+        Menu("Colecciones", systemImage: "square.stack") {
+            BulkCollectionToggles(sessions: sessions)
+        }
+        Divider()
+        Button("Eliminar \(sessions.count)…", systemImage: "trash", role: .destructive) { model.requestDelete(sessions) }
+    }
+}
+
+/// Las colecciones para varias sesiones: marcada si están todas, con guion si solo algunas.
+struct BulkCollectionToggles: View {
+    @Environment(AppModel.self) private var model
+    var sessions: [Session]
+
+    var body: some View {
+        ForEach(model.collections) { collection in
+            let state = model.membership(sessions, in: collection.id)
+            Button {
+                model.setMembership(sessions, in: collection.id, state != true)
+            } label: {
+                switch state {
+                case true?: Label(collection.name, systemImage: "checkmark")
+                case nil: Label(collection.name, systemImage: "minus")
+                case false?: Text(collection.name)
+                }
+            }
+        }
+        if !model.collections.isEmpty { Divider() }
+        Button("Nueva colección con las \(sessions.count)…") {
+            model.newCollectionTarget = .sessions(sessions.map(\.id))
+            model.isCreatingCollection = true
+        }
     }
 }
 

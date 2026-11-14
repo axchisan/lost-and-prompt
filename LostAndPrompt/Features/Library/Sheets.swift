@@ -90,6 +90,7 @@ struct CollectionSheet: View {
     private var targetHint: String? {
         switch model.newCollectionTarget {
         case .session(let id): model.sessions.first { $0.id == id }.map { String(localized: "Incluirá la sesión «\($0.title)».") }
+        case .sessions(let ids): String(localized: "Incluirá las \(ids.count) sesiones seleccionadas.")
         case .folder(let path): String(localized: "Incluirá todas las sesiones de \(Session.abbreviate(path)).")
         case nil: nil
         }
@@ -104,6 +105,7 @@ struct CollectionSheet: View {
             let collection = model.createCollection(name: trimmed, tint: tint)
             switch model.newCollectionTarget {
             case .session(let id): model.toggle(id, in: collection.id)
+            case .sessions(let ids): for id in ids { model.toggle(id, in: collection.id) }
             case .folder(let path): model.toggleFolder(path, in: collection.id)
             case nil: break
             }
@@ -228,7 +230,7 @@ struct DeleteSheet: View {
                 if plan.sessions.isEmpty && plan.inUse.isEmpty {
                     Text("No se encontró nada que borrar.").foregroundStyle(.secondary)
                 } else {
-                    Text("Se quita todo lo que Claude Code guarda de ella:")
+                    Text(sessions.count == 1 ? "Se quita todo lo que Claude Code guarda de ella:" : "Se quita todo lo que Claude Code guarda de ellas:")
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(plan.kinds, id: \.kind) { entry in
                             LabeledContent("• " + entry.kind.title, value: ByteCountFormatter.string(fromByteCount: entry.bytes, countStyle: .file))
@@ -258,7 +260,7 @@ struct DeleteSheet: View {
             } else {
                 HStack {
                     ProgressView().controlSize(.small)
-                    Text("Comprobando qué guarda Claude Code de esta sesión…").foregroundStyle(.secondary)
+                    Text(sessions.count == 1 ? "Comprobando qué guarda Claude Code de esta sesión…" : "Comprobando qué guarda Claude Code de estas sesiones…").foregroundStyle(.secondary)
                 }
             }
             HStack {
